@@ -1,30 +1,27 @@
+/**
+ * userinterface.js
+ *
+ * handle drawing, navigating, and switching between screens on a ROT display object
+ *
+ * -------------
+ * Josh Chansard 
+ * https://github.com/jchansard/mndlgaem2
+ */
+
 Game.UserInterface = function(properties, screens, container) {
 	properties = properties || {};
 	this._height = properties.height;
 	this._width = properties.width;
-	this._screen = properties.screen; // TODO: HMMMMMMM
+	this._screen = properties.startingScreen; 
 	this._screens = screens;
 	this._display = new ROT.Display({height: this._height, width: this._width, fontSize: 24, fontFamily: 'inconsolata'});
     $(container).append(this._display.getContainer());
+
+    if (this._screen)
+    {
+    	this.changeScreen(this._screen);
+    }
 };
-
-// Game.Display.prototype.getDisplay = function() {
-// 	return this._display;
-// };
-
-// Game.Display.prototype.getScreenWidth = function(scr) {
-//     scr = scr || 'full';
-//     return this._screens[scr].width;
-// };
-
-// Game.Display.prototype.getScreenHeight = function(scr) {
-// 	scr = scr || 'full';
-// 	return this._screens[scr].height;
-// };
-
-// Game.Display.prototype.getCurrentScreen = function() {
-// 	return this._screen;
-// };
 
 Game.UserInterface.prototype = {
 	refreshCurrentScreen: function() {
@@ -48,7 +45,6 @@ Game.UserInterface.prototype = {
 	    Game.InputManager.unbindEvents();
 
 	    // bind new event handlers for keyboard and mouse
-//	    this.handleInput = screen.handleInput;
 	    Game.InputManager.bindEvents(screen.inputEvents);
 	    // enter and render screen
         this.enterCurrentScreen();
@@ -93,21 +89,6 @@ Game.UserInterface.prototype = {
 		this._display.drawText(x, y, text, maxWidth);
 	},
 
-// Game.Display.prototype.drawASCII = function(scr, x, y, template) {
-// 	if (scr != null && !this._screens[scr]) //TODO: doesn't work
-// 	{
-// 		console.error('no such screen: ' + scr);
-// 		return;
-// 	}
-// 	//var area = scr; 
-// 	//scr = this._screens[scr];
-// 	var arr = this.drawTools.templates[template];
-// 	var disp = this;
-// 	arr.forEach(function(val) {
-// 		disp.draw(scr, x + val.x, y + val.y, val.ch, val.fg, val.bg);
-// 	});
-// };
-
 	drawToCanvas: function(id, drawInfo) {
 		var mult = Game.CANVASTILESIZE || 12;
 		var x = drawInfo.x || 0; 
@@ -146,15 +127,3 @@ Game.UserInterface.prototype = {
 	  	}
 	}
 };				
-
-// Game.Display.prototype.updatePanic = function(curr, delta) {
-// 	var canvas = $('#gameinfo').get(0).getContext('2d');
-// 	if (curr + delta === 79) { 
-// 		canvas.fillStyle = 'rgb(217, 0, 38)';
-// 		canvas.fillRect(35, 107, 158, 14);
-// 		return; 
-// 	}
-// 	else if (delta > 0) { canvas.fillStyle = 'rgb(217, 0, 217)'; } 
-// 	else { canvas.fillStyle = 'rgb(0, 0, 0)'; }
-//   	canvas.fillRect(35 + (curr * 2), 107, (delta * 2), 14);
-// };

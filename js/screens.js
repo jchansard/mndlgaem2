@@ -1,5 +1,15 @@
-Game.Screens = {}; //TODO: make this a constructor
+/**
+ * screens.js
+ *
+ * build, render, teardown, and input for different game screens/states
+ *
+ * -------------
+ * Josh Chansard 
+ * https://github.com/jchansard/mndlgaem2
+ */
+Game.Screens = {}; 
 
+// starting screen menu
 Game.Screens.startScreen = {
 	enter: function() { 
 		// whatev nbd
@@ -7,8 +17,6 @@ Game.Screens.startScreen = {
     render: function() {
     	
         // TODO: make this purdy
-        //Game.screenDraw.drawText('info',55,15, "%c{blue}mandlerlike");
-        //Game.screenDraw.drawText('play',0,0, "%c{blue}mandlerlike");
         this.drawText('full',19,10, "%c{blue}mandlerlike");
         this.drawText('full',19,11, "%c{lightblue}press enter");	
     },
@@ -34,6 +42,7 @@ Game.Screens.startScreen = {
     }
 };
 
+// win screen
 Game.Screens.winScreen = {
 	enter: function() { 
     	return;
@@ -54,10 +63,10 @@ Game.Screens.winScreen = {
     }
 };
 
+// gameplay screen. TODO: update for mndlgaem2
 Game.Screens.gameScreen = {
 	_player: null,
 	_subscreen: null,
-	_keymap: Game.Keymap.PlayScreen,
 	_buttons: [],
 	enter: function() {
 		this._player = new Game.Entity(Game.PlayerActor);

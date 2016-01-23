@@ -1,54 +1,60 @@
+/**
+ * inputmanager.js
+ *
+ * handles keyboard and mouse input for Game; binds event handlers to appropriate objects
+ *
+ * -------------
+ * Josh Chansard 
+ * https://github.com/jchansard/mndlgaem2
+ */
 Game.InputManager = {
+	_inputActions: {}, // houses bound functions for events
 
+	// initializes keymap and binds events in game container to handleInput
 	init: function() 
 	{	
-		var GAME_CONTAINER = "#game"; //TODO: use after adding jquery
+		var GAME_CONTAINER = "#game";
 
 		Game.Keymap.init(); //TODO: allow rebinding
-		var input = this;
-    	var sendEventsToScreen = function(e) {
-        	//$(GAME_CONTAINER).addEventListener(e, function(t) {
-        	window.addEventListener(e, function(data) {
-        		if (input.handleInput) {
-        			input.handleInput(e, data);
-        		}    
-       		});
-   		};
-	    sendEventsToScreen('keydown');
-	    sendEventsToScreen('keypress');
+		$(GAME_CONTAINER).on('keydown keypress', this.handleInput.bind(this));
 	},
 
+	// binds the input actions for a given screen
 	bindEvents: function(inputObject)
 	{
+		// loop through screen's input object
 		for (var inputEvent in inputObject)
 	    {
 	    	var keyEvent = inputObject[inputEvent].keyEvent || 'keydown';
 	    	var context  = inputObject[inputEvent].context  || 'ui';
-			console.log(Game.player);
 	    	switch (context)
 			{
 				case 'ui' 		: context = Game.ui; break;
 				case 'player' 	: context = Game.player; break;
 			}
-
-
-	    	this.inputActions[keyEvent + '-' +  inputEvent] = inputObject[inputEvent].fn.bind(context);
+			// bind event + keymap action to screen function
+	    	this._inputActions[keyEvent + '-' +  inputEvent] = inputObject[inputEvent].fn.bind(context);
 	    }
 	},
 
+	// unbinds all events
 	unbindEvents: function()
 	{
 		//TODO: allow more granularity
-		this.inputActions = [];
+		this._inputActions = {};
 	},
 
-	handleInput: function(e, data) 
+	// given event type and keymap action, execute associated bound function
+	handleInput: function(e) 
 	{
-		var action = Game.Keymap.keyCodeToAction(data.keyCode); //TODO: data.which
-		var fn = e + '-' + action;
-		if (typeof this.inputActions[fn] == 'function')
+		// get keymap action
+		var action = Game.Keymap.keyCodeToAction(e.which); 
+		
+		var fn = e.type + '-' + action;
+		if (typeof this._inputActions[fn] == 'function')
 		{
-			this.inputActions[e + '-' + action]();
+			e.preventDefault();
+			this._inputActions[e.type + '-' + action]();
 		}
 	}
 }

@@ -1,6 +1,18 @@
+/**
+ * keymap.js
+ *
+ * maps event data (e.g. keypress keycode) to ingame actions
+ *
+ * -------------
+ * Josh Chansard 
+ * https://github.com/jchansard/mndlgaem2
+ */
 Game.Keymap = {
+	_actions: [], 	// maps keycode to action
+	_keys: [],		// maps action to keycode
+
+	// initialize actions and keys arrays
 	init: function() {	
-		this._actions = [];
 		this._actions[ROT.VK_NUMPAD1] 	= 'downleft';
 		this._actions[ROT.VK_NUMPAD2] 	= 'down';
 		this._actions[ROT.VK_NUMPAD3] 	= 'downright';
@@ -22,7 +34,6 @@ Game.Keymap = {
 		this._actions[ROT.VK_C]		= 'button3';
 		this._actions[ROT.VK_V]		= 'button4';
 
-		this._keys = [];
 		this._keys['downleft'] 	= [ROT.VK_NUMPAD1];
 		this._keys['down'] 		= [ROT.VK_NUMPAD2, ROT.VK_DOWN];
 		this._keys['downright'] = [ROT.VK_NUMPAD3];
@@ -39,12 +50,14 @@ Game.Keymap = {
 		this._keys['button3'] 	= [ROT.VK_C];
 		this._keys['button4']	= [ROT.VK_Z];
 	},
-
+	
+	// convert keycode to action
 	actionToKeyCode: function(action)
 	{
 		return this._keys[action];
 	},
 
+	// convert action to keycode
 	keyCodeToAction: function(keyCode)
 	{
 		return this._actions[keyCode];
