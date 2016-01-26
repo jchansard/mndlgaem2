@@ -9,25 +9,39 @@
  */
 
 Game.UserInterface = function(properties, screens, container) {
-	properties = properties || {};
-	this._height = properties.height;
-	this._width = properties.width;
-	this._screen = properties.startingScreen; 
-	this._screens = screens;
-	this._display = new ROT.Display({height: this._height, width: this._width, fontSize: 24, fontFamily: 'inconsolata'});
+	properties 		 = properties 		  		|| {};
+	this._height 	 = properties.height  		|| 20;
+	this._width 	 = properties.width   		|| 50;
+	this._bg 		 = properties.bg 	  		|| 'black';
+	this._fontSize 	 = properties.fontSize 		|| 24;
+	this._fontFamily = properties.fontFamily 	|| 'inconsolata';
+	this._id 		 = properties.id;
+	this._screen 	 = undefined;
+	this._screens 	 = screens;
+	this._dialogs	 = [];
+	this._activeDialog = null;
+	this._container  = container;
+	this._display 	 = new ROT.Display({
+		height: 	this._height, 
+		width:  	this._width, 
+		bg: 		this._bg, 
+		fontSize:   this._fontSize, 
+		fontFamily: this._fontFamily
+	});
     $(container).append(this._display.getContainer());
 
-    if (this._screen)
-    {
-    	this.changeScreen(this._screen);
-    }
+    if (properties.hidden) { this.hide(); }
 };
 
 Game.UserInterface.prototype = {
-	refreshCurrentScreen: function() {
+	render: function() {
     	// clear the screen and re-render it
-    	this._display.clear();
-    	this.renderCurrentScreen();
+    	this.clearDisplay();
+    	if (this.renderCurrentScreen) { this.renderCurrentScreen(); } 
+    	this._dialogs.forEach(function(dialog)
+    	{
+    		dialog.render();
+    	});
 	},
 
 	changeScreen: function(screen) {
@@ -37,18 +51,77 @@ Game.UserInterface.prototype = {
 	    }
 	    // bind screen functions 
 	    this._screen = screen;
-	    this.enterCurrentScreen  = screen.enter;
-	    this.exitCurrentScreen	 = screen.exit;
-	    this.renderCurrentScreen = screen.render;
-	  
-	    // unbind previous event handlers for keyboard and mouse
-	    Game.InputManager.unbindEvents();
+	    this.enterCurrentScreen  = this._screen.enter;
+	    this.exitCurrentScreen	 = this._screen.exit;
+	    this.renderCurrentScreen = this._screen.render;
+	  	
+	  	// bind input events based on screen
+	    this.bindInputEvents(this._screen.inputEvents, true);
 
-	    // bind new event handlers for keyboard and mouse
-	    Game.InputManager.bindEvents(screen.inputEvents);
 	    // enter and render screen
         this.enterCurrentScreen();
-        this.refreshCurrentScreen();
+        this.render();
+	},
+
+	bindInputEvents: function(inputEvents, unbind) {
+		// unbind previous event handlers for keyboard and mouse
+	    if (unbind) { Game.InputManager.unbindEvents(); }
+
+	    // bind new event handlers for keyboard and mouse
+	    Game.InputManager.bindEvents(inputEvents);
+	},
+
+	show: function()
+	{
+		$(this._container).show();
+	},
+
+	hide: function()
+	{
+		$(this._container).hide();
+	},
+
+	addDialog: function(dialog, activeByDefault) 
+	{
+		var index = this._dialogs.length;
+		this._dialogs.push(dialog);
+		dialog.bindToGui(this._id);
+		if (!activeByDefault == true)
+		{
+			this._activeDialog = index;
+			this.bindInputEvents(dialog.getInputEvents(), false)
+		}
+		return index;
+	},
+
+	closeDialog: function(dialog)
+	{
+		var index = this._dialogs.indexOf(dialog);
+		if (index > -1)
+		{
+			this._dialogs.splice(index, 1);
+		}
+		if (index == this._activeDialog)
+		{
+			this._activeDialog--;
+			if (this._activeDialog < 0) { this._activeDialog =null;	}
+		}
+	},
+
+	activeDialog: function()
+	{
+		if (this._dialogs.length == 0) return false;
+		else return this._dialogs[this._activeDialog];
+	},
+
+	clearDisplay: function()
+	{
+		this._display.clear();
+	},
+
+	eventToPosition: function(e)
+	{
+		return this._display.eventToPosition(e);
 	},
 
 	draw: function(scr, drawInfo) {//x, y, toDraw, fg, bg) {
@@ -63,7 +136,7 @@ Game.UserInterface.prototype = {
 		drawInfo.x += scr.x;
 		drawInfo.y += scr.y;
 		if ((drawInfo.x > scr.x + scr.width) || (drawInfo.y > scr. y + scr.height)) {
-			console.error('drawing out of designated area: ' + x + ',' + y);
+			console.error('drawing out of designated area: ' + drawInfo.x + ',' + drawInfo.y);
 			return;
 		}
 		if (!scr.canvasID)
@@ -73,20 +146,20 @@ Game.UserInterface.prototype = {
 			this.drawToCanvas(scr.canvasID, drawInfo);
 		}
 	},
-	drawText: function(scr, x, y, text, maxWidth) {
+	drawText: function(scr, drawInfo, maxWidth) { // TODO: ALLOW LINE BY LINE (ARRAY TEXT)
 		if (scr != null && this._screens[scr] == undefined) //TODO: doesn't work
 		{
 			console.error('no such screen: ' + scr);
 			return;
 		}
 		scr = this._screens[scr];
-		x += scr.x;
-		y += scr.y;
+		var x = drawInfo.x + scr.x;
+		var y = drawInfo.y + scr.y;
 		if ((x > scr.x + scr.width) || (y > scr.y + scr.height)) {
 			console.error('drawing out of designated area');
 			return;
 		}		
-		this._display.drawText(x, y, text, maxWidth);
+		this._display.drawText(x, y, drawInfo.text, maxWidth);
 	},
 
 	drawToCanvas: function(id, drawInfo) {

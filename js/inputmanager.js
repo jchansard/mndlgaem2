@@ -9,14 +9,15 @@
  */
 Game.InputManager = {
 	_inputActions: {}, // houses bound functions for events
+	bubbleOrder: [],
 
 	// initializes keymap and binds events in game container to handleInput
 	init: function() 
 	{	
-		var GAME_CONTAINER = "#game";
-
+		var GAME_CONTAINER = "#game-container";
+		this.bubbleOrder = ['overlay','ui'];	//TODO: it's not arbitrary per se but make it less hardcoded maybe?
 		Game.Keymap.init(); //TODO: allow rebinding
-		$(GAME_CONTAINER).on('keydown keypress', this.handleInput.bind(this));
+		$(GAME_CONTAINER).on('keydown keypress click', this.handleInput.bind(this));
 	},
 
 	// binds the input actions for a given screen
@@ -25,36 +26,74 @@ Game.InputManager = {
 		// loop through screen's input object
 		for (var inputEvent in inputObject)
 	    {
-	    	var keyEvent = inputObject[inputEvent].keyEvent || 'keydown';
+	    	var eventType = inputObject[inputEvent].eventType || 'keydown';
 	    	var context  = inputObject[inputEvent].context  || 'ui';
-	    	switch (context)
-			{
-				case 'ui' 		: context = Game.ui; break;
-				case 'player' 	: context = Game.player; break;
-			}
+	    	var action;
+
+	    	// if click, set action to click-context
+	    	if (inputEvent == 'click')
+	    	{
+	    		action = 'click-' + context;
+	    	}
+	    	else
+	    	{
+	    		action = eventType + '-' + inputEvent;
+	    	}
+
+	    	// set binding context
+	    	if (context == 'player') { context = Game.player; }
+	    	else 
+	    	{
+	    		context = (Game.guis[context].activeDialog()) ? Game.guis[context].activeDialog() : Game.guis[context];
+	    	}
+
 			// bind event + keymap action to screen function
-	    	this._inputActions[keyEvent + '-' +  inputEvent] = inputObject[inputEvent].fn.bind(context);
+	    	this._inputActions[action] = inputObject[inputEvent].fn.bind(context);
 	    }
 	},
 
-	// unbinds all events
-	unbindEvents: function()
+	// unbinds events
+	unbindEvents: function(gui)
 	{
-		//TODO: allow more granularity
-		this._inputActions = {};
+		if (!gui) 
+		{
+			this._inputActions = {};
+			return;
+		}
+		else 
+		{
+			// todo: granularize
+		}
 	},
 
 	// given event type and keymap action, execute associated bound function
 	handleInput: function(e) 
 	{
-		// get keymap action
-		var action = Game.Keymap.keyCodeToAction(e.which); 
+		var fn = [];
+		var action;
 		
-		var fn = e.type + '-' + action;
-		if (typeof this._inputActions[fn] == 'function')
+		if (e.type == 'click')
 		{
-			e.preventDefault();
-			this._inputActions[e.type + '-' + action]();
+			this.bubbleOrder.forEach(function(gui) {
+				if (this._isActionBound('click-' + gui)) { fn.push('click-' + gui); }
+			}, this);
 		}
+		else // this is a keyboard action; get keymap action
+		{
+			action = e.type + '-' + Game.Keymap.keyCodeToAction(e.which); 
+			if (this._isActionBound(action)) { fn.push(action); }
+		}
+		for (var i = 0; i < fn.length; i++)
+		{
+			if (e.type != 'click') { e.preventDefault(); }
+			// if handler function returns false, then keep going through bubble order
+			if (this._inputActions[fn[i]](e) != false) { return; }
+		}
+	},
+
+	// returns true if action is valid
+	_isActionBound: function(action)
+	{
+		return (typeof this._inputActions[action] == 'function');
 	}
 }

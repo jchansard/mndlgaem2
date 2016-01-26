@@ -12,30 +12,29 @@
         <script type="text/javascript" src="js/screens.js"></script>
         <script type="text/javascript" src="js/keymap.js"></script>
         <script type="text/javascript" src="js/inputmanager.js"></script>
+        <script type="text/javascript" src="js/dialog.js"></script>
+        <script type="text/javascript" src="js/drawutils.js"></script>
+        <script type="text/javascript" src="js/mouseutils.js"></script>
         <style type="text/css">
-        td {
-        	margin: 0px;
-        	border: 0px;
-        	padding: 0px;
-        }
-        table {
-        	margin: 0px;
-        	border: 0px;
-        	padding: 0px;
-        }
-		@font-face {
-    		font-family: "zodiac";
-    		src: url(assets/fonts/Zodiac-Uni.ttf) format("truetype");
-		}
-		@font-face {
-    		font-family: "inconsolata";
-    		src: url(assets/fonts/Inconsolata.otf) format("opentype");
-		}
+            div#game-container, div#game {
+                position: relative;
+            }
+            div#overlay {
+                position: absolute;
+                top: 0;
+            }
+    		@font-face {
+        		font-family: "zodiac";
+        		src: url(assets/fonts/Zodiac-Uni.ttf) format("truetype");
+    		}
+    		@font-face {
+        		font-family: "inconsolata";
+        		src: url(assets/fonts/Inconsolata.otf) format("opentype");
+    		}
 		</style>
-		<div style="background-color: #000000; float: left">
-			<div id="game" tabindex="0"></div>
-			<canvas id="gameinfo" width="228" height="144" style="float: left"></canvas>
-			<div style="height: 144; width: 922px; background: url('assets/ascii/info_text_wide.png') no-repeat center; float: left"><p style="font-family: 'inconsolata'; margin: 0px; padding: 24px; font-size: 12px; height: 96px; color: #FFFFFF; max-width: 874px">oh no</p></div>
+		<div id="game-container" style="background-color: #000000; float: left" tabindex="0">
+			<div id="game"></div>
+			<div id="overlay"</div>
 		</div>
 	</body>
 </html> 

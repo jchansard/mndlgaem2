@@ -12,26 +12,24 @@ Game.Screens = {};
 // starting screen menu
 Game.Screens.startScreen = {
 	enter: function() { 
-		// whatev nbd
+		var mainMenu = new Game.Dialog({
+			//title:		"mndlgaem2",
+			options: 	["New Game", "Load Game"],
+			position: 	{ x: 19, y: 10 },
+			callback:   function(choice) { console.log('hey ' + choice);} 
+		})
+		Game.guis['ui'].addDialog(mainMenu);
     },
     render: function() {
-    	
         // TODO: make this purdy
-        this.drawText('full',19,10, "%c{blue}mandlerlike");
-        this.drawText('full',19,11, "%c{lightblue}press enter");	
+        this.drawText('full',{ x: 19, y: 7, text: "%c{blue}mndlgaem2" });
+       // this.drawText('full',{ x: 19, y: 11, text: "%c{lightblue}press enter" });	
     },
     exit: function() {
 		// still nbd
 	},
 
-	inputEvents: {
-		select: {
-			context: 'ui',
-			fn: function() {
-				this.changeScreen(Game.Screens.gameScreen);
-			}
-		},
-	},
+	inputEvents: {},
 
     handleInput: function(type, data) {
         // go to main game screen if enter is pressed
