@@ -28,12 +28,13 @@ Game.UserInterface = function(properties, screens, container) {
 		fontSize:   this._fontSize, 
 		fontFamily: this._fontFamily
 	});
-    $(container).append(this._display.getContainer());
-
-    if (properties.hidden) { this.hide(); }
 };
 
 Game.UserInterface.prototype = {
+	init: function() {
+		$(this._container).append(this._display.getContainer());
+	},
+
 	render: function() {
     	// clear the screen and re-render it
     	this.clearDisplay();
@@ -65,10 +66,10 @@ Game.UserInterface.prototype = {
 
 	bindInputEvents: function(inputEvents, unbind) {
 		// unbind previous event handlers for keyboard and mouse
-	    if (unbind) { Game.InputManager.unbindEvents(); }
+	    if (unbind) { Game.thisGame.inputManager.unbindEvents(); }
 
 	    // bind new event handlers for keyboard and mouse
-	    Game.InputManager.bindEvents(inputEvents);
+	    Game.thisGame.inputManager.bindEvents(inputEvents);
 	},
 
 	show: function()

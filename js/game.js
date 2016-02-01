@@ -7,49 +7,57 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
-var Game =  {
-	//FRAMERATE = 1000 / 60 // don't need (yet?)
+
+Game = {};
+
+Game.NewGame = function() {
+	// set constants
+	const CANVASTILESIZE = 12;
+	const UIBACKGROUND = '#171812';
+	const OVERLAYBACKGROUND = 'transparent';
 
 	// gui layers
-	guis: [],
+	this.guis = {};
 
-	// initialize Game object
+	// init input	
+	this.inputManager = new Game.InputManager();
+	this.inputManager.init();
+
+    // create display objects
+	var screens = [];
+	screens['full'] = {	x: 0, y: 0,	width: 60, height: 20 };  	
+    this.guis['ui'] = new Game.UserInterface({ id: 'ui', bg: UIBACKGROUND }, screens, '#game');
+    this.guis['overlay'] = new Game.UserInterface({ id: 'overlay', bg: OVERLAYBACKGROUND}, screens, '#overlay');
+} 
+
+Game.NewGame.prototype = {
 	init: function() {
-		// set constants
-		this.CANVASTILESIZE = 12;
-		this.UIBACKGROUND = 'black';
-		this.OVERLAYBACKGROUND = 'transparent';
-		
-		// init input
-		Game.InputManager.init();
+		// init uis
+		for (gui in this.guis)
+		{
+			this.guis[gui].init();
+		}
 
-        // create display objects
-        var screens = [];
-    	screens['full'] = {	x: 0, y: 0,	width: 60, height: 20 };  	
-        this.guis['ui'] = new Game.UserInterface({ id: 'ui', bg: this.UIBACKGROUND }, screens, '#game');
-        this.guis['overlay'] = new Game.UserInterface({ id: 'overlay', bg: this.OVERLAYBACKGROUND}, screens, '#overlay');
+   		// load starting screen
+   		this.guis['ui'].changeScreen(Game.Screens.startScreen);
+   		// start ticking
+		this.tick();
+	},
 
-        // load start screen
-        this.guis['ui'].changeScreen(Game.Screens.startScreen);
+	tick: function() {
+		this.render();
+		window.requestAnimationFrame(this.tick.bind(this));
+	},
 
-        // start ticking
-        this.tick();
-    },
-    // simulate a tick
-    tick: function() {
-    	this.render();
-    	window.requestAnimationFrame(this.tick.bind(this));
-    },
-
-    // call all guis' render functions
-    render: function() {
-    	for (var gui in this.guis)
-    	{
-    		if (this.guis[gui].render) { this.guis[gui].render(); }
-    	}
-    }
-};
+	render: function() {
+		for (var gui in this.guis)
+		{
+			if (typeof this.guis[gui].render === 'function') { this.guis[gui].render(); }
+		}
+	}
+}
 
 $(document).ready(function() {
-		Game.init();     
+	Game.thisGame = new Game.NewGame();
+	Game.thisGame.init();     
 });    

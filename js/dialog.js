@@ -7,7 +7,7 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
- Game.Dialog = function(properties)
+Game.Dialog = function(properties)
 {
 	this._title			= properties.title 			|| "";
 	this._options 	 	= properties.options 		|| [];
@@ -48,7 +48,7 @@ Game.Dialog.prototype = {
 
 	bindToGui: function(guiId) {
 		this._guiId = guiId;
-		this._gui = Game.guis[guiId];
+		this._gui = Game.thisGame.guis[guiId];
 	},
 
 	close: function() {

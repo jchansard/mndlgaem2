@@ -7,10 +7,12 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
-Game.InputManager = {
-	_inputActions: {}, // houses bound functions for events
-	bubbleOrder: [],
+Game.InputManager = function() {
+	this._inputActions =  {}; // houses bound functions for events
+	this.bubbleOrder = [];
+}
 
+Game.InputManager.prototype = {
 	// initializes keymap and binds events in game container to handleInput
 	init: function() 
 	{	
@@ -41,10 +43,10 @@ Game.InputManager = {
 	    	}
 
 	    	// set binding context
-	    	if (context == 'player') { context = Game.player; }
+	    	if (context == 'player') { context = Game.thisGame.player; }
 	    	else 
 	    	{
-	    		context = (Game.guis[context].activeDialog()) ? Game.guis[context].activeDialog() : Game.guis[context];
+	    		context = (Game.thisGame.guis[context].activeDialog()) ? Game.thisGame.guis[context].activeDialog() : Game.thisGame.guis[context];
 	    	}
 
 			// bind event + keymap action to screen function
@@ -53,17 +55,9 @@ Game.InputManager = {
 	},
 
 	// unbinds events
-	unbindEvents: function(gui)
+	unbindEvents: function()
 	{
-		if (!gui) 
-		{
-			this._inputActions = {};
-			return;
-		}
-		else 
-		{
-			// todo: granularize
-		}
+		this._inputActions = {};
 	},
 
 	// given event type and keymap action, execute associated bound function
@@ -74,6 +68,7 @@ Game.InputManager = {
 		
 		if (e.type == 'click')
 		{
+			if (e.which != 1) { return; } // left click only
 			this.bubbleOrder.forEach(function(gui) {
 				if (this._isActionBound('click-' + gui)) { fn.push('click-' + gui); }
 			}, this);

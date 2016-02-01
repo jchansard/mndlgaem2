@@ -16,9 +16,9 @@ Game.Screens.startScreen = {
 			//title:		"mndlgaem2",
 			options: 	["New Game", "Load Game"],
 			position: 	{ x: 19, y: 10 },
-			callback:   function(choice) { console.log('hey ' + choice);} 
+			callback:   function(choice) { console.log('hey ' + choice); } 
 		})
-		Game.guis['ui'].addDialog(mainMenu);
+		Game.thisGame.guis['ui'].addDialog(mainMenu);
     },
     render: function() {
         // TODO: make this purdy
