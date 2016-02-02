@@ -10,17 +10,18 @@
 
 Game = {};
 
-Game.NewGame = function() {
+Game.GameShell = function() {
 	// set constants
 	const CANVASTILESIZE = 12;
 	const UIBACKGROUND = '#171812';
 	const OVERLAYBACKGROUND = 'transparent';
+	const GAMECONTAINER = 'div#game-container'
 
 	// gui layers
 	this.guis = {};
 
 	// init input	
-	this.inputManager = new Game.InputManager();
+	this.inputManager = new Game.InputManager(GAMECONTAINER);
 	this.inputManager.init();
 
     // create display objects
@@ -30,7 +31,7 @@ Game.NewGame = function() {
     this.guis['overlay'] = new Game.UserInterface({ id: 'overlay', bg: OVERLAYBACKGROUND}, screens, '#overlay');
 } 
 
-Game.NewGame.prototype = {
+Game.GameShell.prototype = {
 	init: function() {
 		// init uis
 		for (gui in this.guis)
@@ -58,6 +59,6 @@ Game.NewGame.prototype = {
 }
 
 $(document).ready(function() {
-	Game.thisGame = new Game.NewGame();
-	Game.thisGame.init();     
+	Game.gameShell = new Game.GameShell();
+	Game.gameShell.init();     
 });    

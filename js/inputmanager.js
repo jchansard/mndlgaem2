@@ -7,7 +7,8 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
-Game.InputManager = function() {
+Game.InputManager = function(container) {
+	this._container = container;
 	this._inputActions =  {}; // houses bound functions for events
 	this.bubbleOrder = [];
 }
@@ -16,10 +17,9 @@ Game.InputManager.prototype = {
 	// initializes keymap and binds events in game container to handleInput
 	init: function() 
 	{	
-		var GAME_CONTAINER = "#game-container";
 		this.bubbleOrder = ['overlay','ui'];	//TODO: it's not arbitrary per se but make it less hardcoded maybe?
 		Game.Keymap.init(); //TODO: allow rebinding
-		$(GAME_CONTAINER).on('keydown keypress click', this.handleInput.bind(this));
+		$(this._container).on('keydown keypress click', this.handleInput.bind(this));
 	},
 
 	// binds the input actions for a given screen
@@ -29,25 +29,14 @@ Game.InputManager.prototype = {
 		for (var inputEvent in inputObject)
 	    {
 	    	var eventType = inputObject[inputEvent].eventType || 'keydown';
-	    	var context  = inputObject[inputEvent].context  || 'ui';
+	    	var context  = inputObject[inputEvent].context  || Game.gameShell.guis['ui'];
 	    	var action;
 
-	    	// if click, set action to click-context
-	    	if (inputEvent == 'click')
-	    	{
-	    		action = 'click-' + context;
-	    	}
-	    	else
-	    	{
-	    		action = eventType + '-' + inputEvent;
-	    	}
+	    	// if click, set action to click-context; else use keypress 
+	    	action = (inputEvent === 'click') ? 'click-' + context : eventType + '-' + inputEvent;
 
 	    	// set binding context
-	    	if (context == 'player') { context = Game.thisGame.player; }
-	    	else 
-	    	{
-	    		context = (Game.thisGame.guis[context].activeDialog()) ? Game.thisGame.guis[context].activeDialog() : Game.thisGame.guis[context];
-	    	}
+	    	// context = (context.activeDialog()) ? context.activeDialog() : context;
 
 			// bind event + keymap action to screen function
 	    	this._inputActions[action] = inputObject[inputEvent].fn.bind(context);

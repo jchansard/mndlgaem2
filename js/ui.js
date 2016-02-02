@@ -65,11 +65,13 @@ Game.UserInterface.prototype = {
 	},
 
 	bindInputEvents: function(inputEvents, unbind) {
+		var inputManager = Game.gameShell.inputManager;
+
 		// unbind previous event handlers for keyboard and mouse
-	    if (unbind) { Game.thisGame.inputManager.unbindEvents(); }
+	    if (unbind) { inputManager.unbindEvents(); }
 
 	    // bind new event handlers for keyboard and mouse
-	    Game.thisGame.inputManager.bindEvents(inputEvents);
+	    inputManager.bindEvents(inputEvents);
 	},
 
 	show: function()
@@ -123,6 +125,19 @@ Game.UserInterface.prototype = {
 	eventToPosition: function(e)
 	{
 		return this._display.eventToPosition(e);
+	},
+
+	getElementsByCoords: function(coords)
+	{
+		var elements = [];
+		this._elements.forEach(function(element) {
+			if (Game.MouseUtils.coordsAreInBounds(coords, element._position, element._size))
+			{
+				elements.push(element);
+			}
+		});
+
+		return elements;
 	},
 
 	draw: function(scr, drawInfo) {//x, y, toDraw, fg, bg) {

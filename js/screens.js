@@ -18,7 +18,7 @@ Game.Screens.startScreen = {
 			position: 	{ x: 19, y: 10 },
 			callback:   function(choice) { console.log('hey ' + choice); } 
 		})
-		Game.thisGame.guis['ui'].addDialog(mainMenu);
+		Game.gameShell.guis['ui'].addDialog(mainMenu);
     },
     render: function() {
         // TODO: make this purdy

@@ -17,6 +17,8 @@ Game.Dialog = function(properties)
 	this._callback		= properties.callback;
 	this._style			= properties.style;
 	this._initStyle();
+	this._guiId = undefined;
+	this._gui   = undefined;
 }
 
 Game.Dialog.prototype = {
@@ -48,7 +50,7 @@ Game.Dialog.prototype = {
 
 	bindToGui: function(guiId) {
 		this._guiId = guiId;
-		this._gui = Game.thisGame.guis[guiId];
+		this._gui = Game.gameShell.guis[guiId];
 	},
 
 	close: function() {
@@ -100,17 +102,18 @@ Game.Dialog.prototype = {
 
 	// get input events for this dialog; override for different dialog types
 	getInputEvents: function() {
+		var context = this._gui;
 		var inputEvents = {
 			down: {
-				context: this._guiId,
+				context: this,
 				fn: function() { this.nextChoice(); }
 			},
 			up: {
-				context: this._guiId,
+				context: this,
 				fn: function() { this.prevChoice();	}
 			},
 			select: {
-				context: this._guiId,
+				context: this,
 				fn: function() 
 				{
 					if (this._callback) {
@@ -120,11 +123,12 @@ Game.Dialog.prototype = {
 				}
 			},
 			click: {
-				context: this._guiId,
+				context: this,
 				fn: function(e)
 				{
+					console.log('howdy');
 					var coords = this._gui.eventToPosition(e);
-					if (Game.MouseUtils.areCoordsInBounds(coords, this._position, this._size))
+					if (Game.MouseUtils.coordsAreInBounds(coords, this._position, this._size))
 					{
 						var choice = this.coordsToChoice(coords);
 						this.setChoice(choice);

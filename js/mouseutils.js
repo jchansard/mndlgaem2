@@ -9,7 +9,7 @@
  */
 Game.MouseUtils = 
 {
-	areCoordsInBounds: function(coords, position, size) 
+	coordsAreInBounds: function(coords, position, size) 
 	{
 		var x, y;
 		if (coords[0]) 	// it's an array with x = coords[0], y = coords[1]
