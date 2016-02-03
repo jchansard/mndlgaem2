@@ -20,15 +20,15 @@ Game.GameShell = function() {
 	// gui layers
 	this.guis = {};
 
-	// init input	
-	this.inputManager = new Game.InputManager(GAMECONTAINER);
-	this.inputManager.init();
-
     // create display objects
 	var screens = [];
 	screens['full'] = {	x: 0, y: 0,	width: 60, height: 20 };  	
-    this.guis['ui'] = new Game.UserInterface({ id: 'ui', bg: UIBACKGROUND }, screens, '#game');
-    this.guis['overlay'] = new Game.UserInterface({ id: 'overlay', bg: OVERLAYBACKGROUND}, screens, '#overlay');
+    this.guis['ui'] = new Game.UserInterface({ id: 'ui', bg: UIBACKGROUND }, screens, 'div#game');
+    this.guis['overlay'] = new Game.UserInterface({ id: 'overlay', bg: OVERLAYBACKGROUND}, screens, 'div#overlay');
+
+    // init input	
+	this.inputManager = new Game.InputManager(GAMECONTAINER, this.guis);
+	this.inputManager.init();
 } 
 
 Game.GameShell.prototype = {

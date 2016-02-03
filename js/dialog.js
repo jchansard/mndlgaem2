@@ -122,7 +122,8 @@ Game.Dialog.prototype = {
 					}
 				}
 			},
-			click: {
+			lclick: {
+				eventType: 'click',
 				context: this,
 				fn: function(e)
 				{

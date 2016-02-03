@@ -127,11 +127,12 @@ Game.UserInterface.prototype = {
 		return this._display.eventToPosition(e);
 	},
 
-	getElementsByCoords: function(coords)
+	getClickedElements: function(e)
 	{
+		var coords = this.eventToPosition(e);
 		var elements = [];
 		this._elements.forEach(function(element) {
-			if (Game.MouseUtils.coordsAreInBounds(coords, element._position, element._size))
+			if (Game.Utils.coordsAreInBounds(coords, element._position, element._size))
 			{
 				elements.push(element);
 			}
