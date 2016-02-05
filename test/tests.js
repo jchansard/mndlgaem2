@@ -17,13 +17,14 @@ tests = {
 			assert.isTrue(actual);
 		},
 
-		"init should initialize ui objects and start game tick": function() {
+		"init should initialize ui objects, load starting screens, and start game tick": function() {
 			var actual, expected;
 			var tickStub = sinon.stub(this.f, "tick");
 			var mocks = [];
 
 			for (var gui in this.f.guis)
 			{	
+				var scratchStub = sinon.stub(this.f.guis[gui], "changeScreen")
 				var mock = sinon.mock(this.f.guis[gui]);
 				mock.expects("init").once();
 				mocks.push(mock);
@@ -265,6 +266,43 @@ tests = {
 			this.f = new Game.UserInterface();
 		},
 
+		"render clears the screen and calls render on this and each of this's elements": function() {
+			var actual, expected;
+			var renderStub = sinon.stub();
+			var clearDisplayStub = sinon.stub(this.f, "clearDisplay");
+			var el1 = { render: renderStub };
+			var el2 = { render: renderStub };
+			var el3 = { render: renderStub };
+
+			this.f.renderCurrentScreen = renderStub;
+			this.f._elements = [el1, el2, el3];
+
+			this.f.render();
+
+			actual = clearDisplayStub.callCount;
+			expected = 1;
+			assert.equals(actual, expected);
+
+			actual = renderStub.calledOn(this.f);
+			assert.isTrue(actual);
+
+			actual = renderStub.callCount;
+			expected = 4;
+			assert.equals(actual, expected);
+
+			actual = renderStub.calledOn(el1);
+			assert.isTrue(actual);
+
+			actual = renderStub.calledOn(el2);
+			assert.isTrue(actual);
+
+			actual = renderStub.calledOn(el3);
+			assert.isTrue(actual);
+
+			this.f.clearDisplay.restore();
+
+		},
+
 		"getClickedElements should use areCoordsInBounds to return a list of elements within passed coordinates": function() {
 			var actual, expected;
 			var el1 = { _size: { height: 1, width: 1 }, _position: { x: 0, y: 0 } };
@@ -293,7 +331,134 @@ tests = {
 			assert.equals(actual, expected);
 		},	
 
+		"addElement should add and bind an element to a gui and set it to be the active element when appropriate": function() {
+			var actual, expected;
+			var bindStub = sinon.stub();
+			var setActiveStub = sinon.stub(this.f, "setActiveElement");
+			var el = { bindToGui: bindStub }
+			this.f._elements = [];
+
+			this.f.addElement(el);
+
+			// should add el
+			actual = this.f._elements;
+			expected = [el];
+			assert.equals(actual, expected);
+
+			// should have set el to active
+			actual = setActiveStub.calledOnce && setActiveStub.calledWithExactly(0);
+			assert.isTrue(actual);
+
+			// add another element
+			this.f.addElement(el);
+
+			// set active shouldn't have been called, since it wasn't the first element and no override was passed
+			actual = setActiveStub.calledOnce;
+			assert.isTrue(actual);
+
+			// add a third element, this time with override
+			this.f.addElement(el, true);
+
+			// set active should have been called, since activeByDefault is true
+			actual = setActiveStub.calledTwice && setActiveStub.calledWithExactly(2);
+			assert.isTrue(actual);
+
+			// validate final state of elements
+			actual = this.f._elements;
+			expected = [el, el, el];
+			assert.equals(actual, expected);
+
+			// bind should have been called three times
+			actual = bindStub.callCount;
+			expected = 3;
+			assert.equals(actual, expected);
+
+			this.f.setActiveElement.restore();
+		},
+
+		"addElement should call the element's init function, if it exists, and continue if it doesn't": function() {
+			var actual, expected;
+			var initStub = sinon.stub();
+			var el1 = { bindToGui: sinon.stub(), init: initStub };
+			var el2 = { bindToGui: sinon.stub() };
+
+			this.f.addElement(el1);
+
+			actual = initStub.calledOnce && initStub.calledOn(el1);
+			assert.isTrue(actual);
+
+			this.f.addElement(el2);
+
+			actual = initStub.calledOnce && !initStub.calledOn(el2);
+			assert.isTrue(actual);
+		},
+
+		"activeElement should return the active element, unless there are no elements, in which case it returns false": function() {
+			var actual, expected;
+			var test = {};
+			this.f._elements = [null, null, null, null, test, null];
+			this.f._activeElement = 4;
+
+			actual = this.f.activeElement();
+			expected = test;
+			assert.equals(actual, expected);
+
+			this.f._elements = [];
+
+			actual = this.f.activeElement();
+			expected = false;
+			assert.equals(actual, expected);
+		},
+
+		"setActiveElement should call bindInputs on the active element and set the active element appropriately": function() {
+			var actual, expected;
+			var bindInputsStub = sinon.stub(this.f, "bindInputEvents");
+			var testInput = 'test-input';
+			var test = { getInputEvents: sinon.stub().returns(testInput) };
+			this.f._elements = [test];
+			this.f._activeElement = null;
+
+			this.f.setActiveElement(0);
+			actual = bindInputsStub.calledOnce && bindInputsStub.calledWith(testInput);
+			assert.isTrue(actual);
+
+			actual = this.f._activeElement;
+			expected = 0;
+			assert.equals(actual, expected);
+
+			this.f.bindInputEvents.restore();
+		},
+
 		teardown: function() {								
+			delete this.f;
+		}
+	},
+
+	"MenuPrompt.js tests": {
+		setup: function() {
+			this.f = new Game.MenuPrompt();
+		},
+
+		"_calculateSize should correctly calculate the appropriate size for the prompt, including padding": function() {
+			var expected, actual;
+			var height = 2, width = 5;
+			var padding = 5;
+			this.f._size = { height: height, width: width };
+			this.f._style.padding = padding;
+
+			actual = this.f._calculateSize();
+			expected = { height: 12, width: 15 };
+		},
+
+		"coordsToChoice should return the correct choice, accounting for title, content, and padding": function() {
+			assert.isTrue(false);
+
+			// NEED: finish this test
+			// NEED: test for calculate size
+			// NEED: to be able to handle content width
+		},
+
+		teardown: function() {
 			delete this.f;
 		}
 	},
@@ -312,6 +477,37 @@ tests = {
 			actual = Game.Utils.cloneSimpleObject(e);
 			expected = e;
 			assert.equals(actual, expected);
+		},
+
+		"extendPrototype should extend the target's prototype with the passed object, but not modify the passed object": function() {
+			var actual, expected;
+			function TestObject() { }
+			var target = new TestObject();
+			target.prototype = {
+				target1: sinon.stub(),
+				target2: sinon.stub()
+			};
+			var source = {
+				source1: sinon.stub(),
+				source2: sinon.stub()
+			};
+			var sourceUnchanged = source;
+
+			Game.Utils.extendPrototype(target, source);
+
+			// target1 and target2 should still exist
+			actual = (target.prototype.target1 !== undefined && target.prototype.target2 !== undefined);
+			assert.isTrue(actual);
+
+			// target should have source1 and source2
+			actual = (target.prototype.source1 !== undefined && target.prototype.source2 !== undefined);
+			assert.isTrue(actual);
+
+			// source should be unmodified
+			actual = source;
+			expected = sourceUnchanged;
+			assert.equals(actual, expected);
+
 		},
 
 		teardown: undefined

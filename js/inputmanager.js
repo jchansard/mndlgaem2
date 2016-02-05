@@ -1,4 +1,4 @@
-6/**
+/**
  * inputmanager.js
  *
  * handles keyboard and mouse input for Game; binds event handlers to appropriate objects
@@ -92,7 +92,7 @@ Game.InputManager.prototype = {
 			clickedElements.forEach(function(element) {
 				if (typeof element[clickFunction] === 'function')
 				{
-					element[clickFunction]();
+					element[clickFunction](e);
 				}
 			});
 		}

@@ -34,5 +34,17 @@ Game.Utils =
 	cloneSimpleObject: function(source)
 	{
 		return JSON.parse(JSON.stringify(source));
+	},
+
+	// this basically saves me from having to do:
+	//   Game.NewObject.Prototype.functionName = function() { } 
+	// for each new method, and I can instead use a simple object with the methods to add.
+	extendPrototype: function(target, source)
+	{
+		var prototype = target.prototype;
+		for (prop in source)
+		{
+			prototype[prop] = source[prop];
+		}
 	}
 }

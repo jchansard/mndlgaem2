@@ -18,8 +18,8 @@ Game.UserInterface = function(properties, screens, container) {
 	this._id 		 = properties.id;
 	this._screen 	 = undefined;
 	this._screens 	 = screens;
-	this._dialogs	 = [];
-	this._activeDialog = null;
+	this._elements 	 = [];
+	this._activeElement = null;
 	this._container  = container;
 	this._display 	 = new ROT.Display({
 		height: 	this._height, 
@@ -39,9 +39,9 @@ Game.UserInterface.prototype = {
     	// clear the screen and re-render it
     	this.clearDisplay();
     	if (this.renderCurrentScreen) { this.renderCurrentScreen(); } 
-    	this._dialogs.forEach(function(dialog)
+    	this._elements.forEach(function(element)
     	{
-    		dialog.render();
+    		element.render();
     	});
 	},
 
@@ -64,11 +64,9 @@ Game.UserInterface.prototype = {
         this.render();
 	},
 
-	bindInputEvents: function(inputEvents, unbind) {
+	bindInputEvents: function(inputEvents) {
+		// get input manager
 		var inputManager = Game.gameShell.inputManager;
-
-		// unbind previous event handlers for keyboard and mouse
-	    if (unbind) { inputManager.unbindEvents(); }
 
 	    // bind new event handlers for keyboard and mouse
 	    inputManager.bindEvents(inputEvents);
@@ -84,49 +82,71 @@ Game.UserInterface.prototype = {
 		$(this._container).hide();
 	},
 
-	addDialog: function(dialog, activeByDefault) 
+	// adds a new element to the gui and binds it to this gui
+	addElement: function(element, activeByDefault) 
 	{
-		var index = this._dialogs.length;
-		this._dialogs.push(dialog);
-		dialog.bindToGui(this._id);
-		if (!activeByDefault == true)
+		// get index of new element and add it to elements array
+		var index = this._elements.length;
+		this._elements.push(element);
+
+		// bind the dialog to this gui and init, if necessary
+		element.bindToGui(this._id);
+		if (typeof element.init === 'function') { element.init(); }
+
+		// if this is the first element added, or if it's configured to be active by default, set it to active
+		if (index === 0 || activeByDefault === true)
 		{
-			this._activeDialog = index;
-			this.bindInputEvents(dialog.getInputEvents(), false)
+			this.setActiveElement(index);
 		}
+
+		// return the index of the added element
 		return index;
 	},
 
-	closeDialog: function(dialog)
+	// don't think i use this. uncomment if i ever do.
+	// closeDialog: function(dialog)
+	// {
+	// 	var index = this._dialogs.indexOf(dialog);
+	// 	if (index > -1)
+	// 	{
+	// 		this._dialogs.splice(index, 1);
+	// 	}
+	// 	if (index == this._activeDialog)
+	// 	{
+	// 		this._activeDialog--;
+	// 		if (this._activeDialog < 0) { this._activeDialog = null;	}
+	// 	}
+	// },
+
+	// returns the active element, or false if there aren't any elements bound to this gui
+	activeElement: function()
 	{
-		var index = this._dialogs.indexOf(dialog);
-		if (index > -1)
-		{
-			this._dialogs.splice(index, 1);
-		}
-		if (index == this._activeDialog)
-		{
-			this._activeDialog--;
-			if (this._activeDialog < 0) { this._activeDialog =null;	}
-		}
+		if (this._elements.length == 0) return false;
+		else return this._elements[this._activeElement];
 	},
 
-	activeDialog: function()
+	// sets active element to the passed index. 
+	// TODO: I suspect I'll need to enhance this to support a passed element object for click events
+	setActiveElement: function(element) 
 	{
-		if (this._dialogs.length == 0) return false;
-		else return this._dialogs[this._activeDialog];
-	},
+		this._activeElement = element;
+		var inputEvents = this._elements[element].getInputEvents();
+		this.bindInputEvents(inputEvents);
+	},	
 
+	// clears display; wraps ROT function
 	clearDisplay: function()
 	{
 		this._display.clear();
 	},
 
+	// converts a click event to canvas coordinates; wraps ROT function
 	eventToPosition: function(e)
 	{
 		return this._display.eventToPosition(e);
 	},
 
+	// get all clicked elements
 	getClickedElements: function(e)
 	{
 		var coords = this.eventToPosition(e);
@@ -163,6 +183,7 @@ Game.UserInterface.prototype = {
 			this.drawToCanvas(scr.canvasID, drawInfo);
 		}
 	},
+	
 	drawText: function(scr, drawInfo, maxWidth) { // TODO: ALLOW LINE BY LINE (ARRAY TEXT)
 		if (scr != null && this._screens[scr] == undefined) //TODO: doesn't work
 		{

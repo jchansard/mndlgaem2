@@ -12,13 +12,14 @@ Game.Screens = {};
 // starting screen menu
 Game.Screens.startScreen = {
 	enter: function() { 
-		var mainMenu = new Game.Dialog({
-			//title:		"mndlgaem2",
+		var mainMenu = new Game.MenuPrompt({
+			title:		"mndlgaem2",
 			options: 	["New Game", "Load Game"],
-			position: 	{ x: 19, y: 10 },
+			position: 	{ x: 18, y: 10 },
+			style: { padding: 1 },
 			callback:   function(choice) { console.log('hey ' + choice); } 
 		})
-		Game.gameShell.guis['ui'].addDialog(mainMenu);
+		Game.gameShell.guis['ui'].addElement(mainMenu);
     },
     render: function() {
         // TODO: make this purdy
