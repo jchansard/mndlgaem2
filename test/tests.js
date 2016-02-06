@@ -441,21 +441,83 @@ tests = {
 
 		"_calculateSize should correctly calculate the appropriate size for the prompt, including padding": function() {
 			var expected, actual;
-			var height = 2, width = 5;
+			var height = 10, width = 10;
 			var padding = 5;
 			this.f._size = { height: height, width: width };
 			this.f._style.padding = padding;
 
 			actual = this.f._calculateSize();
-			expected = { height: 12, width: 15 };
+			expected = { height: height + (2 * padding), width: width + (2 * padding) };
 		},
 
-		"coordsToChoice should return the correct choice, accounting for title, content, and padding": function() {
-			assert.isTrue(false);
+		"coordsToChoice should return the correct choice, or -1 if no choice was clicked": function() {
+			var expected, actual;
 
-			// NEED: finish this test
-			// NEED: test for calculate size
-			// NEED: to be able to handle content width
+			// functional test with no padding: choices should be at y = 0 and y = 1. We don't care about x,
+			// since this should assume that the element was clicked (so x is within the element)
+			var eventToPosStub = sinon.stub();
+			eventToPosStub.onFirstCall().returns([1,0])			
+				.onSecondCall().returns([99,1])
+				.onThirdCall().returns([undefined,2]);
+			this.f._gui = { eventToPosition: eventToPosStub };
+			this.f._position = { x: 0, y: 0 };
+			var options = ['test','test'];
+
+			this.f._style.padding = 0;
+			this.f._options = options;
+
+			// click y = 0
+			actual = this.f.coordsToChoice({});
+			expected = 0;
+			assert.equals(actual, expected);
+
+			// click y = 1;
+			actual = this.f.coordsToChoice({});
+			expected = 1;
+			assert.equals(actual, expected);
+
+			// click y = 2, should return -1, since out of bounds
+			actual = this.f.coordsToChoice({});
+			expected = -1;
+			assert.equals(actual, expected);
+		},
+
+		"coordsToChoice should respect padding": function() {
+			var expected, actual;
+
+			// choices with padding of 3 should be at y = 3 and y = 4.
+			var eventToPosStub = sinon.stub();
+			eventToPosStub.onFirstCall().returns([2,0])			
+				.onSecondCall().returns([99,3])
+				.onThirdCall().returns([undefined, 4])
+				.onCall(3).returns(['test', 5]);
+			this.f._gui = { eventToPosition: eventToPosStub };
+			this.f._position = { x: 0, y: 0 };
+			var options = ['test','test'];
+
+			this.f._style.padding = 3;
+			this.f._options = options;
+
+			// click y = 2; should return -1, since out of bounds
+			actual = this.f.coordsToChoice({});
+			expected = -1;
+			assert.equals(actual, expected);
+
+			// click y = 3
+			actual = this.f.coordsToChoice({});
+			expected = 0;
+			assert.equals(actual, expected);
+
+			// click y = 4
+			actual = this.f.coordsToChoice({});
+			expected = 1;
+			assert.equals(actual, expected);
+
+			// click y = 5; should return -1, since out of bounds
+			actual = this.f.coordsToChoice({});
+			expected = -1;
+			assert.equals(actual, expected);
+
 		},
 
 		teardown: function() {

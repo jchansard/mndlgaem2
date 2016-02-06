@@ -163,9 +163,10 @@ Game.Utils.extendPrototype(Game.MenuPrompt, {
 	{
 		var coords = this._gui.eventToPosition(e);
 		var y = coords[1];
-		y -= this._position.y;
-		if (this._content) { y -= 2; } // TODO: hacky?
-		if (y > this._options.length) { return -1; }
+		var padding = this._style.padding;
+		y -= this._position.y + padding;
+		if (this._content !== "") { y -= 2; } // TODO: hacky?
+		if (y >= this._options.length || y < 0) { return -1; }
 		return y;
 	}
 });
