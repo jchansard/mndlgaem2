@@ -17,7 +17,16 @@ Game.Screens.startScreen = {
 			options: 	["New Game", "Load Game"],
 			position: 	{ x: 18, y: 10 },
 			style: { padding: 1 },
-			callback:   function(choice) { console.log('hey ' + choice); } 
+			callback:   function(choice) { 
+				switch(choice)
+				{
+					case 0: 
+						Game.gameShell.architect = new Game.Architect();
+						Game.gameShell.architect.init();
+						Game.gameShell.guis['ui'].changeScreen(Game.Screens.gameScreen);
+						break;
+				}
+			} 
 		})
 		Game.gameShell.guis['ui'].addElement(mainMenu);
     },
@@ -27,7 +36,7 @@ Game.Screens.startScreen = {
        // this.drawText('full',{ x: 19, y: 11, text: "%c{lightblue}press enter" });	
     },
     exit: function() {
-		// still nbd
+		this.clearAllElements();
 	},
 
 	inputEvents: {},
@@ -68,18 +77,18 @@ Game.Screens.gameScreen = {
 	_subscreen: null,
 	_buttons: [],
 	enter: function() {
-		this._player = new Game.Entity(Game.PlayerActor);
-		this.initButtons();
-		var numLevels = 1;
-		var width = 300;
-		var height = Game.display.getScreenHeight('play');
-		var map = new Game.Map.Forest(numLevels,width,height,this._player);
-		map.getEngine().start();
-		
-		Game.display.draw('info', {type: 'text', x: 3.9, y: 1, font: '16px inconsolata', color: 'rgb(64,0,0)', text: '█'});
-		Game.display.draw('info', {type: 'text', x: 4.2, y: 1, font: '16px inconsolata', color: 'white', text: 'Z'});
-		Game.display.draw('info', {type: 'text', x: 8.8, y: 1, font: '16px inconsolata', color: 'rgb(64,0,0)', text: '█'});
-		Game.display.draw('info', {type: 'text', x: 9.1, y: 1, font: '16px inconsolata', color: 'white', text: 'X'});
+			// this._player = new Game.Entity(Game.PlayerActor);
+			// this.initButtons();
+			// var numLevels = 1;
+			// var width = 300;
+			// var height = Game.display.getScreenHeight('play');
+			// var map = new Game.Map.Forest(numLevels,width,height,this._player);
+			// map.getEngine().start();
+			
+			// Game.display.draw('info', {type: 'text', x: 3.9, y: 1, font: '16px inconsolata', color: 'rgb(64,0,0)', text: '█'});
+			// Game.display.draw('info', {type: 'text', x: 4.2, y: 1, font: '16px inconsolata', color: 'white', text: 'Z'});
+			// Game.display.draw('info', {type: 'text', x: 8.8, y: 1, font: '16px inconsolata', color: 'rgb(64,0,0)', text: '█'});
+			// Game.display.draw('info', {type: 'text', x: 9.1, y: 1, font: '16px inconsolata', color: 'white', text: 'X'});
 		//Game.display.draw('info', {type: 'text', x: 9.2, y: 1, font: '16px inconsolata', text: 'X'});
 		//Game.display.draw('info', {type: 'text', x: 10.2, y: 1, font: '16px inconsolata', text: ']'});
 		
@@ -87,6 +96,8 @@ Game.Screens.gameScreen = {
 		//Game.display.drawASCII('info',0,20, AMMO);
 	},
 	render: function(display) {
+		Game.gameShell.architect.currentMap().draw(this.draw, this);
+		return;
 		/*
 		var f, g;
 		$.get("assets/ascii/flashlightflat", function(data) { saveFile(data); });
@@ -290,5 +301,9 @@ Game.Screens.gameScreen = {
     },
     setSubscreen: function(subscreen) {
     	this._subscreen = subscreen;
+    },
+
+    exit: function() {
+    	return;
     }
 };

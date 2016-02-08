@@ -103,6 +103,12 @@ Game.UserInterface.prototype = {
 		return index;
 	},
 
+	// clears all elements 
+	clearAllElements: function() 
+	{
+		this._elements = [];
+	},
+
 	// don't think i use this. uncomment if i ever do.
 	// closeDialog: function(dialog)
 	// {

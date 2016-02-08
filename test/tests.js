@@ -573,5 +573,167 @@ tests = {
 		},
 
 		teardown: undefined
+	},
+
+	"Architect.js tests": {
+		setup: function() {
+			this.f = new Game.Architect();
+		},
+
+		"init should generate a new level and add it to the architect's level map": function() {
+			var actual, expected;
+			var testMap = new Map();
+			var generateStub = sinon.stub(this.f, "_generateNewLevel").returns(testMap)
+
+			this.f.init();
+
+			actual = generateStub.callCount;
+			expected = 1;
+			assert.equals(actual, expected);
+
+			actual = this.f._levelMap;
+			expected = [testMap];
+			assert.equals(actual, expected);
+
+			actual = this.f.currentLevel;
+			expected = 0;
+			assert.equals(actual, expected);
+
+			this.f._generateNewLevel.restore();
+		},
+
+		"_generateNewLevel should generate and return new Map object": function() {
+			var actual, expected;
+			var generateLevelSpy = sinon.spy(this.f, "_generateNewLevel");
+
+			var returned = this.f._generateNewLevel();
+
+			actual = returned instanceof Game.Map;
+			assert.isTrue(actual); 
+
+			this.f._generateNewLevel.restore();
+		},
+
+		"_generateNewLevel should use the passed mapType's create method with the passed callback, unless one isn't passed": function() {
+			var actual;
+			var createStub = sinon.stub(); 
+			var testPropertyStub = sinon.stub();
+			var createCalled = false;
+			var callbackCalled = false;
+			var levelType = {
+				// mapType should have a create method that gets called by generateNewLevel
+				mapType: function() { 
+					createCalled = true; 
+					this.create = function(callback) { callback(); }
+				},
+				// callback accesses properties of the levelType via "this.properties.propertyname"
+				mapTypeCallback: function() { callbackCalled = true; this.properties.testproperty(); },
+				// this should get called in the callback
+				testproperty: testPropertyStub
+			};
+
+			this.f._generateNewLevel(levelType);
+
+			actual = createCalled && callbackCalled && testPropertyStub.calledOnce;
+			assert.isTrue(actual);
+
+			// if callback is null, shouldn't error
+			levelType.mapTypeCallback = undefined;
+			this.f._generateNewLevel(levelType); // shouldn't throw an error
+		},
+
+		teardown: function() {
+			delete this.f;
+		}
+	},
+
+	"ArchitectUtils.js tests": {
+		setup: undefined,
+
+		"create2DArray should create an empty 2d array with specified width and height and initial value": function() {
+			var actual, expected;
+			var width  = 5;
+			var height = 3;
+			var arr;
+
+			// test without intitial value
+			arr = Game.ArchitectUtils.create2DArray(width, height);
+
+			actual = arr.length;
+			expected = width;
+			assert.equals(actual, expected);
+
+			for (var x = 0; x < width; x++)
+			{
+				for (var y = 0; y < height; y++)
+				{
+					actual = arr[x].length;
+					expected = height;
+					assert.equals(actual, expected);
+
+					actual = arr[x][y];
+					expected = undefined;
+					assert.equals(actual, expected);
+				}
+			}
+
+			// test with initial value
+			arr = Game.ArchitectUtils.create2DArray(width, height, "major tom");
+			actual = arr.length;
+			expected = width;
+			assert.equals(actual, expected);
+
+			for (var x = 0; x < width; x++)
+			{
+				for (var y = 0; y < height; y++)
+				{
+					actual = arr[x].length;
+					expected = height;
+					assert.equals(actual, expected);
+
+					actual = arr[x][y];
+					expected = "major tom";
+					assert.equals(actual, expected);
+				}
+			}			
+		},
+
+		teardown: undefined,
+	},
+
+	"Map.js tests (depends on create2DArray)": {
+		setup: function() {
+			var initialValue = { glyph: { ch: 0, fg: 0, bg: 0 } };
+			this.f = new Game.Map(Game.ArchitectUtils.create2DArray(3, 2, initialValue));
+		},
+
+		"draw should call the passed callback once for each tile in the map, using the passed thisArg": function() {
+			var actual, expected;
+			var callback = sinon.stub();
+			var thisArg = { test: 'test' };
+
+			this.f.draw(callback, thisArg);
+
+			actual = callback.callCount;
+			expected = 3 * 2;
+			assert.equals(actual, expected);
+
+			actual = callback.alwaysCalledOn(thisArg);
+			assert.isTrue(actual);
+
+			// should have been called on every tile: might need to unrewrite draw to do this
+			// for (var x = 0; x < 3; x++)
+			// {
+			// 	for (var y = 0; y < 2; y++)
+			// 	{
+			// 		actual = callback.calledWith(x, y);
+			// 		// assert.isTrue(actual);					
+			// 	}
+			// }
+		},
+
+		teardown: function() {
+			delete this.f;
+		}
 	}
 };
