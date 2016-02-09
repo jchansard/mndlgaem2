@@ -30,7 +30,7 @@ Game.InputManager.prototype = {
 		for (var inputEvent in inputObject)
 	    {
 	    	var eventType 	= inputObject[inputEvent].eventType || 'keydown';
-	    	var context  	= inputObject[inputEvent].context   || Game.gameShell.guis['ui'];
+	    	var context  	= inputObject[inputEvent].context   || Game.gameShell.guis[context] || Game.gameShell.guis['ui'];
 			var fn 			= inputObject[inputEvent].fn;
 	    	var action;
 

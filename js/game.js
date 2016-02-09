@@ -21,10 +21,11 @@ Game.GameShell = function() {
 	this.guis = {};
 
     // create display objects
-	var screens = [];
-	screens['full'] = {	x: 0, y: 0,	width: 60, height: 20 };  	
-    this.guis['ui'] = new Game.UserInterface({ id: 'ui', bg: UIBACKGROUND }, screens, 'div#game');
-    this.guis['overlay'] = new Game.UserInterface({ id: 'overlay', bg: OVERLAYBACKGROUND}, screens, 'div#overlay');
+	var subscreens = {};
+	subscreens['full'] = {	x: 0, y: 0,	width: 60, height: 20 }; 
+	subscreens['mapterminal'] =  { x: 0, y: 0,	width: 60, height: 20 }; 
+    this.guis['ui'] = new Game.UserInterface({ bg: UIBACKGROUND }, subscreens, 'div#game');
+    this.guis['overlay'] = new Game.UserInterface({ bg: OVERLAYBACKGROUND}, subscreens, 'div#overlay');
 
     // init input	
 	this.inputManager = new Game.InputManager(GAMECONTAINER, this.guis);

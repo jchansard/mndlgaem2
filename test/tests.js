@@ -357,7 +357,7 @@ tests = {
 			assert.isTrue(actual);
 
 			// add a third element, this time with override
-			this.f.addElement(el, true);
+			this.f.addElement(el, undefined, true);
 
 			// set active should have been called, since activeByDefault is true
 			actual = setActiveStub.calledTwice && setActiveStub.calledWithExactly(2);
@@ -372,6 +372,29 @@ tests = {
 			actual = bindStub.callCount;
 			expected = 3;
 			assert.equals(actual, expected);
+
+			this.f.setActiveElement.restore();
+		},
+
+		"addElement should bind the element to a screen, if a screen name is passed": function() {
+			var actual, expected;
+			var bindStub = sinon.stub();
+			var setActiveStub = sinon.stub(this.f, "setActiveElement");
+			var el = { bindToScreen: bindStub, bindToGui: sinon.stub() };
+			this.f._elements = [];
+			this.f._subscreens = { test: undefined };
+
+			this.f.addElement(el, 'test');
+
+			// should call bindStub
+			actual = bindStub.calledOnce;
+			assert.isTrue(actual);
+
+			this.f.addElement(el);
+
+			// shouldn't call bindStub
+			actual = bindStub.calledOnce;
+			assert.isTrue(actual);
 
 			this.f.setActiveElement.restore();
 		},
@@ -577,6 +600,7 @@ tests = {
 
 	"Architect.js tests": {
 		setup: function() {
+			sinon.stub(Game.Architect.testDungeon, "init");
 			this.f = new Game.Architect();
 		},
 
@@ -595,7 +619,7 @@ tests = {
 			expected = [testMap];
 			assert.equals(actual, expected);
 
-			actual = this.f.currentLevel;
+			actual = this.f._currentLevel;
 			expected = 0;
 			assert.equals(actual, expected);
 
@@ -614,7 +638,7 @@ tests = {
 			this.f._generateNewLevel.restore();
 		},
 
-		"_generateNewLevel should use the passed mapType's create method with the passed callback, unless one isn't passed": function() {
+		"_generateNewLevel should use the passed mapType's create method with the passed callback, unless one isn't passed, and call init": function() {
 			var actual;
 			var createStub = sinon.stub(); 
 			var testPropertyStub = sinon.stub();
@@ -640,9 +664,12 @@ tests = {
 			// if callback is null, shouldn't error
 			levelType.mapTypeCallback = undefined;
 			this.f._generateNewLevel(levelType); // shouldn't throw an error
+
+
 		},
 
 		teardown: function() {
+			Game.Architect.testDungeon.init.restore();
 			delete this.f;
 		}
 	},
@@ -714,7 +741,7 @@ tests = {
 
 			this.f.draw(callback, thisArg);
 
-			actual = callback.callCount;
+			actual   = callback.callCount;
 			expected = 3 * 2;
 			assert.equals(actual, expected);
 
@@ -730,6 +757,37 @@ tests = {
 			// 		// assert.isTrue(actual);					
 			// 	}
 			// }
+		},
+
+		"draw should draw each entity in _entities": function() {
+			var actual, expected;
+			var tilesBackup = this.f._tiles;
+			this.f._tiles = [];
+			var callback = sinon.stub(); 
+			var thisArg = { test: 'ashes to ashes' };
+			var entity1 = { glyph: { ch: '1', fg: '9', bg: '84'} }
+			var entity2 = { glyph: { ch: 'sav', fg: 'age', bg: 'jaw'} }
+			this.f._entities = [entity1, entity2];
+			
+			this.f.draw(callback, thisArg);
+
+			actual   = callback.callCount;
+			expected = this.f._entities.length;
+			assert.equals(actual, expected);
+
+			this.f._tiles = tilesBackup;
+		},
+
+		"addEntity should only add an entity's glyph and position to _entities": function() {
+			var actual, expected;
+			var entity = { glyph: 0, position: { x: 1, y: 2}, testprop: 3 };
+			this.f._entities = [];
+
+			this.f.addEntity(entity);
+
+			actual   = this.f._entities[0];
+			expected = { glyph: 0,  x: 1, y: 2 }
+			assert.equals(actual, expected);
 		},
 
 		teardown: function() {

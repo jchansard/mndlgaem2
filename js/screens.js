@@ -21,6 +21,7 @@ Game.Screens.startScreen = {
 				switch(choice)
 				{
 					case 0: 
+                        Game.gameShell.player    = new Game.Player();
 						Game.gameShell.architect = new Game.Architect();
 						Game.gameShell.architect.init();
 						Game.gameShell.guis['ui'].changeScreen(Game.Screens.gameScreen);
@@ -31,23 +32,11 @@ Game.Screens.startScreen = {
 		Game.gameShell.guis['ui'].addElement(mainMenu);
     },
     render: function() {
-        // TODO: make this purdy
         this.drawText('full',{ x: 19, y: 7, text: "%c{blue}mndlgaem2" });
-       // this.drawText('full',{ x: 19, y: 11, text: "%c{lightblue}press enter" });	
     },
     exit: function() {
 		this.clearAllElements();
 	},
-
-	inputEvents: {},
-
-    handleInput: function(type, data) {
-        // go to main game screen if enter is pressed
-        if (type === 'keydown') {
-            var inputEvent = Game.Keymap.keyCodeToFunction(data.keyCode);
-            if (inputEvent && this[inputEvent]) { this[inputEvent](); }
-        }
-    }
 };
 
 // win screen
@@ -73,128 +62,19 @@ Game.Screens.winScreen = {
 
 // gameplay screen. TODO: update for mndlgaem2
 Game.Screens.gameScreen = {
-	_player: null,
-	_subscreen: null,
-	_buttons: [],
+
 	enter: function() {
-			// this._player = new Game.Entity(Game.PlayerActor);
-			// this.initButtons();
-			// var numLevels = 1;
-			// var width = 300;
-			// var height = Game.display.getScreenHeight('play');
-			// var map = new Game.Map.Forest(numLevels,width,height,this._player);
-			// map.getEngine().start();
-			
-			// Game.display.draw('info', {type: 'text', x: 3.9, y: 1, font: '16px inconsolata', color: 'rgb(64,0,0)', text: '█'});
-			// Game.display.draw('info', {type: 'text', x: 4.2, y: 1, font: '16px inconsolata', color: 'white', text: 'Z'});
-			// Game.display.draw('info', {type: 'text', x: 8.8, y: 1, font: '16px inconsolata', color: 'rgb(64,0,0)', text: '█'});
-			// Game.display.draw('info', {type: 'text', x: 9.1, y: 1, font: '16px inconsolata', color: 'white', text: 'X'});
-		//Game.display.draw('info', {type: 'text', x: 9.2, y: 1, font: '16px inconsolata', text: 'X'});
-		//Game.display.draw('info', {type: 'text', x: 10.2, y: 1, font: '16px inconsolata', text: ']'});
-		
-		//Game.display.drawASCII('info', 0, 0, AMMO);
-		//Game.display.drawASCII('info',0,20, AMMO);
+		var mapTerminal = new Game.MapTerminal({
+			position: { x: 0, y: 0 },
+			size: 'fill'
+		}, Game.gameShell.architect.currentMap())
+
+		Game.gameShell.guis['ui'].addElement(mapTerminal, 'mapterminal');
 	},
 	render: function(display) {
-		Game.gameShell.architect.currentMap().draw(this.draw, this);
 		return;
-		/*
-		var f, g;
-		$.get("assets/ascii/flashlightflat", function(data) { saveFile(data); });
-		function saveFile(data) {
-			f = data;
-			g = new Uint8Array(data);
-			console.log(g);
-		}
-
-		function readTextFile(file)
-{
-    var rawFile = new XMLHttpRequest();
-    rawFile.open('GET', file, true);  
-    rawFile.responseType = 'arraybuffer';
-    rawFile.onload = function (response)
-    {
-      var words = new Uint8Array(rawFile.response);
-       console.log(words[1]);
-      words = pako.inflate(words);
-      console.dir(words);
-      console.log(words.toString());
-
-    };
-    rawFile.send();
-}
-
-    readTextFile("assets/ascii/flashlight.xp");*/
-    
-    	/*Game.display.drawASCII('info', 0, 0, FLASHLIGHT); 
-    	Game.display.drawASCII('info', 0, 3, AMMO);
-    	Game.display.drawASCII('action',50,0,INFO);*/
-    
-		if (this._subscreen) {
-			this._subscreen.render(display);
-			return;
-		}
-		var map = this._player.getMap();
-		var actions = this._player.getNumActions() || 3;
-		var skills = this._player.getSkills();  //TODO: get button key
-		var icons = '';
-		this.drawTiles(display,map);
-		for (var i = 0; i < 3; i++) {
-			if (actions > i) {
-				icons += '%c{#77F}▐▌';
-			}
-			else {
-				icons += '%c{#009}▐▌';
-			}
-		}
-		/*display.drawText('play',1,36,'actions:' + icons);
-		for (var i = 1; i <= 12; i++) {
-			if (this._player.getNumShots() >= i) {
-				display.draw('info', 10 + (i*2), 4, '▀', 'yellow', 'red');
-			} else {
-				break;
-			}
-		}*/	
-		var batlife = skills[3].getAmmo();
-		/*for (var i = 0; i < batlife; i += 10) {
-			var fg;
-			if (batlife > 50) { fg = 'green'; }
-			else if (batlife > 25) { fg = 'yellow'; }
-			else { fg = 'red'; }
-			display.draw('info_flashlight', 13 + (i/10), 0, '█', fg, 'black');
-		}
-		display.drawText('info_flashlight', 0, 0, 'flashlight: [');
-		display.drawText('info_flashlight', 34, 0,']');
-		display.drawText('info', 1, 4,'bullets: ');
-		
-		this.drawButtons('action',1, 0);*/ 
 	},
-	handleInput: function(type, data) {	
-		if (this._subscreen) {
-            this._subscreen.handleInput(type,data);
-            return;
-        }
-		if (type === 'keydown') {
-			this._keymap.handleKey(data.keyCode,this);
-		}    
-	},
-	initButtons: function() {
-		var skills = this._player.getSkills();
-		var keys = ['Z','X','C','V'];				//TODO: don't hardcode
-		for (var i = 0; i < skills.length; i++) { 	//TODO: passives??
-			var caption = skills[i].getName();
-			this._buttons.push(new Game.ScreenButton({
-				caption: caption + '(' + keys[i] + ')',
-				FGColor: 'white',
-				BGColor: 'darkslateblue',
-				buttonLength: 18,
-				action: Game.ScreenButton.ButtonUseSkill
-			},{
-				context: 'mainScreen',
-				skill: skills[i]
-			}));
-		}
-	},
+
     drawTiles: function(display) {
     	//get stuff to make it easier to work with
     	var player = this._player;
@@ -264,21 +144,7 @@ Game.Screens.gameScreen = {
     		}
     	}
     },
-	drawButtons: function(area, x, y) {
-		var buttons;
-		if (this._subscreen && this._subscreen.getButtons() !== undefined) {
-			buttons = this._subscreen.getButtons();
-		} else {
-			buttons = this._buttons;
-		}
-		var prevX = 0;
-		for (var i = 0; i < buttons.length; i++) {			
-			if (buttons[i] !== undefined) {
-				prevX += (i > 0) ? buttons[i-1].getButtonLength() : 0;
-				buttons[i].draw(area, x + prevX , y);
-			}
-		}
-	},
+
     getScreenOffsets: function(scr) {
     	var map = this._player.getMap();
     	//but make sure that we don't display offscreen tiles if the player is close to the left border

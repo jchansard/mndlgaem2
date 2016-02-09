@@ -8,16 +8,15 @@
  * https://github.com/jchansard/mndlgaem2
  */
 
-Game.UserInterface = function(properties, screens, container) {
+Game.UserInterface = function(properties, subscreens, container) {
 	properties 		 = properties 		  		|| {};
 	this._height 	 = properties.height  		|| 20;
 	this._width 	 = properties.width   		|| 50;
 	this._bg 		 = properties.bg 	  		|| 'black';
 	this._fontSize 	 = properties.fontSize 		|| 24;
 	this._fontFamily = properties.fontFamily 	|| 'inconsolata';
-	this._id 		 = properties.id;
 	this._screen 	 = undefined;
-	this._screens 	 = screens;
+	this._subscreens = subscreens;
 	this._elements 	 = [];
 	this._activeElement = null;
 	this._container  = container;
@@ -31,11 +30,13 @@ Game.UserInterface = function(properties, screens, container) {
 };
 
 Game.UserInterface.prototype = {
-	init: function() {
+	init: function() 
+	{
 		$(this._container).append(this._display.getContainer());
 	},
 
-	render: function() {
+	render: function() 
+	{
     	// clear the screen and re-render it
     	this.clearDisplay();
     	if (this.renderCurrentScreen) { this.renderCurrentScreen(); } 
@@ -45,8 +46,8 @@ Game.UserInterface.prototype = {
     	});
 	},
 
-	changeScreen: function(screen) {
-	    this._display.clear();
+	changeScreen: function(screen) 
+	{
 	    if (this._screen && this.exitCurrentScreen) {
 	    	this.exitCurrentScreen();
 	    }
@@ -56,6 +57,9 @@ Game.UserInterface.prototype = {
 	    this.exitCurrentScreen	 = this._screen.exit;
 	    this.renderCurrentScreen = this._screen.render;
 	  	
+	    // unbind old events
+	    this.unbindInputEvents();
+
 	  	// bind input events based on screen
 	    this.bindInputEvents(this._screen.inputEvents, true);
 
@@ -64,12 +68,18 @@ Game.UserInterface.prototype = {
         this.render();
 	},
 
-	bindInputEvents: function(inputEvents) {
+	bindInputEvents: function(inputEvents) 
+	{
 		// get input manager
 		var inputManager = Game.gameShell.inputManager;
 
 	    // bind new event handlers for keyboard and mouse
 	    inputManager.bindEvents(inputEvents);
+	},
+
+	unbindInputEvents: function()
+	{
+		Game.gameShell.inputManager.unbindEvents();
 	},
 
 	show: function()
@@ -83,14 +93,15 @@ Game.UserInterface.prototype = {
 	},
 
 	// adds a new element to the gui and binds it to this gui
-	addElement: function(element, activeByDefault) 
+	addElement: function(element, subscreen, activeByDefault) 
 	{
 		// get index of new element and add it to elements array
 		var index = this._elements.length;
 		this._elements.push(element);
 
 		// bind the dialog to this gui and init, if necessary
-		element.bindToGui(this._id);
+		element.bindToGui(this);
+		if (subscreen !== undefined) { element.bindToScreen(subscreen, this._subscreens[subscreen]); }
 		if (typeof element.init === 'function') { element.init(); }
 
 		// if this is the first element added, or if it's configured to be active by default, set it to active
@@ -168,12 +179,12 @@ Game.UserInterface.prototype = {
 	},
 
 	draw: function(scr, drawInfo) {//x, y, toDraw, fg, bg) {
-		if (scr != null && this._screens[scr] == undefined) 
+		if (scr != null && this._subscreens[scr] == undefined) 
 		{
 			console.error('no such screen: ' + scr);
 			return;
 		}
-		scr = this._screens[scr];
+		scr = this._subscreens[scr];
 		drawInfo.x = drawInfo.x || 0;
 		drawInfo.y = drawInfo.y || 0; 
 		drawInfo.x += scr.x;
@@ -191,12 +202,12 @@ Game.UserInterface.prototype = {
 	},
 	
 	drawText: function(scr, drawInfo, maxWidth) { // TODO: ALLOW LINE BY LINE (ARRAY TEXT)
-		if (scr != null && this._screens[scr] == undefined) //TODO: doesn't work
+		if (scr != null && this._subscreens[scr] == undefined) //TODO: doesn't work
 		{
 			console.error('no such screen: ' + scr);
 			return;
 		}
-		scr = this._screens[scr];
+		scr = this._subscreens[scr];
 		var x = drawInfo.x + scr.x;
 		var y = drawInfo.y + scr.y;
 		if ((x > scr.x + scr.width) || (y > scr.y + scr.height)) {

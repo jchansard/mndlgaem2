@@ -10,19 +10,19 @@
  Game.Architect = function(properties) {
 	properties 			= properties || {};
 	this._levelMap 		= [];
-	this.currentLevel 	= undefined;
+	this._currentLevel 	= undefined;
 }
 
 Game.Architect.prototype = {
 	init: function()
 	{
 		this._levelMap.push(this._generateNewLevel())
-		this.currentLevel = 0;
+		this._currentLevel = 0;
 	},
 
 	currentMap: function()
 	{
-		return this._levelMap[this.currentLevel];
+		return this._levelMap[this._currentLevel];
 	},
 
 	_generateNewLevel: function(levelType) 
@@ -41,7 +41,10 @@ Game.Architect.prototype = {
 			mapBuilder.create(callback);		
 		}
 
-		return new Game.Map(tiles);
+		var map = new Game.Map(tiles);
+		if (typeof levelType.init === 'function') { levelType.init.call(map); }
+
+		return map;
 	}
 }
 
@@ -53,5 +56,10 @@ Game.Architect.testDungeon = {
 	wallTile: Game.Tile.dungeonWall,
 
 	mapType: ROT.Map.Arena,
-	mapTypeCallback: Game.ArchitectUtils.floorOrWall
+	mapTypeCallback: Game.ArchitectUtils.floorOrWall,
+
+	init: function() 
+	{
+		this.addEntity(Game.gameShell.player);
+	}
 };

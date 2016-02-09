@@ -9,10 +9,11 @@
  */
 Game.Map = function(tiles) {
 	this._tiles = tiles;
+	this._entities = [];
 };
 
 Game.Map.prototype = {
-	draw: function(drawCallback, thisArg)
+	draw: function(drawCallback, thisArg, subscreen)
 	{
 		for (var x = 0; x < this._tiles.length; x++)
 		{
@@ -20,8 +21,21 @@ Game.Map.prototype = {
 			{
 				var glyph = this._tiles[x][y].glyph;
 				var drawInfo = { x: x, y: y, ch: glyph.ch, fg: glyph.fg, bg: glyph.bg }
-				drawCallback.call(thisArg, 'full', drawInfo);
+				drawCallback.call(thisArg, subscreen, drawInfo);
 			}
-		}	
+		}
+
+		this._entities.forEach(function(e)
+		{
+			var drawInfo = { x: e.x, y: e.y, ch: e.glyph.ch, fg: e.glyph.fg, bg: e.glyph.bg };
+			drawCallback.call(thisArg, subscreen, drawInfo);
+		});
 	},
+
+	addEntity: function(entity)
+	{
+		console.log(entity);
+		var entity = { glyph: entity.glyph, x: entity.position.x, y: entity.position.y };
+		this._entities.push(entity);
+	}
 }
