@@ -29,7 +29,7 @@ Game.Screens.startScreen = {
 				}
 			} 
 		})
-		Game.gameShell.guis['ui'].addElement(mainMenu);
+		Game.gameShell.guis['ui'].addElement(mainMenu, 'full');
     },
     render: function() {
         this.drawText('full',{ x: 19, y: 7, text: "%c{blue}mndlgaem2" });

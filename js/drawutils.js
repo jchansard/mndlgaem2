@@ -27,14 +27,14 @@ Game.DrawUtils = {
 	},
 
 	// draws a border around an area, and fills the background
-	drawBorder: function(display, scr, position, size, options)
+	drawBorder: function(display, drawPosition, size, options)
 	{
 		options = options 	    		|| {};
 		var fg  = options.fg 			|| 'white';
 		var bg  = options.bg  			|| 'rgba(20, 20, 40, 0.8)';
 		var padding = options.padding 	|| 1;
 
-		var borderPosition = { x: position.x, y: position. y };
+		var borderPosition = { x: 0, y: 0 };
 		var borderSize = { w: size.width, h: size.height };
 
 		// calculate new position and size based on padding
@@ -50,18 +50,18 @@ Game.DrawUtils = {
 
 		// draw top left corner (┌)
 		drawInfo.ch = '┌';
-		display.draw(scr, drawInfo)
+		display.draw(drawPosition, drawInfo)
 		// draw top border (─)
 		drawInfo.ch = '─';
 		for (var i = 1; i < borderSize.w - 1; i++)
 		{
 			drawInfo.x++;
-			display.draw(scr, drawInfo);
+			display.draw(drawPosition, drawInfo);
 		}
 		// draw top right corner (┐)
 		drawInfo.ch = '┐';
 		drawInfo.x++;
-		display.draw(scr, drawInfo);
+		display.draw(drawPosition, drawInfo);
 		// draw middle
 		for (var row = 1; row < borderSize.h; row++)
 		{
@@ -71,24 +71,24 @@ Game.DrawUtils = {
 			{
 				if (col == 0 || col == (borderSize.w - 1)) { drawInfo.ch = '│'; }
 				else { drawInfo.ch = ' '; }
-				display.draw(scr, drawInfo);
+				display.draw(drawPosition, drawInfo);
 				drawInfo.x++;
 			}
 		}
 		// draw bottom left corner (└)
 		drawInfo.x = borderPosition.x;
 		drawInfo.ch = '└';
-		display.draw(scr, drawInfo)
+		display.draw(drawPosition, drawInfo)
 		// draw bottom border (─)
 		drawInfo.ch = '─';
 		for (var j = 1; j < borderSize.w - 1; j++)
 		{
 			drawInfo.x++;
-			display.draw(scr, drawInfo);
+			display.draw(drawPosition, drawInfo);
 		}
 		// draw bottom right corner (┘)
 		drawInfo.ch = '┘';
 		drawInfo.x++;
-		display.draw(scr, drawInfo);		
+		display.draw(drawPosition, drawInfo);		
 	}
 }

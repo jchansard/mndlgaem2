@@ -14,8 +14,10 @@ Game.UIElement = function(properties)
 	this._size			= properties.size			|| { height: 0, width: 0 };
 	this._style			= properties.style 			|| {};
 	this._content 		= properties.content 		|| "";
+	this._layer			= properties.layer 			|| 0;
+	this._gui   		= undefined;
+	this._drawArea		= undefined;
 	this._initStyle();
-	this._gui   = undefined;
 }
 
 Game.UIElement.prototype = {
@@ -41,17 +43,14 @@ Game.UIElement.prototype = {
 
 	// don't override; sets this._screen and moves the element to be in the subscreen;
 	// sets size to full size of subscreen if size is set to 'fill'
-	bindToScreen: function(name, subscreen) {
-		this._subscreen = subscreen;
-		this._subscreen.name = name;
-		var x = this._position.x + subscreen.x;
-		var y = this._position.y + subscreen.y;
-
-		this._position = { x: x, y: y };
+	bindToScreen: function(drawArea) {
+		this._drawArea = drawArea;
+		this._drawArea.x = this._position.x + drawArea.x;
+		this._drawArea.y = this._position.y + drawArea.y;
 
 		if (this._size === 'fill') 
 		{
-			this._size = { height: subscreen.height, width: subscreen.width };
+			this._size = { height: drawArea.height, width: drawArea.width };
 		}
 	},
 

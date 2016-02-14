@@ -24,8 +24,8 @@ Game.GameShell = function() {
 	var subscreens = {};
 	subscreens['full'] = {	x: 0, y: 0,	width: 60, height: 20 }; 
 	subscreens['mapterminal'] =  { x: 0, y: 0,	width: 60, height: 20 }; 
-    this.guis['ui'] = new Game.UserInterface({ bg: UIBACKGROUND }, subscreens, 'div#game');
-    this.guis['overlay'] = new Game.UserInterface({ bg: OVERLAYBACKGROUND}, subscreens, 'div#overlay');
+    this.guis['ui'] = new Game.UserInterface({ bg: UIBACKGROUND }, 'div#game');
+    // this.guis['overlay'] = new Game.UserInterface({ bg: OVERLAYBACKGROUND }, 'div#overlay');
 
     // init input	
 	this.inputManager = new Game.InputManager(GAMECONTAINER, this.guis);
@@ -59,7 +59,31 @@ Game.GameShell.prototype = {
 	}
 }
 
+
+
 $(document).ready(function() {
 	Game.gameShell = new Game.GameShell();
-	Game.gameShell.init();     
+
+	var drawAreas = [{
+		name: 'full',
+		x: 0,
+		y: 0,
+		width: 60, 
+		height: 20, 
+		layer: 0
+	}, {
+		name: 'mapterminal',
+		x: 1,
+		y: 1,
+		width: 60,
+		height: 20,
+		layer: 0
+	}];
+
+	drawAreas.forEach(function(scr)
+	{
+		this.defineDrawArea(scr.name, scr);
+	}.bind(Game.gameShell.guis['ui']));
+
+	Game.gameShell.init();
 });    

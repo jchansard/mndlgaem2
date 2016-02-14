@@ -42,27 +42,28 @@ Game.Utils.extendPrototype(Game.MenuPrompt, {
 
 	// draw the dialog; override this for different dialog types
 	render: function() {
-		Game.DrawUtils.drawBorder(this._gui, 'full', this._position, this._size);
+		Game.DrawUtils.drawBorder(this._gui, this._drawArea, this._size);
 
 		var padding = this._style.padding || 0;
-		var y = this._position.y - padding;
+		var x = 0;
+		var y = 0 - padding;
 		
 		if (this._title !== "")
 		{
-			this._gui.drawText('full',
+			this._gui.drawText(this._drawArea,
 			{
-				x: this._position.x + padding, // TODO: align
+				x: x + padding, // TODO: align
 				y: y,
 				text: '%b{' + this._style.bg + '}' + this._title
 			});
 		}
 
-		y = this._position.y + padding;
+		y = padding;
 		if (this._content !== "") 
 		{
-			this._gui.drawText('full',
+			this._gui.drawText(this._drawArea,
 			{
-				x: this._position.x + padding,
+				x: x + padding,
 				y: y,
 				text: '%b{' + this._style.bg + '}' + this._content
 			});
@@ -85,12 +86,13 @@ Game.Utils.extendPrototype(Game.MenuPrompt, {
 			{
 				text += " ";
 			}
-			this._gui.drawText('full',
+			this._gui.drawText(this._drawArea,
 			{
-				x: this._position.x + padding,
+				x: x + padding,
 				y: y,
 				text: text
 			});
+
 			y++;
 		}
 	},

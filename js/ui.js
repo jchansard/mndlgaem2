@@ -8,7 +8,7 @@
  * https://github.com/jchansard/mndlgaem2
  */
 
-Game.UserInterface = function(properties, subscreens, container) {
+Game.UserInterface = function(properties, container) {
 	properties 		 = properties 		  		|| {};
 	this._height 	 = properties.height  		|| 20;
 	this._width 	 = properties.width   		|| 50;
@@ -16,23 +16,38 @@ Game.UserInterface = function(properties, subscreens, container) {
 	this._fontSize 	 = properties.fontSize 		|| 24;
 	this._fontFamily = properties.fontFamily 	|| 'inconsolata';
 	this._screen 	 = undefined;
-	this._subscreens = subscreens;
+	this._drawAreas  = {};
 	this._elements 	 = [];
 	this._activeElement = null;
 	this._container  = container;
-	this._display 	 = new ROT.Display({
-		height: 	this._height, 
-		width:  	this._width, 
-		bg: 		this._bg, 
-		fontSize:   this._fontSize, 
-		fontFamily: this._fontFamily
-	});
+
+	// init layers. Layers are extra transparent canvases created on top of the display
+	// with the same height, position, and font properties.
+	var layers 		 = properties.layers || 4;
+	this._displays   = new Array(layers);
+
+	for (var l = 0; l < layers; l++)
+	{
+		var bg = (l === 0) ? this._bg : 'transparent'; // overlay layers are transparent
+
+		this._displays[l] = (new ROT.Display({
+			height: 	this._height, 
+			width:  	this._width, 
+			bg: 		bg, 
+			fontSize:   this._fontSize, 
+			fontFamily: this._fontFamily
+		}));		
+	}
 };
 
 Game.UserInterface.prototype = {
 	init: function() 
 	{
-		$(this._container).append(this._display.getContainer());
+		this._displays.forEach(function(d)
+		{
+			$(d.getContainer()).css('position', 'absolute');
+			$(this._container).append(d.getContainer());
+		}.bind(this));
 	},
 
 	render: function() 
@@ -68,6 +83,20 @@ Game.UserInterface.prototype = {
         this.render();
 	},
 
+	// defines a draw area. the screen can be split into draw areas,
+	// making it easier to add elements to the appropriate area.
+	defineDrawArea: function(name, drawArea)
+	{
+		var layer = drawArea.layer || 0;
+		this._drawAreas[name] = {
+			x: drawArea.x,
+			y: drawArea.y,
+			height: drawArea.height,
+			width: drawArea.width,
+			layer: layer
+		};
+	},
+
 	bindInputEvents: function(inputEvents) 
 	{
 		// get input manager
@@ -93,16 +122,19 @@ Game.UserInterface.prototype = {
 	},
 
 	// adds a new element to the gui and binds it to this gui
-	addElement: function(element, subscreen, activeByDefault) 
+	addElement: function(element, drawArea, activeByDefault) 
 	{
-		// get index of new element and add it to elements array
-		var index = this._elements.length;
-		this._elements.push(element);
+		drawArea = (drawArea !== undefined) ? this._drawAreas[drawArea] : this._drawAreas['full'];
 
 		// bind the dialog to this gui and init, if necessary
 		element.bindToGui(this);
-		if (subscreen !== undefined) { element.bindToScreen(subscreen, this._subscreens[subscreen]); }
+
+		if (drawArea !== undefined) { element.bindToScreen(drawArea); }
 		if (typeof element.init === 'function') { element.init(); }
+
+		// get index of new element and add it to elements array
+		var index = this._elements.length;
+		this._elements.push(element);
 
 		// if this is the first element added, or if it's configured to be active by default, set it to active
 		if (index === 0 || activeByDefault === true)
@@ -152,15 +184,16 @@ Game.UserInterface.prototype = {
 	},	
 
 	// clears display; wraps ROT function
-	clearDisplay: function()
+	clearDisplay: function(layer)
 	{
-		this._display.clear();
+		layer = layer || 0;
+		this._displays[layer].clear();
 	},
 
 	// converts a click event to canvas coordinates; wraps ROT function
 	eventToPosition: function(e)
 	{
-		return this._display.eventToPosition(e);
+		return this._displays[0].eventToPosition(e);
 	},
 
 	// get all clicked elements
@@ -178,43 +211,22 @@ Game.UserInterface.prototype = {
 		return elements;
 	},
 
-	draw: function(scr, drawInfo) {//x, y, toDraw, fg, bg) {
-		if (scr != null && this._subscreens[scr] == undefined) 
-		{
-			console.error('no such screen: ' + scr);
-			return;
-		}
-		scr = this._subscreens[scr];
-		drawInfo.x = drawInfo.x || 0;
-		drawInfo.y = drawInfo.y || 0; 
-		drawInfo.x += scr.x;
-		drawInfo.y += scr.y;
-		if ((drawInfo.x > scr.x + scr.width) || (drawInfo.y > scr. y + scr.height)) {
-			console.error('drawing out of designated area: ' + drawInfo.x + ',' + drawInfo.y);
-			return;
-		}
-		if (!scr.canvasID)
-		{		
-			this._display.draw(drawInfo.x, drawInfo.y, drawInfo.ch, drawInfo.fg, drawInfo.bg);
-		} else {
-			this.drawToCanvas(scr.canvasID, drawInfo);
-		}
+	draw: function(drawArea, drawInfo) {//x, y, toDraw, fg, bg) {
+		var x     = drawInfo.x 	       || 0;
+		var y	  = drawInfo.y	       || 0; 
+		var layer = drawArea.layer 	   || 0;
+		x += drawArea.x;
+		y += drawArea.y;
+
+		this._displays[layer].draw(x, y, drawInfo.ch, drawInfo.fg, drawInfo.bg); 
 	},
 	
-	drawText: function(scr, drawInfo, maxWidth) { // TODO: ALLOW LINE BY LINE (ARRAY TEXT)
-		if (scr != null && this._subscreens[scr] == undefined) //TODO: doesn't work
-		{
-			console.error('no such screen: ' + scr);
-			return;
-		}
-		scr = this._subscreens[scr];
-		var x = drawInfo.x + scr.x;
-		var y = drawInfo.y + scr.y;
-		if ((x > scr.x + scr.width) || (y > scr.y + scr.height)) {
-			console.error('drawing out of designated area');
-			return;
-		}		
-		this._display.drawText(x, y, drawInfo.text, maxWidth);
+	drawText: function(drawArea, drawInfo, maxWidth) { // TODO: ALLOW LINE BY LINE (ARRAY TEXT)
+		var x     = drawInfo.x + drawArea.x;
+		var y     = drawInfo.y + drawArea.y;
+		var layer = drawInfo.layer || 0;
+
+		this._displays[layer].drawText(x, y, drawInfo.text, maxWidth);
 	},
 
 	drawToCanvas: function(id, drawInfo) {

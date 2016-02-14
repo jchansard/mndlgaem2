@@ -13,7 +13,7 @@ Game.Map = function(tiles) {
 };
 
 Game.Map.prototype = {
-	draw: function(drawCallback, thisArg, subscreen)
+	draw: function(drawCallback, thisArg, drawArea)
 	{
 		for (var x = 0; x < this._tiles.length; x++)
 		{
@@ -21,14 +21,14 @@ Game.Map.prototype = {
 			{
 				var glyph = this._tiles[x][y].glyph;
 				var drawInfo = { x: x, y: y, ch: glyph.ch, fg: glyph.fg, bg: glyph.bg }
-				drawCallback.call(thisArg, subscreen, drawInfo);
+				drawCallback.call(thisArg, drawArea, drawInfo);
 			}
 		}
 
 		this._entities.forEach(function(e)
 		{
 			var drawInfo = { x: e.x, y: e.y, ch: e.glyph.ch, fg: e.glyph.fg, bg: e.glyph.bg };
-			drawCallback.call(thisArg, subscreen, drawInfo);
+			drawCallback.call(thisArg, drawArea, drawInfo);
 		});
 	},
 
