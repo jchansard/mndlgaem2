@@ -376,27 +376,24 @@ tests = {
 			this.f.setActiveElement.restore();
 		},
 
-		"addElement should bind the element to a screen, if a screen name is passed": function() {
+		"addElement should bind the element to a drawArea, if a drawArea name is passed and that drawArea exists": function() {
 			var actual, expected;
 			var bindStub = sinon.stub();
 			var setActiveStub = sinon.stub(this.f, "setActiveElement");
 			var el = { bindToScreen: bindStub, bindToGui: sinon.stub() };
 			this.f._elements = [];
 			this.f._subscreens = { test: undefined };
+			this.f._drawAreas['test'] = {};
 
 			this.f.addElement(el, 'test');
-
-			// should call bindStub
-			actual = bindStub.calledOnce;
-			assert.isTrue(actual);
-
 			this.f.addElement(el);
-
-			// shouldn't call bindStub
-			actual = bindStub.calledOnce;
-			assert.isTrue(actual);
+			this.f.addElement(el, 'falafel');
 
 			this.f.setActiveElement.restore();
+
+			// bindStub should only have been called once (for the first call)
+			actual = bindStub.calledOnce && bindStub.neverCalledWith(undefined);
+			assert.isTrue(actual);
 		},
 
 		"addElement should call the element's init function, if it exists, and continue if it doesn't": function() {
