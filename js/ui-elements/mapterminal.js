@@ -12,7 +12,7 @@ Game.MapTerminal = function(properties, map)
 	properties = properties || {};
 	Game.UIElement.call(this, properties);
 	this._size          = properties.size;
-	this._map			= map;
+	this._map			= map;	
 }
 
 Game.MapTerminal.extend(Game.UIElement);
@@ -25,7 +25,7 @@ Game.Utils.extendPrototype(Game.MapTerminal, {
 
 	// draw the dialog; override this for different dialog types
 	render: function() {
-		this._map.draw(this._gui.draw, this._gui, this._subscreen.name);
+		this._map.draw(this._gui.draw, this._gui, this._drawArea);
 		return;
 	},
 
