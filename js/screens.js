@@ -16,13 +16,13 @@ Game.Screens.startScreen = {
 			title:		"mndlgaem2",
 			options: 	["New Game", "Load Game"],
 			position: 	{ x: 18, y: 10 },
-			style: { padding: 1 },
+			style:      { padding: 1 },
 			callback:   function(choice) { 
 				switch(choice)
 				{
 					case 0: 
                         Game.gameShell.player    = new Game.Player();
-						Game.gameShell.architect = new Game.Architect();
+						Game.gameShell.architect = new Game.Architect({}, Game.gameShell.player);
 						Game.gameShell.architect.init();
 						Game.gameShell.guis['ui'].changeScreen(Game.Screens.gameScreen);
 						break;
@@ -67,7 +67,7 @@ Game.Screens.gameScreen = {
 		var mapTerminal = new Game.MapTerminal({
 			position: { x: 0, y: 0 },
 			size: 'fill'
-		}, Game.gameShell.architect.currentMap())
+		}, Game.gameShell.architect.currentMap(), Game.gameShell.player)
 
 		Game.gameShell.guis['ui'].addElement(mapTerminal, 'mapterminal');
 	},

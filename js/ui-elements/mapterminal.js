@@ -7,12 +7,13 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
-Game.MapTerminal = function(properties, map)
+Game.MapTerminal = function(properties, map, player)
 {
 	properties = properties || {};
 	Game.UIElement.call(this, properties);
 	this._size          = properties.size;
 	this._map			= map;	
+	this._player		= player;
 }
 
 Game.MapTerminal.extend(Game.UIElement);
@@ -34,13 +35,21 @@ Game.Utils.extendPrototype(Game.MapTerminal, {
 		var context = this._gui;
 		var inputEvents = {
 			down: {
-				context: this,
-				fn: function() { return; }
+				context: this._player,
+				fn: function() { this.actor._y += 1; }
 			},
 			up: {
-				context: this,
-				fn: function() { return; }
+				context: this._player,
+				fn: function() { this.actor._y -= 1; }
 			},
+			left: {
+				context: this._player,
+				fn: function() { this.actor._x -= 1; }
+			},
+			right: {
+				context: this._player,
+				fn: function() { this.actor._x += 1; }
+			}
 		};
 		return inputEvents;
 	},

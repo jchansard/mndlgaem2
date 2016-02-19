@@ -598,29 +598,33 @@ tests = {
 	"Architect.js tests": {
 		setup: function() {
 			sinon.stub(Game.Architect.testDungeon, "init");
-			this.f = new Game.Architect();
+			this.f = new Game.Architect({},{ actor: 'test'});
 		},
 
-		"init should generate a new level and add it to the architect's level map": function() {
+		"init should generate a new level and add it and the player to the architect's level map": function() {
 			var actual, expected;
-			var testMap = new Map();
+			var addEntityStub = sinon.stub()
+			var testMap = { addEntity: addEntityStub };
 			var generateStub = sinon.stub(this.f, "_generateNewLevel").returns(testMap)
 
 			this.f.init();
+			this.f._generateNewLevel.restore();
 
-			actual = generateStub.callCount;
+			actual   = generateStub.callCount;
 			expected = 1;
 			assert.equals(actual, expected);
 
-			actual = this.f._levelMap;
+			actual   = this.f._levelMap;
 			expected = [testMap];
 			assert.equals(actual, expected);
 
-			actual = this.f._currentLevel;
+			actual   = this.f._currentLevel;
 			expected = 0;
 			assert.equals(actual, expected);
 
-			this.f._generateNewLevel.restore();
+			actual   = addEntityStub.callCount;
+			expected = 1;
+			assert.equals(actual, expected);
 		},
 
 		"_generateNewLevel should generate and return new Map object": function() {
@@ -731,10 +735,22 @@ tests = {
 			this.f = new Game.Map(Game.ArchitectUtils.create2DArray(3, 2, initialValue));
 		},
 
+		"addEntity should call the entity's setMap function": function() {
+			var actual;
+			var setMapStub = sinon.stub();
+			var entity = { setMap: setMapStub };
+
+			this.f.addEntity(entity);
+
+			actual = setMapStub.calledOnce && setMapStub.alwaysCalledWith(this.f);
+			assert.isTrue(actual);
+		},
+
 		"draw should call the passed callback once for each tile in the map, using the passed thisArg": function() {
 			var actual, expected;
 			var callback = sinon.stub();
 			var thisArg = { test: 'test' };
+			this.f._entities = [];
 
 			this.f.draw(callback, thisArg);
 
@@ -756,36 +772,35 @@ tests = {
 			// }
 		},
 
-		"draw should draw each entity in _entities": function() {
+		"draw should call each entity's draw function in _entities": function() {
 			var actual, expected;
 			var tilesBackup = this.f._tiles;
 			this.f._tiles = [];
-			var callback = sinon.stub(); 
+			var drawStub = sinon.stub();
 			var thisArg = { test: 'ashes to ashes' };
-			var entity1 = { glyph: { ch: '1', fg: '9', bg: '84'} }
-			var entity2 = { glyph: { ch: 'sav', fg: 'age', bg: 'jaw'} }
+			var entity1 = { glyph: { ch: '1', fg: '9', bg: '84'}, draw: drawStub  }
+			var entity2 = { glyph: { ch: 'sav', fg: 'age', bg: 'jaw'}, draw: drawStub }
 			this.f._entities = [entity1, entity2];
 			
-			this.f.draw(callback, thisArg);
+			this.f.draw(sinon.stub(), thisArg);
+			this.f._tiles = tilesBackup;
 
-			actual   = callback.callCount;
+			actual   = drawStub.callCount;
 			expected = this.f._entities.length;
 			assert.equals(actual, expected);
-
-			this.f._tiles = tilesBackup;
 		},
 
-		"addEntity should only add an entity's glyph and position to _entities": function() {
-			var actual, expected;
-			var entity = { glyph: 0, position: { x: 1, y: 2}, testprop: 3 };
-			this.f._entities = [];
+		// "addEntity should only add an entity's glyph and position to _entities": function() {
+		// 	var actual, expected;
+		// 	var entity = { glyph: 0, position: { x: 1, y: 2}, testprop: 3 };
+		// 	this.f._entities = [];
 
-			this.f.addEntity(entity);
+		// 	this.f.addEntity(entity);
 
-			actual   = this.f._entities[0];
-			expected = { glyph: 0,  x: 1, y: 2 }
-			assert.equals(actual, expected);
-		},
+		// 	actual   = this.f._entities[0];
+		// 	expected = { glyph: 0,  x: 1, y: 2 }
+		// 	assert.equals(actual, expected);
+		// },
 
 		teardown: function() {
 			delete this.f;

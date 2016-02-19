@@ -15,6 +15,8 @@ Game.Map = function(tiles) {
 Game.Map.prototype = {
 	draw: function(drawCallback, thisArg, drawArea)
 	{
+
+		// draw map 
 		for (var x = 0; x < this._tiles.length; x++)
 		{
 			for (var y = 0; y < this._tiles[x].length; y++)
@@ -25,17 +27,21 @@ Game.Map.prototype = {
 			}
 		}
 
+		// draw entities
 		this._entities.forEach(function(e)
 		{
-			var drawInfo = { x: e.x, y: e.y, ch: e.glyph.ch, fg: e.glyph.fg, bg: e.glyph.bg };
-			drawCallback.call(thisArg, drawArea, drawInfo);
+			e.draw(drawCallback, thisArg, drawArea);
 		});
 	},
 
 	addEntity: function(entity)
 	{
-		console.log(entity);
-		var entity = { glyph: entity.glyph, x: entity.position.x, y: entity.position.y };
 		this._entities.push(entity);
+		entity.setMap(this);
+	},
+
+	getTile: function(x, y)
+	{
+		return this._tiles[x][y];
 	}
 }

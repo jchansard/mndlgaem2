@@ -8,6 +8,9 @@
  * https://github.com/jchansard/mndlgaem2
  */
 Game.Player = function() {
-	this.glyph = new Game.Glyph(['@', 'white', 'none']);
-	this.position = { x: 1, y: 1 };
+	this.actor = new Game.Entity({ //dontmakeactort???
+		glyph: ['@', 'white'],
+		x: 1,
+		y: 1
+	})
 }

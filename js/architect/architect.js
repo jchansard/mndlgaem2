@@ -7,10 +7,11 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
- Game.Architect = function(properties) {
+ Game.Architect = function(properties, player) {
 	properties 			= properties || {};
 	this._levelMap 		= [];
 	this._currentLevel 	= undefined;
+	this._player 		= player;
 }
 
 Game.Architect.prototype = {
@@ -18,6 +19,7 @@ Game.Architect.prototype = {
 	{
 		this._levelMap.push(this._generateNewLevel())
 		this._currentLevel = 0;
+		this.currentMap().addEntity(this._player.actor);
 	},
 
 	currentMap: function()
@@ -60,6 +62,6 @@ Game.Architect.testDungeon = {
 
 	init: function() 
 	{
-		this.addEntity(Game.gameShell.player);
+		//this.addEntity(Game.gameShell.player);
 	}
 };

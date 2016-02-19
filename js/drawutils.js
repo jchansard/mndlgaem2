@@ -27,7 +27,7 @@ Game.DrawUtils = {
 	},
 
 	// draws a border around an area, and fills the background
-	drawBorder: function(display, drawPosition, size, options)
+	drawBorder: function(display, drawArea, size, options)
 	{
 		options = options 	    		|| {};
 		var fg  = options.fg 			|| 'white';
@@ -50,18 +50,18 @@ Game.DrawUtils = {
 
 		// draw top left corner (┌)
 		drawInfo.ch = '┌';
-		display.draw(drawPosition, drawInfo)
+		display.draw(drawArea, drawInfo)
 		// draw top border (─)
 		drawInfo.ch = '─';
 		for (var i = 1; i < borderSize.w - 1; i++)
 		{
 			drawInfo.x++;
-			display.draw(drawPosition, drawInfo);
+			display.draw(drawArea, drawInfo);
 		}
 		// draw top right corner (┐)
 		drawInfo.ch = '┐';
 		drawInfo.x++;
-		display.draw(drawPosition, drawInfo);
+		display.draw(drawArea, drawInfo);
 		// draw middle
 		for (var row = 1; row < borderSize.h; row++)
 		{
@@ -71,24 +71,24 @@ Game.DrawUtils = {
 			{
 				if (col == 0 || col == (borderSize.w - 1)) { drawInfo.ch = '│'; }
 				else { drawInfo.ch = ' '; }
-				display.draw(drawPosition, drawInfo);
+				display.draw(drawArea, drawInfo);
 				drawInfo.x++;
 			}
 		}
 		// draw bottom left corner (└)
 		drawInfo.x = borderPosition.x;
 		drawInfo.ch = '└';
-		display.draw(drawPosition, drawInfo)
+		display.draw(drawArea, drawInfo)
 		// draw bottom border (─)
 		drawInfo.ch = '─';
 		for (var j = 1; j < borderSize.w - 1; j++)
 		{
 			drawInfo.x++;
-			display.draw(drawPosition, drawInfo);
+			display.draw(drawArea, drawInfo);
 		}
 		// draw bottom right corner (┘)
 		drawInfo.ch = '┘';
 		drawInfo.x++;
-		display.draw(drawPosition, drawInfo);		
+		display.draw(drawArea, drawInfo);		
 	}
 }

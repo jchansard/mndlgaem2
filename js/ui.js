@@ -23,7 +23,7 @@ Game.UserInterface = function(properties, container) {
 
 	// init layers. Layers are extra transparent canvases created on top of the display
 	// with the same height, position, and font properties.
-	var layers 		 = properties.layers || 4;
+	var layers 		 = properties.layers || 1;
 	this._displays   = new Array(layers);
 
 	for (var l = 0; l < layers; l++)

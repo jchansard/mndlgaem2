@@ -14,7 +14,6 @@ Game.UIElement = function(properties)
 	this._size			= properties.size			|| { height: 0, width: 0 };
 	this._style			= properties.style 			|| {};
 	this._content 		= properties.content 		|| "";
-	this._layer			= properties.layer 			|| 0;
 	this._gui   		= undefined;
 	this._drawArea		= undefined;
 	this._initStyle();
