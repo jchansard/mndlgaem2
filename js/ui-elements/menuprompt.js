@@ -50,23 +50,13 @@ Game.Utils.extendPrototype(Game.MenuPrompt, {
 		
 		if (this._title !== "")
 		{
-			this._gui.drawText(this._drawArea,
-			{
-				x: x + padding, // TODO: align
-				y: y,
-				text: '%b{' + this._style.bg + '}' + this._title
-			});
+			this._gui.drawText(this._drawArea, x + padding, y, { text: '%b{' + this._style.bg + '}' + this._title });
 		}
 
 		y = padding;
 		if (this._content !== "") 
 		{
-			this._gui.drawText(this._drawArea,
-			{
-				x: x + padding,
-				y: y,
-				text: '%b{' + this._style.bg + '}' + this._content
-			});
+			this._gui.drawText(this._drawArea, x + padding, y, { text: '%b{' + this._style.bg + '}' + this._content });
 			y += 2;
 		}
 
@@ -86,12 +76,7 @@ Game.Utils.extendPrototype(Game.MenuPrompt, {
 			{
 				text += " ";
 			}
-			this._gui.drawText(this._drawArea,
-			{
-				x: x + padding,
-				y: y,
-				text: text
-			});
+			this._gui.drawText(this._drawArea, x + padding, y, { text: text })
 
 			y++;
 		}

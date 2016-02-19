@@ -33,22 +33,23 @@ Game.Utils.extendPrototype(Game.MapTerminal, {
 	// get input events for this dialog
 	getInputEvents: function() {
 		var context = this._gui;
+		var player = this._player;
 		var inputEvents = {
 			down: {
-				context: this._player,
-				fn: function() { this.actor._y += 1; }
+				context: player,
+				fn: player.moveDown
 			},
 			up: {
-				context: this._player,
-				fn: function() { this.actor._y -= 1; }
+				context: player,
+				fn: player.moveUp
 			},
 			left: {
-				context: this._player,
-				fn: function() { this.actor._x -= 1; }
+				context: player,
+				fn: player.moveLeft
 			},
 			right: {
-				context: this._player,
-				fn: function() { this.actor._x += 1; }
+				context: player,
+				fn: player.moveRight
 			}
 		};
 		return inputEvents;

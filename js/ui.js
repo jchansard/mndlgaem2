@@ -211,9 +211,7 @@ Game.UserInterface.prototype = {
 		return elements;
 	},
 
-	draw: function(drawArea, drawInfo) {//x, y, toDraw, fg, bg) {
-		var x     = drawInfo.x 	       || 0;
-		var y	  = drawInfo.y	       || 0; 
+	draw: function(drawArea, x, y, drawInfo) {//x, y, toDraw, fg, bg) {
 		var layer = drawArea.layer 	   || 0;
 		x += drawArea.x;
 		y += drawArea.y;
@@ -221,9 +219,9 @@ Game.UserInterface.prototype = {
 		this._displays[layer].draw(x, y, drawInfo.ch, drawInfo.fg, drawInfo.bg); 
 	},
 	
-	drawText: function(drawArea, drawInfo, maxWidth) { // TODO: ALLOW LINE BY LINE (ARRAY TEXT)
-		var x     = drawInfo.x + drawArea.x;
-		var y     = drawInfo.y + drawArea.y;
+	drawText: function(drawArea, x, y, drawInfo, maxWidth) { // TODO: ALLOW LINE BY LINE (ARRAY TEXT)
+		x += drawArea.x;
+		y += drawArea.y;
 		var layer = drawInfo.layer || 0;
 
 		this._displays[layer].drawText(x, y, drawInfo.text, maxWidth);

@@ -16,12 +16,9 @@ Game.DrawUtils = {
 
 		for (var y = position.y; y < position.y + size.height; y++)
 		{
-			drawInfo.y = y;
 			for (var x = position.x; x < position.x + size.width; x++)
 			{
-				console.log('clearing ' + x + ',' + y);
-				drawInfo.x = x;
-				display.draw(scr, drawInfo);
+				display.draw(scr, x, y, drawInfo);
 			}
 		}
 	},
@@ -46,49 +43,51 @@ Game.DrawUtils = {
 			borderSize.w += (padding * 2);
 		}
 
-		var drawInfo = { x: borderPosition.x, y: borderPosition.y, fg: fg, bg: bg };
+		var drawInfo = { fg: fg, bg: bg };
+		var x = borderPosition.x;
+		var y = borderPosition.y;
 
 		// draw top left corner (┌)
 		drawInfo.ch = '┌';
-		display.draw(drawArea, drawInfo)
+		display.draw(drawArea, x, y, drawInfo)
 		// draw top border (─)
 		drawInfo.ch = '─';
 		for (var i = 1; i < borderSize.w - 1; i++)
 		{
-			drawInfo.x++;
-			display.draw(drawArea, drawInfo);
+			x++;
+			display.draw(drawArea, x, y, drawInfo);
 		}
 		// draw top right corner (┐)
 		drawInfo.ch = '┐';
-		drawInfo.x++;
-		display.draw(drawArea, drawInfo);
+		x++;
+		display.draw(drawArea, x, y, drawInfo);
 		// draw middle
 		for (var row = 1; row < borderSize.h; row++)
 		{
-			drawInfo.y++;
-			drawInfo.x = borderPosition.x;
+			y++;
+			x = borderPosition.x;
 			for (var col = 0; col < borderSize.w; col++)
 			{
 				if (col == 0 || col == (borderSize.w - 1)) { drawInfo.ch = '│'; }
 				else { drawInfo.ch = ' '; }
-				display.draw(drawArea, drawInfo);
-				drawInfo.x++;
+				display.draw(drawArea, x, y, drawInfo);
+				x++;
 			}
 		}
 		// draw bottom left corner (└)
-		drawInfo.x = borderPosition.x;
+		x = borderPosition.x;
 		drawInfo.ch = '└';
-		display.draw(drawArea, drawInfo)
+		display.draw(drawArea, x, y, drawInfo)
 		// draw bottom border (─)
 		drawInfo.ch = '─';
 		for (var j = 1; j < borderSize.w - 1; j++)
 		{
-			drawInfo.x++;
-			display.draw(drawArea, drawInfo);
+			x++;
+			display.draw(drawArea, x, y, drawInfo);
 		}
 		// draw bottom right corner (┘)
 		drawInfo.ch = '┘';
-		drawInfo.x++;
-		display.draw(drawArea, drawInfo);		
+		x++;
+		display.draw(drawArea, x, y, drawInfo);		
 	}
 }
