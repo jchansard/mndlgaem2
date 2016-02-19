@@ -10,6 +10,7 @@
  */
 
  Game.Entity = function(template) {
+ 	template = template || {};
  	this._glyph = new Game.Glyph(template.glyph)
 	this._name = template['name'];
 	this._x = template['x'] || 0;
@@ -21,8 +22,6 @@
  	draw: function(drawCallback, thisArg, drawArea) {
  		var g = this._glyph;
  		var drawInfo = {
- 			x: this._x,
- 			y: this._y,
  			ch: g.ch,
  			fg: g.fg,
  			bg: g.bg
@@ -33,10 +32,20 @@
  		{
  			drawInfo.bg = this._map.getTile(this._x, this._y).glyph.bg;
  		}
- 		drawCallback.call(thisArg, drawArea, drawInfo);
+ 		drawCallback.call(thisArg, drawArea, this._x, this._y, drawInfo);
  	},
 
- 	setPos: function(x, y)
+ 	tryMove: function(x, y)
+ 	{
+ 		if (this.canMoveTo(x, y)) { this.moveTo(x, y); }
+ 	},
+
+ 	canMoveTo: function(x, y)
+ 	{
+ 		return this._map.isTraversable(x, y);
+ 	},
+
+ 	moveTo: function(x, y)
  	{
  		this._x = x;
  		this._y = y;

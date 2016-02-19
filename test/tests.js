@@ -805,5 +805,30 @@ tests = {
 		teardown: function() {
 			delete this.f;
 		}
+	},
+
+	"Entity.js tests": {
+		setup: function() {
+			this.f = new Game.Entity();
+		},
+
+		"canMoveTo should return false if the tile at x,y is not traversable and true otherwise": function() {
+			var actual, expected;
+			var isTraversableStub = sinon.stub();
+			isTraversableStub.onFirstCall().returns(true).onSecondCall().returns(false);
+			this.f._map = { isTraversable: isTraversableStub };
+
+			actual   = this.f.canMoveTo(0, 0);
+			expected = true;
+			assert.equals(actual, expected);
+
+			actual   = this.f.canMoveTo(0, 0);
+			expected = false;
+			assert.equals(actual, expected);
+		},
+
+		teardown: function() {
+			delete this.f;
+		}
 	}
 };

@@ -19,7 +19,7 @@ Game.Architect.prototype = {
 	{
 		this._levelMap.push(this._generateNewLevel())
 		this._currentLevel = 0;
-		this.currentMap().addEntity(this._player.actor);
+		this.currentMap().addEntity(this._player);
 	},
 
 	currentMap: function()
