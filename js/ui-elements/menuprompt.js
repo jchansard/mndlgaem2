@@ -7,20 +7,25 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
-Game.MenuPrompt = function(properties)
+Game.UIElements.MenuPrompt = function(properties, gui, drawArea, eventEmitter)
 {
 	properties = properties || {};
-	Game.UIElement.call(this, properties);
+	Game.UIElements.UIElement.apply(this, arguments);
 	this._title			= properties.title 			|| "";
 	this._options 	 	= properties.options 		|| [];
 	this._choice		= properties.choice 		|| 0;
 	this._callback		= properties.callback;
-	this._size          = properties.size           || this._calculateSize();
-	this._initStyle();
+	this._size          = properties.size;
 }
 
-Game.MenuPrompt.extend(Game.UIElement);
-Game.Utils.extendPrototype(Game.MenuPrompt, {
+Game.UIElements.MenuPrompt.extend(Game.UIElements.UIElement);
+Game.Utils.extendPrototype(Game.UIElements.MenuPrompt, {
+
+	// overrides prototype
+	build: function() {
+		Game.UIElements.UIElement.prototype.build.call(this);
+		if (this._size === undefined) { this._calculateSize(); }
+	},
 
 	// calculate size based on title and options, TODO: add padding option
 	_calculateSize: function() {
@@ -32,7 +37,7 @@ Game.Utils.extendPrototype(Game.MenuPrompt, {
 			width = Math.max(width, this._options[i].length);
 			height++;
 		}
-		return { height: height + (2 * padding), width: width + (2 * padding) };
+		this._size = { height: height + (2 * padding), width: width + (2 * padding) };
 	},
 
 	close: function() {

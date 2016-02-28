@@ -7,24 +7,24 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
-Game.MapTerminal = function(properties, map, player)
+Game.UIElements.MapTerminal = function(properties, gui, drawArea, eventEmitter)
 {
 	properties = properties || {};
-	Game.UIElement.call(this, properties);
+	Game.UIElements.UIElement.apply(this, arguments);
 	this._size          = properties.size;
-	this._map			= map;	
-	this._player		= player;
+	this._map			= properties.map;	
+	this._player		= properties.player;
 }
 
-Game.MapTerminal.extend(Game.UIElement);
-Game.Utils.extendPrototype(Game.MapTerminal, {
+Game.UIElements.MapTerminal.extend(Game.UIElements.UIElement);
+Game.Utils.extendPrototype(Game.UIElements.MapTerminal, {
 
 	close: function() {
 		//TODO: animate?
 		return;
 	},
 
-	// draw the dialog; override this for different dialog types
+	// draw the dialog
 	render: function() {
 		this._map.draw(this._gui.draw, this._gui, this._drawArea);
 		return;
@@ -34,28 +34,29 @@ Game.Utils.extendPrototype(Game.MapTerminal, {
 	getInputEvents: function() {
 		var context = this._gui;
 		var player = this._player;
+		var handler = this._emitter.Event('player-move').publish;
 		var inputEvents = {
 			down: {
 				context: player,
-				fn: player.moveDown
+				fn: function() { handler('down'); }
 			},
 			up: {
 				context: player,
-				fn: player.moveUp
+				fn: function() { handler('up'); }
 			},
 			left: {
 				context: player,
-				fn: player.moveLeft
+				fn: function() { handler('left'); }
 			},
 			right: {
 				context: player,
-				fn: player.moveRight
+				fn: function() { handler('right'); }
 			}
 		};
 		return inputEvents;
 	},
 
-	// on click, if user clicked on a prompt option, choose that choice
+	// TODO: set focus on click
 	lclick: function(e) {
 		return;
 	},

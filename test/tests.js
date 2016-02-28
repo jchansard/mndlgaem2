@@ -331,87 +331,105 @@ tests = {
 			assert.equals(actual, expected);
 		},	
 
-		"addElement should add and bind an element to a gui and set it to be the active element when appropriate": function() {
+		"addElement should call the passed constructor with the passed options, drawArea, this gui's emitter, and this gui as parameters": function() {
 			var actual, expected;
-			var bindStub = sinon.stub();
-			var setActiveStub = sinon.stub(this.f, "setActiveElement");
-			var el = { bindToGui: bindStub }
-			this.f._elements = [];
+			var options = { test1: 'test1' };
+			var testConstructor = sinon.stub().returns(new Object());
+			var testEmitter  = 'testEmitter';
+			var testDrawArea = 'testDrawArea';
+			this.f._emitter  = testEmitter;
+			this.f._drawAreas.testDrawArea = testDrawArea;
 
-			this.f.addElement(el);
+			this.f.addElement(testConstructor, options, testDrawArea);
 
-			// should add el
-			actual = this.f._elements;
-			expected = [el];
-			assert.equals(actual, expected);
-
-			// should have set el to active
-			actual = setActiveStub.calledOnce && setActiveStub.calledWithExactly(0);
-			assert.isTrue(actual);
-
-			// add another element
-			this.f.addElement(el);
-
-			// set active shouldn't have been called, since it wasn't the first element and no override was passed
-			actual = setActiveStub.calledOnce;
-			assert.isTrue(actual);
-
-			// add a third element, this time with override
-			this.f.addElement(el, undefined, true);
-
-			// set active should have been called, since activeByDefault is true
-			actual = setActiveStub.calledTwice && setActiveStub.calledWithExactly(2);
-			assert.isTrue(actual);
-
-			// validate final state of elements
-			actual = this.f._elements;
-			expected = [el, el, el];
-			assert.equals(actual, expected);
-
-			// bind should have been called three times
-			actual = bindStub.callCount;
-			expected = 3;
-			assert.equals(actual, expected);
-
-			this.f.setActiveElement.restore();
-		},
-
-		"addElement should bind the element to a drawArea, if a drawArea name is passed and that drawArea exists": function() {
-			var actual, expected;
-			var bindStub = sinon.stub();
-			var setActiveStub = sinon.stub(this.f, "setActiveElement");
-			var el = { bindToScreen: bindStub, bindToGui: sinon.stub() };
-			this.f._elements = [];
-			this.f._subscreens = { test: undefined };
-			this.f._drawAreas['test'] = {};
-
-			this.f.addElement(el, 'test');
-			this.f.addElement(el);
-			this.f.addElement(el, 'falafel');
-
-			this.f.setActiveElement.restore();
-
-			// bindStub should only have been called once (for the first call)
-			actual = bindStub.calledOnce && bindStub.neverCalledWith(undefined);
+			actual   = testConstructor.calledWithExactly(options, this.f, testDrawArea, testEmitter);
 			assert.isTrue(actual);
 		},
 
-		"addElement should call the element's init function, if it exists, and continue if it doesn't": function() {
-			var actual, expected;
-			var initStub = sinon.stub();
-			var el1 = { bindToGui: sinon.stub(), init: initStub };
-			var el2 = { bindToGui: sinon.stub() };
+		// "addElement should add and bind an element to a gui, its emitter, and set it to be the active element when appropriate": function() {
+		// 	var actual, expected;
+		// 	var bindStub = sinon.stub();
+		// 	var emitterStub = sinon.stub();
+		// 	var setActiveStub = sinon.stub(this.f, "setActiveElement");
+		// 	var el = { bindToGui: bindStub, bindToEmitter: emitterStub }
+		// 	this.f._elements = [];
 
-			this.f.addElement(el1);
+		// 	this.f.addElement(el);
 
-			actual = initStub.calledOnce && initStub.calledOn(el1);
-			assert.isTrue(actual);
+		// 	// should add el
+		// 	actual = this.f._elements;
+		// 	expected = [el];
+		// 	assert.equals(actual, expected);
 
-			this.f.addElement(el2);
+		// 	// should have set el to active
+		// 	actual = setActiveStub.calledOnce && setActiveStub.calledWithExactly(0);
+		// 	assert.isTrue(actual);
 
-			actual = initStub.calledOnce && !initStub.calledOn(el2);
-			assert.isTrue(actual);
-		},
+		// 	// add another element
+		// 	this.f.addElement(el);
+
+		// 	// set active shouldn't have been called, since it wasn't the first element and no override was passed
+		// 	actual = setActiveStub.calledOnce;
+		// 	assert.isTrue(actual);
+
+		// 	// add a third element, this time with override
+		// 	this.f.addElement(el, undefined, true);
+
+		// 	// set active should have been called, since activeByDefault is true
+		// 	actual = setActiveStub.calledTwice && setActiveStub.calledWithExactly(2);
+		// 	assert.isTrue(actual);
+
+		// 	// validate final state of elements
+		// 	actual = this.f._elements;
+		// 	expected = [el, el, el];
+		// 	assert.equals(actual, expected);
+
+		// 	// bind should have been called three times
+		// 	actual = bindStub.callCount;
+		// 	expected = 3;
+		// 	assert.equals(actual, expected);
+
+		// 	// emitter should have been called three times
+		// 	actual = emitterStub.callCount;
+		// 	expected = 3;
+		// 	assert.equals(actual, expected);
+
+		// 	this.f.setActiveElement.restore();
+		// },
+
+		// "addElement should bind the element to a drawArea, if a drawArea name is passed and that drawArea exists": function() {
+		// 	var actual, expected;
+		// 	var bindStub = sinon.stub();
+		// 	var setActiveStub = sinon.stub(this.f, "setActiveElement");
+		// 	var el = { bindToScreen: bindStub, bindToGui: sinon.stub(), bindToEmitter: sinon.stub() };
+		// 	this.f._elements = [];
+		// 	this.f._subscreens = { test: undefined };
+		// 	this.f._drawAreas['test'] = {};
+
+		// 	this.f.addElement(el, 'test');
+		// 	this.f.addElement(el);
+		// 	this.f.addElement(el, 'falafel');
+
+		// 	this.f.setActiveElement.restore();
+
+		// 	// bindStub should only have been called once (for the first call)
+		// 	actual = bindStub.calledOnce && bindStub.neverCalledWith(undefined);
+		// 	assert.isTrue(actual);
+		// },
+
+		// "addElement should call the element's init function, if it exists, and continue if it doesn't": function() {
+		// 	var actual, expected;
+		// 	var initStub = sinon.stub();
+		// 	var testConstructor = sinon.stub().returns(new Object());
+		// 	var el1 = { init: initStub };
+		// 	var el2 = { };
+
+		// 	this.f.addElement(testConstructor, el1);
+		// 	this.f.addElement(testConstructor, el2);
+
+		// 	actual = initStub.calledOnce;
+		// 	assert.isTrue(actual);
+		// },
 
 		"activeElement should return the active element, unless there are no elements, in which case it returns false": function() {
 			var actual, expected;
@@ -456,7 +474,7 @@ tests = {
 
 	"MenuPrompt.js tests": {
 		setup: function() {
-			this.f = new Game.MenuPrompt();
+			this.f = new Game.UIElements.MenuPrompt();
 		},
 
 		"_calculateSize should correctly calculate the appropriate size for the prompt, including padding": function() {
@@ -807,9 +825,9 @@ tests = {
 		}
 	},
 
-	"Entity.js tests": {
+	"Entity.js tests (depends on EventEmitter)": {
 		setup: function() {
-			this.f = new Game.Entity();
+			this.f = new Game.Entity({}, new Game.EventEmitter());
 		},
 
 		"canMoveTo should return false if the tile at x,y is not traversable and true otherwise": function() {
@@ -854,6 +872,27 @@ tests = {
 			expected = [card2];
 			actual   = this.f._cardList;
 			assert.equals(actual, expected);
+		},
+
+		"get should return the card at the specified index, or -1 if out of bounds": function() {
+			var actual, expected;
+			this.f._cardList = ['test'];
+
+			// in bounds
+			actual   = this.f.get(0);
+			expected = 'test';
+			assert.equals(actual, expected);
+
+			// out of bounds: too low
+			actual   = this.f.get(-50);
+			expected = undefined;
+			assert.equals(actual, expected);
+
+			// out of bounds: too high
+			actual   = this.f.get(1);
+			expected = undefined;
+			assert.equals(actual, expected);
+
 		},
 
 		teardown: function() {

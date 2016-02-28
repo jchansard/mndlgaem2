@@ -19,6 +19,16 @@ Game.Utils.extendPrototype(Game.Deck, {
 		this._cardList.push(card);
 	},
 
+	// gets a card from the deck without modifying it; returns undefined if out of range
+	get: function(index)
+	{
+		if ((index < 0) || index > this._cardList.length) 
+		{
+			return undefined;
+		}
+		return this._cardList[index];
+	},
+
 	// "draw" a card from the deck; if no index is passed,
 	// draw the top card. returns the drawn card.
 	draw: function(cardIndex)

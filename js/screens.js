@@ -12,7 +12,7 @@ Game.Screens = {};
 // starting screen menu
 Game.Screens.startScreen = {
 	enter: function() { 
-		var mainMenu = new Game.MenuPrompt({
+		var mainMenu = {
 			title:		"mndlgaem2",
 			options: 	["New Game", "Load Game"],
 			position: 	{ x: 18, y: 10 },
@@ -21,15 +21,15 @@ Game.Screens.startScreen = {
 				switch(choice)
 				{
 					case 0: 
-                        Game.gameShell.player    = new Game.Player();
-						Game.gameShell.architect = new Game.Architect({}, Game.gameShell.player);
-						Game.gameShell.architect.init();
-						Game.gameShell.guis['ui'].changeScreen(Game.Screens.gameScreen);
+                        this.gameShell.player    = new Game.Player(this._emitter);
+						this.gameShell.architect = new Game.Architect({}, Game.gameShell.player);
+						this.gameShell.architect.init();
+						this.gameShell.guis['ui'].changeScreen(Game.Screens.gameScreen);
 						break;
 				}
-			} 
-		})
-		Game.gameShell.guis['ui'].addElement(mainMenu, 'full');
+			}.bind(this) // this = calling gui
+		}
+		Game.gameShell.guis['ui'].addElement(Game.UIElements.MenuPrompt, mainMenu, 'full');
     },
     render: function() {
         this.drawText('full', 19, 7, { text: "%c{blue}mndlgaem2" });
@@ -64,12 +64,15 @@ Game.Screens.winScreen = {
 Game.Screens.gameScreen = {
 
 	enter: function() {
-		var mapTerminal = new Game.MapTerminal({
+		var mapTerminal = {
 			position: { x: 0, y: 0 },
-			size: 'fill'
-		}, Game.gameShell.architect.currentMap(), Game.gameShell.player)
+			size: 'fill',
+            player: this.gameShell.player, // TODO: ew
+            map: this.gameShell.architect.currentMap()
 
-		Game.gameShell.guis['ui'].addElement(mapTerminal, 'mapterminal');
+		};
+
+		Game.gameShell.guis['ui'].addElement(Game.UIElements.MapTerminal, mapTerminal, 'mapterminal');
 	},
 	render: function(display) {
 		return;

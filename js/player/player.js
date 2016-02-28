@@ -7,16 +7,18 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
-Game.Player = function() {
+Game.Player = function(eventEmitter) {
 	Game.Entity.call(this, { 
 		glyph: ['@', 'white'],
 		x: 1,
 		y: 1
-	})
+	}, eventEmitter)
 	// a player has three "decks" -- draw, discard, and hand
+	// TODO: move this to builder
 	this._hand    = new Game.Deck();
 	this._discard = new Game.Deck();
 	this._draw	  = new Game.Deck();
+	this._emitter.Event('player-move').subscribe(this.handleMove.bind(this)); //TODO: move this too
 }
 Game.Player.extend(Game.Entity);
 Game.Utils.extendPrototype(Game.Player, {
@@ -55,6 +57,15 @@ Game.Utils.extendPrototype(Game.Player, {
 	{
 		this._discard.shuffle();
 		this._discard.addTo(this._draw);
+	},
+
+	handleMove: function(direction) {
+		switch (direction) {
+			case 'up'   : this.moveUp(); break;
+			case 'down' : this.moveDown(); break;
+			case 'left' : this.moveLeft(); break;
+			case 'right': this.moveRight(); break;
+		}
 	},
 
 	moveUp:    function() {

@@ -9,13 +9,14 @@
  * https://github.com/jchansard/mndlgaem2
  */
 
- Game.Entity = function(template) {
+ Game.Entity = function(template, eventEmitter) {
  	template = template || {};
- 	this._glyph = new Game.Glyph(template.glyph)
-	this._name = template['name'];
-	this._x = template['x'] || 0;
-	this._y = template['y'] || 0;
-	this._map = null;
+ 	this._emitter = eventEmitter;
+ 	this._glyph   = new Game.Glyph(template.glyph)
+	this._name    = template['name'];
+	this._x 	  = template['x'] || 0; //TODO: this is gross
+	this._y 	  = template['y'] || 0;
+	this._map 	  = null;
  }
 
  Game.Entity.prototype = {

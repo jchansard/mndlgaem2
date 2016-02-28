@@ -17,6 +17,9 @@ Game.GameShell = function() {
 	const OVERLAYBACKGROUND = 'transparent';
 	const GAMECONTAINER = 'div#game-container'
 
+	// init event manager
+	this.eventEmitter = new Game.EventEmitter();
+
 	// gui layers
 	this.guis = {};
 
@@ -24,12 +27,14 @@ Game.GameShell = function() {
 	var subscreens = {};
 	subscreens['full'] = {	x: 0, y: 0,	width: 60, height: 20 }; 
 	subscreens['mapterminal'] =  { x: 0, y: 0,	width: 60, height: 20 }; 
-    this.guis['ui'] = new Game.UserInterface({ bg: UIBACKGROUND }, 'div#game');
+
+    this.guis['ui'] = new Game.UserInterface({ bg: UIBACKGROUND }, 'div#game', this, this.eventEmitter);
     // this.guis['overlay'] = new Game.UserInterface({ bg: OVERLAYBACKGROUND }, 'div#overlay');
 
     // init input	
 	this.inputManager = new Game.InputManager(GAMECONTAINER, this.guis);
 	this.inputManager.init();
+
 } 
 
 Game.GameShell.prototype = {

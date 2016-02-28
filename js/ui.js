@@ -8,18 +8,21 @@
  * https://github.com/jchansard/mndlgaem2
  */
 
-Game.UserInterface = function(properties, container) {
-	properties 		 = properties 		  		|| {};
-	this._height 	 = properties.height  		|| 20;
-	this._width 	 = properties.width   		|| 50;
-	this._bg 		 = properties.bg 	  		|| 'black';
-	this._fontSize 	 = properties.fontSize 		|| 24;
-	this._fontFamily = properties.fontFamily 	|| 'inconsolata';
-	this._screen 	 = undefined;
-	this._drawAreas  = {};
-	this._elements 	 = [];
+Game.UserInterface = function(properties, container, gameShell, eventEmitter) {
+	properties 		    = properties 		  	|| {};
+	this._height 	    = properties.height  	|| 20;
+	this._width 	    = properties.width   	|| 50;
+	this._bg 		    = properties.bg 	  	|| 'black';
+	this._fontSize 	    = properties.fontSize 	|| 24;
+	this._fontFamily    = properties.fontFamily || 'inconsolata';
+	this._screen 	    = undefined;
+	this._drawAreas     = {};
+	this._elements 	    = [];
 	this._activeElement = null;
-	this._container  = container;
+	this._container     = container;
+	this.gameShell		= gameShell;
+	this._emitter  		= eventEmitter;
+
 
 	// init layers. Layers are extra transparent canvases created on top of the display
 	// with the same height, position, and font properties.
@@ -111,33 +114,27 @@ Game.UserInterface.prototype = {
 		Game.gameShell.inputManager.unbindEvents();
 	},
 
-	show: function()
-	{
-		$(this._container).show();
-	},
-
-	hide: function()
-	{
-		$(this._container).hide();
-	},
-
 	// adds a new element to the gui and binds it to this gui
-	addElement: function(element, drawArea, activeByDefault) 
+	addElement: function(elementConstructor, options, drawArea) 
 	{
+		// set draw area
 		drawArea = (drawArea !== undefined) ? this._drawAreas[drawArea] : this._drawAreas['full'];
 
-		// bind the dialog to this gui and init, if necessary
-		element.bindToGui(this);
+		// construct element
+		var element = new elementConstructor(options, this, drawArea, this._emitter);	
 
-		if (drawArea !== undefined) { element.bindToScreen(drawArea); }
-		if (typeof element.init === 'function') { element.init(); }
+		// build, if possible
+		if (typeof element.build === 'function') { element.build(); }
+
+		// init, if possible
+		if (typeof element.init  === 'function') { element.init(); }
 
 		// get index of new element and add it to elements array
 		var index = this._elements.length;
 		this._elements.push(element);
 
-		// if this is the first element added, or if it's configured to be active by default, set it to active
-		if (index === 0 || activeByDefault === true)
+		// if this is the first element added, set it to active
+		if (index === 0)
 		{
 			this.setActiveElement(index);
 		}

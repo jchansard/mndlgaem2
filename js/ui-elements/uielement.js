@@ -7,19 +7,27 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
-Game.UIElement = function(properties)
+Game.UIElements = {};
+
+Game.UIElements.UIElement = function(properties, gui, drawArea, eventEmitter)
 {
-	properties 			= properties || {};
-	this._position		= properties.position  	 	|| { x: 0, y: 0 };
-	this._size			= properties.size			|| { height: 0, width: 0 };
-	this._style			= properties.style 			|| {};
-	this._content 		= properties.content 		|| "";
-	this._gui   		= undefined;
-	this._drawArea		= undefined;
-	this._initStyle();
+	properties 			= properties || arguments[0] || {};
+	this.init           = properties.init;
+	this._position		= properties.position  	 	 || { x: 0, y: 0 };
+	this._size			= properties.size			 || { height: 0, width: 0 };
+	this._style			= properties.style 			 || {};
+	this._content 		= properties.content 		 || "";
+	this._gui   		= gui;
+	this._drawArea		= drawArea;
+	this._emitter		= eventEmitter;
 }
 
-Game.UIElement.prototype = {
+Game.UIElements.UIElement.prototype = {
+
+	build: function() {
+		this._initStyle();
+		this._bindToScreen(this._drawArea);
+	},
 
 	// initialize style to default settings if overrides weren't passed
 	_initStyle: function() {	
@@ -35,14 +43,9 @@ Game.UIElement.prototype = {
 		};
 	},
 
-	// don't override
-	bindToGui: function(gui) {
-		this._gui = gui;
-	},
-
 	// don't override; sets this._screen and moves the element to be in the subscreen;
 	// sets size to full size of subscreen if size is set to 'fill'
-	bindToScreen: function(drawArea) {
+	_bindToScreen: function(drawArea) {
 		this._drawArea = drawArea;
 		this._drawArea.x = this._position.x + drawArea.x;
 		this._drawArea.y = this._position.y + drawArea.y;
