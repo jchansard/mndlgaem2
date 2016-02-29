@@ -21,9 +21,6 @@ Game.Screens.startScreen = {
 				switch(choice)
 				{
 					case 0: 
-                        this.gameShell.player    = new Game.Player(this._emitter);
-						this.gameShell.architect = new Game.Architect({}, Game.gameShell.player);
-						this.gameShell.architect.init();
 						this.gameShell.guis['ui'].changeScreen(Game.Screens.gameScreen);
 						break;
 				}

@@ -20,8 +20,15 @@ Game.GameShell = function() {
 	// init event manager
 	this.eventEmitter = new Game.EventEmitter();
 
-	// gui layers
+	// init gui layers
 	this.guis = {};
+
+	// init player
+	this.player    = Game.PlayerBuilder.build(this.eventEmitter);
+
+	// init architect
+	this.architect = new Game.Architect({}, this.player);
+	this.architect.init();
 
     // create display objects
 	var subscreens = {};
