@@ -36,7 +36,7 @@ Game.Utils.extendPrototype(Game.Deck, {
 		if (cardIndex === undefined) {
 			return this._cardList.shift();
 		} else {
-			return this._cardList.splice(cardIndex, 1);
+			return this._cardList.splice(cardIndex, 1)[0];
 		}
 	},
 
@@ -55,9 +55,11 @@ Game.Utils.extendPrototype(Game.Deck, {
 	// empties deck into another
 	addTo: function(targetDeck) 
 	{
-		this._cardList.forEach(function(card) {
+
+		while (this._cardList.length > 0)
+		{
 			targetDeck.add(this.draw());
-		}, this);
+		}
 	},
 
 	length: function() 

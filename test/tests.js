@@ -900,22 +900,24 @@ tests = {
 		}
 	},
 
-	"Player.js tests": {
+	"PlayerCards.js tests": {
 		setup: function() {
-			this.f = new Game.Player();
+			this.f = new Game.PlayerCards();
 		},
 
 		"_drawCard with no specified deck should draw cards from the draw deck and add them to the hand": function() {
 			var actual, expected;
-			var drawStub = sinon.stub(this.f._draw, "draw");
-			var addStub  = sinon.stub(this.f._hand, "add");
+			var drawStub = sinon.stub();
+			var addStub  = sinon.stub();
+			var lengthStub = sinon.stub();
+			lengthStub.onFirstCall().returns(2).onSecondCall().returns(1);
+			this.f._draw = { draw: drawStub, length: lengthStub }
+			this.f._hand = { add: addStub, length: lengthStub }
 
-			this.f._draw._cardList = ['test1', 'test2'];
+			// this.f._draw._cardList = ['test1', 'test2'];
 
 			this.f._drawCard();
 			this.f._drawCard(2);
-			this.f._draw.draw.restore();
-			this.f._hand.add.restore();
 
 			actual = drawStub.calledTwice && addStub.calledTwice;
 			assert.isTrue(actual);
@@ -924,41 +926,30 @@ tests = {
 			assert.isTrue(actual);
 		},
 
-		"_drawCard should add the discard pile to the draw pile and then shuffle it if there are no cards to draw": function() {
+		"_drawCard should call shuffleDiscardIntoDraw if there are no cards to draw": function() {
 			var actual, expected;
-			var shuffleStub = sinon.stub(this.f._discard, "shuffle");
-			var drawStub = sinon.stub(this.f._draw, "draw"); 
+			var drawLengthStub = sinon.stub();
+			drawLengthStub.returns(0);
+			var shuffleDiscardStub = sinon.stub(this.f, "_shuffleDiscardIntoDraw");
 
-			// set draw and discard to have 0 and 1 card, respectively
-			this.f._draw._cardList = [];
-			this.f._discard._cardList = ['test1'];
+			this.f._draw = { draw: sinon.stub(), length: drawLengthStub };
+			this.f._discard ={ shuffle: sinon.stub(), addTo: sinon.stub() }
 
 			// draw a card
 			this.f._drawCard();
+			this.f._shuffleDiscardIntoDraw.restore();
 
-			this.f._discard.shuffle.restore();
-			this.f._draw.draw.restore();
-
-			// since _draw.draw is stubbed, _draw should still be ['test1'] after 
-			actual   = this.f._draw._cardList;
-			expected = ['test1'];
-			assert.equals(actual, expected);
-
-			actual = drawStub.calledOnce;
-			assert.isTrue(actual);
-
-			actual = shuffleStub.calledOnce;
+			actual = shuffleDiscardStub.calledOnce;
 			assert.isTrue(actual);
 		},
 
 		"drawCards should draw the specified number of cards": function() {
 			var actual, expected;
-			this.f._draw._cardList = ['test1','test2','test3'];
-			var drawStub = sinon.stub(this.f._draw, "draw");
+			var drawStub = sinon.stub(this.f, "_drawCard");
 
 			this.f.drawCards(3);
 
-			this.f._draw.draw.restore();
+			this.f._drawCard.restore();
 
 			actual   = drawStub.callCount;
 			expected = 3;

@@ -1,3 +1,15 @@
+/**
+ * eventemitter.js
+ *
+ * given an event type, executes listeners' callbacks
+ *
+ * use: EventEmitter.Event('event1').subscribe(myFn);
+ *      EventEmitter.Event('event1').publish(args);
+ *      EventEmitter.Event('event1').unsubscrube(myFn);
+ * -------------
+ * Josh Chansard 
+ * https://github.com/jchansard/mndlgaem2
+ */
 Game.EventEmitter = function() {
   this._events      = {};
 }

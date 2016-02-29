@@ -7,56 +7,47 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
-Game.Player = function(eventEmitter) {
+Game.Player = function(eventEmitter, cards) {
 	Game.Entity.call(this, { 
 		glyph: ['@', 'white'],
 		x: 1,
 		y: 1
 	}, eventEmitter)
-	// a player has three "decks" -- draw, discard, and hand
-	// TODO: move this to builder
-	this._hand    = new Game.Deck();
-	this._discard = new Game.Deck();
-	this._draw	  = new Game.Deck();
-	this._emitter.Event('player-move').subscribe(this.handleMove.bind(this)); //TODO: move this too
+	this._cards = cards;
 }
 Game.Player.extend(Game.Entity);
+
+Game.PlayerBuilder = {
+	build: function(eventEmitter) {
+		var cards = Game.PlayerCardsBuilder.build(eventEmitter);
+		var player = new Game.Player(eventEmitter, cards);
+	
+		player.initListeners();
+
+		return player;
+	}
+}
+
 Game.Utils.extendPrototype(Game.Player, {
+
+	initListeners: function() 
+	{
+		var e = this._emitter;
+		var playerMoveHandler = this.handleMove.bind(this);
+
+		e.Event('player-move').subscribe(playerMoveHandler);
+	},
 
 	// draw cards from the player's draw pile and add them to the player's hand
 	drawCards: function(numCardsToDraw, deckToDrawFrom, deckToDrawTo)
 	{
-		numCardsToDraw = numCardsToDraw || 1;
-		deckToDrawFrom = deckToDrawFrom   || this._draw;
-		deckToDrawTo   = deckToDrawTo     || this._hand;	
-		
-		while (numCardsToDraw > 0)
-		{
-			this._drawCard(0, deckToDrawFrom, deckToDrawTo);
-			numCardsToDraw--;
-		}
+		this._emitter.Event('drawCards').publish(numCardsToDraw, deckToDrawFrom, deckToDrawTo);
 	},
 
-	_drawCard: function(cardToDrawIndex, deckToDrawFrom, deckToDrawTo) 
+	// discard entire hand
+	discardHand: function()
 	{
-		cardToDrawIndex = cardToDrawIndex || 0;
-		deckToDrawFrom = deckToDrawFrom   || this._draw;
-		deckToDrawTo   = deckToDrawTo     || this._hand;
-
-		if (deckToDrawFrom.length() <= 0)
-		{
-			this.shuffleDiscardIntoDraw();
-		}
-
-		var drawnCard = deckToDrawFrom.draw(cardToDrawIndex);
-		deckToDrawTo.add(drawnCard);
-	},
-
-	// shuffles discard pile into draw pile
-	shuffleDiscardIntoDraw: function() 
-	{
-		this._discard.shuffle();
-		this._discard.addTo(this._draw);
+		this._emitter.Event('discardHand').publish();
 	},
 
 	handleMove: function(direction) {
