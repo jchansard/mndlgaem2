@@ -16,11 +16,23 @@ Game.EventEmitter = function() {
 
 Game.EventEmitter.prototype = 
 {
-  Event: function(type) 
+  Event: function(topic,type) 
   {
-    if (type === undefined) { return; }
+    // if no type is passed, assume topic is global and topic is type
+    if (type === undefined) 
+    { 
+      type = topic;
+      topic = 'global'; 
+    }
     var callbacks;
-    var event = this._events[type];
+    var event;
+
+    // create topic if hasn't been subscribed to before
+    if (this._events[topic] === undefined)
+    {
+      this._events[topic] = {};
+    }
+    event = this._events[topic][type];
     if (event === undefined)
     {
       callbacks = jQuery.Callbacks();
@@ -29,7 +41,7 @@ Game.EventEmitter.prototype =
         unsubscribe: callbacks.remove,
         publish: callbacks.fire
       };
-      this._events[type] = event;
+      this._events[topic][type] = event;
     }
     return event;
   },

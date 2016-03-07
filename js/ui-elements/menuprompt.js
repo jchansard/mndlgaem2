@@ -7,7 +7,7 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
-Game.UIElements.MenuPrompt = function(properties, gui, drawArea, eventEmitter)
+Game.UIElements.MenuPrompt = function(properties, gui, eventEmitter)
 {
 	properties = properties || {};
 	Game.UIElements.UIElement.apply(this, arguments);
@@ -15,16 +15,15 @@ Game.UIElements.MenuPrompt = function(properties, gui, drawArea, eventEmitter)
 	this._options 	 	= properties.options 		|| [];
 	this._choice		= properties.choice 		|| 0;
 	this._callback		= properties.callback;
-	this._size          = properties.size;
 }
 
 Game.UIElements.MenuPrompt.extend(Game.UIElements.UIElement);
 Game.Utils.extendPrototype(Game.UIElements.MenuPrompt, {
 
 	// overrides prototype
-	build: function() {
-		Game.UIElements.UIElement.prototype.build.call(this);
-		if (this._size === undefined) { this._calculateSize(); }
+	build: function(drawArea) {
+		Game.UIElements.UIElement.prototype.build.apply(this, arguments);
+		this._calculateSize(); 
 	},
 
 	// calculate size based on title and options, TODO: add padding option
@@ -37,7 +36,7 @@ Game.Utils.extendPrototype(Game.UIElements.MenuPrompt, {
 			width = Math.max(width, this._options[i].length);
 			height++;
 		}
-		this._size = { height: height + (2 * padding), width: width + (2 * padding) };
+		this.size = { height: height + (2 * padding), width: width + (2 * padding) };
 	},
 
 	close: function() {
@@ -47,21 +46,21 @@ Game.Utils.extendPrototype(Game.UIElements.MenuPrompt, {
 
 	// draw the dialog; override this for different dialog types
 	render: function() {
-		Game.DrawUtils.drawBorder(this._gui, this._drawArea, this._size);
+		Game.DrawUtils.drawBorder(this._gui, this.position, this.size, { padding: 1 });
 
 		var padding = this._style.padding || 0;
-		var x = 0;
-		var y = 0 - padding;
-		
+		var x = this.position.x;
+		var y = this.position.y - padding;
+
 		if (this._title !== "")
 		{
-			this._gui.drawText(this._drawArea, x + padding, y, { text: '%b{' + this._style.bg + '}' + this._title });
+			this._gui.drawText(x + padding, y, { text: '%b{' + this._style.bg + '}' + this._title });
 		}
 
-		y = padding;
+		y = this.position.y + padding;
 		if (this._content !== "") 
 		{
-			this._gui.drawText(this._drawArea, x + padding, y, { text: '%b{' + this._style.bg + '}' + this._content });
+			this._gui.drawText(x + padding, y, { text: '%b{' + this._style.bg + '}' + this._content });
 			y += 2;
 		}
 
@@ -77,11 +76,11 @@ Game.Utils.extendPrototype(Game.UIElements.MenuPrompt, {
 				text = '%c{' + this._style.textColor + '}%b{' + this._style.bg + '}'; 
 			} 
 			text += this._options[opt];
-			if (this._options[opt].length < this._size.width)
+			if (this._options[opt].length < this.size.width)
 			{
 				text += " ";
 			}
-			this._gui.drawText(this._drawArea, x + padding, y, { text: text })
+			this._gui.drawText(x + padding, y, { text: text })
 
 			y++;
 		}
@@ -156,7 +155,7 @@ Game.Utils.extendPrototype(Game.UIElements.MenuPrompt, {
 		var coords = this._gui.eventToPosition(e);
 		var y = coords[1];
 		var padding = this._style.padding;
-		y -= this._position.y + padding;
+		y -= this.position.y + padding;
 		if (this._content !== "") { y -= 2; } // TODO: hacky?
 		if (y >= this._options.length || y < 0) { return -1; }
 		return y;

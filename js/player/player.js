@@ -14,6 +14,7 @@ Game.Player = function(eventEmitter, cards) {
 		y: 1
 	}, eventEmitter)
 	this._cards = cards;
+	this.id     = 'player';
 }
 Game.Player.extend(Game.Entity);
 
@@ -22,7 +23,7 @@ Game.PlayerBuilder = {
 		var cards = Game.PlayerCardsBuilder.build(eventEmitter);
 		var player = new Game.Player(eventEmitter, cards);
 	
-		player.initListeners();
+		player.init();
 
 		return player;
 	}
@@ -30,12 +31,22 @@ Game.PlayerBuilder = {
 
 Game.Utils.extendPrototype(Game.Player, {
 
-	initListeners: function() 
+	init: function()
+	{
+		this._initListeners();
+	},
+
+	_initListeners: function() 
 	{
 		var e = this._emitter;
 		var playerMoveHandler = this.handleMove.bind(this);
 
-		e.Event('player-move').subscribe(playerMoveHandler);
+		e.Event(this.id,'move').subscribe(playerMoveHandler);
+	},
+
+	getDeck: function(id)
+	{
+		return this._cards.get(id);
 	},
 
 	// draw cards from the player's draw pile and add them to the player's hand
@@ -70,6 +81,10 @@ Game.Utils.extendPrototype(Game.Player, {
 	},
 	moveRight: function() {
 		this.tryMove(this._x + 1, this._y);
+	},
+
+	position: function() {
+		return [this._x, this._y];
 	}
 
 });

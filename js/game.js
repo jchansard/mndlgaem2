@@ -32,7 +32,7 @@ Game.GameShell = function() {
 
     // create display objects
 	var subscreens = {};
-	subscreens['full'] = {	x: 0, y: 0,	width: 60, height: 20 }; 
+	subscreens['full'] = {	x: 0, y: 0,	width: 60, height: 30 }; 
 	subscreens['mapterminal'] =  { x: 0, y: 0,	width: 60, height: 20 }; 
 
     this.guis['ui'] = new Game.UserInterface({ bg: UIBACKGROUND }, 'div#game', this, this.eventEmitter);
@@ -89,6 +89,13 @@ $(document).ready(function() {
 		y: 1,
 		width: 60,
 		height: 20,
+		layer: 0
+	}, {
+		name: 'handterminal',
+		x: 0,
+		y: 20,
+		width: 40,
+		height: 10,
 		layer: 0
 	}];
 

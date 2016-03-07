@@ -305,9 +305,9 @@ tests = {
 
 		"getClickedElements should use areCoordsInBounds to return a list of elements within passed coordinates": function() {
 			var actual, expected;
-			var el1 = { _size: { height: 1, width: 1 }, _position: { x: 0, y: 0 } };
-			var el2 = { _size: { height: 1, width: 1 }, _position: { x: 0, y: 0 } };
-			var el3 = { _size: { height: 1, width: 1 }, _position: { x: 2, y: 2 } };
+			var el1 = { size: { height: 1, width: 1 }, position: { x: 0, y: 0 } };
+			var el2 = { size: { height: 1, width: 1 }, position: { x: 0, y: 0 } };
+			var el3 = { size: { height: 1, width: 1 }, position: { x: 2, y: 2 } };
 			this.f._elements = [el1, el2, el3];
 			var utilsSpy = sinon.spy(Game.Utils, "coordsAreInBounds");
 			var e = { 
@@ -331,19 +331,27 @@ tests = {
 			assert.equals(actual, expected);
 		},	
 
-		"addElement should call the passed constructor with the passed options, drawArea, this gui's emitter, and this gui as parameters": function() {
+		"addElement should call the passed constructor with the passed options, this gui's emitter, and this gui as parameters": function() {
 			var actual, expected;
 			var options = { test1: 'test1' };
 			var testConstructor = sinon.stub().returns(new Object());
 			var testEmitter  = 'testEmitter';
-			var testDrawArea = 'testDrawArea';
 			this.f._emitter  = testEmitter;
-			this.f._drawAreas.testDrawArea = testDrawArea;
 
-			this.f.addElement(testConstructor, options, testDrawArea);
+			this.f.addElement(testConstructor, options, testEmitter);
 
-			actual   = testConstructor.calledWithExactly(options, this.f, testDrawArea, testEmitter);
+			actual   = testConstructor.calledWithExactly(options, this.f, testEmitter);
 			assert.isTrue(actual);
+		},
+
+		"addElement returns the constructed element": function() {
+			var actual, expected;
+			var testObject = { testProp: 'testProp' };
+			var testConstructor = sinon.stub().returns(testObject);
+
+			actual   = this.f.addElement(testConstructor);
+			expected = testObject;
+			assert.equals(actual, expected);
 		},
 
 		// "addElement should add and bind an element to a gui, its emitter, and set it to be the active element when appropriate": function() {
@@ -470,6 +478,33 @@ tests = {
 		teardown: function() {								
 			delete this.f;
 		}
+	},
+
+	"UIElement.js tests": {
+		setup: function() {
+			this.f = new Game.UIElements.UIElement();
+		},
+
+		"_initPosition moves the element relative to the drawArea's position without modifying it": function() {
+			var expected, actual;
+			var drawAreaBefore = { x: 5, y: 6 };
+			var drawAreaAfter  = { x: 5, y: 6 };
+			this.f.position   = { x: 1, y: 1 };
+
+			this.f._initPosition(drawAreaAfter);
+
+			actual   = drawAreaAfter;
+			expected = drawAreaBefore;
+			assert.equals(actual, expected);
+
+			actual   = { x: this.f.position.x, y: this.f.position.y };
+			expected = { x: 6, y: 7 };
+		},
+
+		teardown: function() {
+			delete this.f;
+		}
+
 	},
 
 	"MenuPrompt.js tests": {
@@ -895,6 +930,43 @@ tests = {
 
 		},
 
+		"select should adds the passed index in _cardList to _selected, unless it's already selected, in which case it removes it": function() {
+			var actual, expected;
+			this.f._cardList = 'test'
+			
+			this.f.select(0);
+
+			// add selected
+			actual   = this.f._selected;
+			expected = [0];
+			assert.equals(actual, expected);
+
+			// don't modify cardlist
+			actual   = this.f._cardList;
+			expected = 'test'
+			assert.equals(actual, expected);
+
+			// remove selected
+			this.f.select(0);
+
+			actual   = this.f._selected;
+			expected = [];
+			assert.equals(actual, expected);
+		},
+
+		"confirmSelection should return and empty _selected": function() {
+			var actual, expected;
+			this.f._selected = ['test1', 'test2'];
+
+			actual = this.f.confirmSelection();
+			expected = ['test1', 'test2'];
+			assert.equals(actual, expected);
+
+			actual = this.f._selected;
+			expected = [];
+			assert.equals(actual, expected);
+		},
+
 		teardown: function() {
 			delete this.f;
 		}
@@ -954,6 +1026,43 @@ tests = {
 			actual   = drawStub.callCount;
 			expected = 3;
 			assert.equals(actual, expected);
+		},
+
+		teardown: function() {
+			delete this.f;
+		}
+	},
+
+	"Calc.js tests": {
+		setup: function() {
+			this.f = new Game.Calc();
+		},
+
+		"distanceBetweenPoints should return the distance between two points using the distance formula, and handle boundary cases": function() {
+			var actual, expected;
+			// return 4
+			var p1 = [0,0]
+			var p2 = [4,0]
+			// return 0
+			var p3 = [0,0]
+			var p4 = [0,0]
+			//return 24
+			var p5 = [0, -12]
+			var p6 = [0, 12]
+
+
+			actual   = this.f.distanceBetweenPoints(p1, p2)
+			expected = 4;
+			assert.equals(actual, expected);
+
+			actual   = this.f.distanceBetweenPoints(p3, p4)
+			expected = 0;
+			assert.equals(actual, expected);
+
+			actual   = this.f.distanceBetweenPoints(p5, p6);
+			expected = 24;
+			assert.equals(actual, expected);
+
 		},
 
 		teardown: function() {

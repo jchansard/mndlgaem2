@@ -24,14 +24,15 @@ Game.DrawUtils = {
 	},
 
 	// draws a border around an area, and fills the background
-	drawBorder: function(display, drawArea, size, options)
+	drawBorder: function(display, position, size, options)
 	{
 		options = options 	    		|| {};
 		var fg  = options.fg 			|| 'white';
 		var bg  = options.bg  			|| 'rgba(20, 20, 40, 0.8)';
-		var padding = options.padding 	|| 1;
+		var layer   = options.layer     || 0;
+		var padding = options.padding 	|| 0;
 
-		var borderPosition = { x: 0, y: 0 };
+		var borderPosition = { x: position.x, y: position.y };
 		var borderSize = { w: size.width, h: size.height };
 
 		// calculate new position and size based on padding
@@ -43,24 +44,24 @@ Game.DrawUtils = {
 			borderSize.w += (padding * 2);
 		}
 
-		var drawInfo = { fg: fg, bg: bg };
+		var drawInfo = { fg: fg, bg: bg, layer: layer };
 		var x = borderPosition.x;
 		var y = borderPosition.y;
 
 		// draw top left corner (┌)
 		drawInfo.ch = '┌';
-		display.draw(drawArea, x, y, drawInfo)
+		display.draw(x, y, drawInfo)
 		// draw top border (─)
 		drawInfo.ch = '─';
 		for (var i = 1; i < borderSize.w - 1; i++)
 		{
 			x++;
-			display.draw(drawArea, x, y, drawInfo);
+			display.draw(x, y, drawInfo);
 		}
 		// draw top right corner (┐)
 		drawInfo.ch = '┐';
 		x++;
-		display.draw(drawArea, x, y, drawInfo);
+		display.draw(x, y, drawInfo);
 		// draw middle
 		for (var row = 1; row < borderSize.h; row++)
 		{
@@ -70,24 +71,24 @@ Game.DrawUtils = {
 			{
 				if (col == 0 || col == (borderSize.w - 1)) { drawInfo.ch = '│'; }
 				else { drawInfo.ch = ' '; }
-				display.draw(drawArea, x, y, drawInfo);
+				display.draw(x, y, drawInfo);
 				x++;
 			}
 		}
 		// draw bottom left corner (└)
 		x = borderPosition.x;
 		drawInfo.ch = '└';
-		display.draw(drawArea, x, y, drawInfo)
+		display.draw(x, y, drawInfo)
 		// draw bottom border (─)
 		drawInfo.ch = '─';
 		for (var j = 1; j < borderSize.w - 1; j++)
 		{
 			x++;
-			display.draw(drawArea, x, y, drawInfo);
+			display.draw(x, y, drawInfo);
 		}
 		// draw bottom right corner (┘)
 		drawInfo.ch = '┘';
 		x++;
-		display.draw(drawArea, x, y, drawInfo);		
+		display.draw(x, y, drawInfo);		
 	}
 }

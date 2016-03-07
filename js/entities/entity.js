@@ -17,10 +17,12 @@
 	this._x 	  = template['x'] || 0; //TODO: this is gross
 	this._y 	  = template['y'] || 0;
 	this._map 	  = null;
+
+	this.id       = undefined;
  }
 
  Game.Entity.prototype = {
- 	draw: function(drawCallback, thisArg, drawArea) {
+ 	draw: function(drawCallback, thisArg) {
  		var g = this._glyph;
  		var drawInfo = {
  			ch: g.ch,
@@ -33,7 +35,7 @@
  		{
  			drawInfo.bg = this._map.getTile(this._x, this._y).glyph.bg;
  		}
- 		drawCallback.call(thisArg, drawArea, this._x, this._y, drawInfo);
+ 		drawCallback.call(thisArg, this._x, this._y, drawInfo);
  	},
 
  	tryMove: function(x, y)

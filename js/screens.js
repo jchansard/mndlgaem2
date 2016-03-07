@@ -29,7 +29,7 @@ Game.Screens.startScreen = {
 		Game.gameShell.guis['ui'].addElement(Game.UIElements.MenuPrompt, mainMenu, 'full');
     },
     render: function() {
-        this.drawText('full', 19, 7, { text: "%c{blue}mndlgaem2" });
+       // this.drawText('full', 19, 7, { text: "%c{blue}mndlgaem2" });
     },
     exit: function() {
 		this.clearAllElements();
@@ -61,6 +61,9 @@ Game.Screens.winScreen = {
 Game.Screens.gameScreen = {
 
 	enter: function() {
+
+        var ui = Game.gameShell.guis['ui'];
+
 		var mapTerminal = {
 			position: { x: 0, y: 0 },
 			size: 'fill',
@@ -69,7 +72,14 @@ Game.Screens.gameScreen = {
 
 		};
 
-		Game.gameShell.guis['ui'].addElement(Game.UIElements.MapTerminal, mapTerminal, 'mapterminal');
+        var handDeckTerminal = {
+            position: { x: 0, y: 0 },
+            size: 'fill',
+            deck: this.gameShell.player.getDeck('hand')
+        }
+
+		ui.addElement(Game.UIElements.MapTerminal, mapTerminal, 'mapterminal');
+        ui.addElement(Game.UIElements.DeckTerminal, handDeckTerminal, 'handterminal');
 	},
 	render: function(display) {
 		return;

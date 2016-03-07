@@ -20,9 +20,11 @@ Game.PlayerCards = function(draw, hand, discard, eventEmitter) {
 Game.PlayerCardsBuilder = {
 	build: function(eventEmitter) {
 		// create draw, hand, and discard decks
-		var draw    = new Game.Deck();
-		var hand    = new Game.Deck();
-		var discard = new Game.Deck();
+		var fakecard = new Game.Card({ power: 3, cdr: 2 });
+		var handlist = [fakecard, fakecard, fakecard, fakecard, fakecard];
+		var draw    = new Game.Deck(null,'draw');
+		var hand    = new Game.Deck(handlist,'hand');
+		var discard = new Game.Deck(null,'discard');
 
 		var cards = new Game.PlayerCards(draw, hand, discard, eventEmitter);
 		cards.initListeners();
@@ -40,6 +42,12 @@ Game.Utils.extendPrototype(Game.PlayerCards, {
 
 		e.Event('drawCards').subscribe(drawCardsHandler);
 		e.Event('discardHand').subscribe(discardHandHandler);
+	},
+
+	// get a deck based on id
+	get: function(id)
+	{
+		return (this['_' + id] !== undefined) ? this['_' + id] : null;
 	},
 
 	// draw cards from the player's draw pile and add them to the player's hand

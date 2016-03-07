@@ -7,8 +7,10 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
-Game.Deck = function(cardList) {
+Game.Deck = function(cardList,id) {
 	this._cardList = cardList || [];
+	this._selected = [];
+	this.id        = id;
 };
 
 
@@ -49,7 +51,7 @@ Game.Utils.extendPrototype(Game.Deck, {
 	// empties the deck
 	empty: function() 
 	{
-		this._cardList = [];
+		return this._cardList.splice(0);
 	},
 
 	// empties deck into another
@@ -62,6 +64,27 @@ Game.Utils.extendPrototype(Game.Deck, {
 		}
 	},
 
+	// sets specified card as "selected", e.g. if player selects card to play
+	select: function(index)
+	{
+		var indexInSelected = this._selected.indexOf(index);
+		if (indexInSelected === -1)
+		{
+			this._selected.push(index);
+		} 
+		else
+		{
+			this._selected.splice(indexInSelected, 1);
+		}
+	},
+
+	// returns all selected cards and empties _selected
+	confirmSelection: function() 
+	{
+		return this._selected.splice(0);
+	},
+
+	// returns length of _cardList
 	length: function() 
 	{
 		return this._cardList.length;

@@ -9,24 +9,27 @@
  */
 Game.UIElements = {};
 
-Game.UIElements.UIElement = function(properties, gui, drawArea, eventEmitter)
+Game.UIElements.UIElement = function(properties, gui, eventEmitter)
 {
 	properties 			= properties || arguments[0] || {};
 	this.init           = properties.init;
-	this._position		= properties.position  	 	 || { x: 0, y: 0 };
-	this._size			= properties.size			 || { height: 0, width: 0 };
+	this.position		= properties.position  	 	 || { x: 0, y: 0 };
+	this.size			= properties.size			 || { height: 0, width: 0 };
+	this.layer          = properties.layer           || 0;
 	this._style			= properties.style 			 || {};
 	this._content 		= properties.content 		 || "";
 	this._gui   		= gui;
-	this._drawArea		= drawArea;
 	this._emitter		= eventEmitter;
+	this.drawArea       = undefined;
 }
 
 Game.UIElements.UIElement.prototype = {
 
-	build: function() {
+	build: function(drawArea) {
 		this._initStyle();
-		this._bindToScreen(this._drawArea);
+		this._initPosition(drawArea);
+		this._initSize(drawArea)
+		this.drawArea = drawArea.id;
 	},
 
 	// initialize style to default settings if overrides weren't passed
@@ -43,16 +46,19 @@ Game.UIElements.UIElement.prototype = {
 		};
 	},
 
-	// don't override; sets this._screen and moves the element to be in the subscreen;
-	// sets size to full size of subscreen if size is set to 'fill'
-	_bindToScreen: function(drawArea) {
-		this._drawArea = drawArea;
-		this._drawArea.x = this._position.x + drawArea.x;
-		this._drawArea.y = this._position.y + drawArea.y;
+	// don't override; moves the element to be in the specified area
+	_initPosition: function(drawArea) 
+	{
+		this.position.x = this.position.x + drawArea.x;
+		this.position.y = this.position.y + drawArea.y;
+	},
 
-		if (this._size === 'fill') 
+	// sets size to full size of draw area if size is set to 'fill'
+	_initSize: function(drawArea) 
+	{
+		if (this.size === 'fill') 
 		{
-			this._size = { height: drawArea.height, width: drawArea.width };
+			this.size = { height: drawArea.height, width: drawArea.width };
 		}
 	},
 

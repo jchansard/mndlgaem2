@@ -10,10 +10,10 @@
 
 Game.UserInterface = function(properties, container, gameShell, eventEmitter) {
 	properties 		    = properties 		  	|| {};
-	this._height 	    = properties.height  	|| 20;
+	this._height 	    = properties.height  	|| 30;
 	this._width 	    = properties.width   	|| 50;
 	this._bg 		    = properties.bg 	  	|| 'black';
-	this._fontSize 	    = properties.fontSize 	|| 24;
+	this._fontSize 	    = properties.fontSize 	|| 16;
 	this._fontFamily    = properties.fontFamily || 'inconsolata';
 	this._screen 	    = undefined;
 	this._drawAreas     = {};
@@ -92,6 +92,7 @@ Game.UserInterface.prototype = {
 	{
 		var layer = drawArea.layer || 0;
 		this._drawAreas[name] = {
+			id: name,
 			x: drawArea.x,
 			y: drawArea.y,
 			height: drawArea.height,
@@ -121,10 +122,10 @@ Game.UserInterface.prototype = {
 		drawArea = (drawArea !== undefined) ? this._drawAreas[drawArea] : this._drawAreas['full'];
 
 		// construct element
-		var element = new elementConstructor(options, this, drawArea, this._emitter);	
+		var element = new elementConstructor(options, this, this._emitter);	
 
 		// build, if possible
-		if (typeof element.build === 'function') { element.build(); }
+		if (typeof element.build === 'function') { element.build(drawArea); }
 
 		// init, if possible
 		if (typeof element.init  === 'function') { element.init(); }
@@ -139,8 +140,8 @@ Game.UserInterface.prototype = {
 			this.setActiveElement(index);
 		}
 
-		// return the index of the added element
-		return index;
+		// return the added element
+		return element;
 	},
 
 	// clears all elements 
@@ -198,8 +199,9 @@ Game.UserInterface.prototype = {
 	{
 		var coords = this.eventToPosition(e);
 		var elements = [];
-		this._elements.forEach(function(element) {
-			if (Game.Utils.coordsAreInBounds(coords, element._position, element._size))
+		this._elements.forEach(function(element) 
+		{
+			if (Game.Utils.coordsAreInBounds(coords, element.position, element.size))
 			{
 				elements.push(element);
 			}
@@ -208,18 +210,14 @@ Game.UserInterface.prototype = {
 		return elements;
 	},
 
-	draw: function(drawArea, x, y, drawInfo) {//x, y, toDraw, fg, bg) {
-		var layer = drawArea.layer 	   || 0;
-		x += drawArea.x;
-		y += drawArea.y;
-
+	draw: function(x, y, drawInfo) {//x, y, toDraw, fg, bg) {
+		layer = drawInfo.layer || 0;
+		// console.log(layer);
 		this._displays[layer].draw(x, y, drawInfo.ch, drawInfo.fg, drawInfo.bg); 
 	},
 	
-	drawText: function(drawArea, x, y, drawInfo, maxWidth) { // TODO: ALLOW LINE BY LINE (ARRAY TEXT)
-		x += drawArea.x;
-		y += drawArea.y;
-		var layer = drawInfo.layer || 0;
+	drawText: function(x, y, drawInfo, maxWidth) { // TODO: ALLOW LINE BY LINE (ARRAY TEXT)
+		layer = drawInfo.layer || 0;
 
 		this._displays[layer].drawText(x, y, drawInfo.text, maxWidth);
 	},
