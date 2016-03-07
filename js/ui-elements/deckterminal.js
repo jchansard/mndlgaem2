@@ -65,8 +65,8 @@ Game.Utils.extendPrototype(Game.UIElements.DeckTerminal, {
 				},
 				position: 
 				{
-					x: index * 4, // todo: dont hardcode
-					y: 0
+					x: 1 + index * 4, // todo: dont hardcode
+					y: 1
 				},
 				layer: 1
 			};
@@ -78,7 +78,7 @@ Game.Utils.extendPrototype(Game.UIElements.DeckTerminal, {
 	// draw the dialog; override this for different dialog types
 	render: function() 
 	{
-		// Game.DrawUtils.drawBorder(this._gui, this.position, this.size);// FIX OVERLAY
+		Game.DrawUtils.drawBorder(this._gui, this.position, this.size);// FIX OVERLAY
 	},	
 
 	// get input events for this dialog

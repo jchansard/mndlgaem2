@@ -266,18 +266,23 @@ tests = {
 			this.f = new Game.UserInterface();
 		},
 
-		"render clears the screen and calls render on this and each of this's elements": function() {
+		"render clears the screen and calls render on this and each of this's elements using the element layer index": function() {
 			var actual, expected;
-			var renderStub = sinon.stub();
+			var renderStub  = sinon.stub();
+			var renderStub1 = sinon.stub();
+			var renderStub2 = sinon.stub();
+			var renderStub3 = sinon.stub();
 			var clearDisplayStub = sinon.stub(this.f, "clearDisplay");
-			var el1 = { render: renderStub };
-			var el2 = { render: renderStub };
-			var el3 = { render: renderStub };
+			var el1 = { render: renderStub1 };
+			var el2 = { render: renderStub2 };
+			var el3 = { render: renderStub3 };
 
 			this.f.renderCurrentScreen = renderStub;
 			this.f._elements = [el1, el2, el3];
+			this.f._elementsLayerIndex = [[el3, el2], [el1]];
 
 			this.f.render();
+			this.f.clearDisplay.restore();
 
 			actual = clearDisplayStub.callCount;
 			expected = 1;
@@ -287,19 +292,19 @@ tests = {
 			assert.isTrue(actual);
 
 			actual = renderStub.callCount;
-			expected = 4;
+			expected = 1;
 			assert.equals(actual, expected);
 
-			actual = renderStub.calledOn(el1);
+			actual = renderStub1.calledOn(el1);
 			assert.isTrue(actual);
 
-			actual = renderStub.calledOn(el2);
+			actual = renderStub2.calledOn(el2);
 			assert.isTrue(actual);
 
-			actual = renderStub.calledOn(el3);
+			actual = renderStub3.calledOn(el3);
 			assert.isTrue(actual);
 
-			this.f.clearDisplay.restore();
+			sinon.assert.callOrder(renderStub3, renderStub2, renderStub1);
 
 		},
 
@@ -344,6 +349,22 @@ tests = {
 			assert.isTrue(actual);
 		},
 
+		"addElement adds the element to the element layer index": function() {
+			var actual, expected;
+			var testObject1 = { layer: 0 };
+			var testConstructor1 = sinon.stub().returns(testObject1);
+			var testObject2 = { layer: 2 };
+			var testConstructor2 = sinon.stub().returns(testObject2);
+			this.f._elementsLayerIndex = [];
+
+			this.f.addElement(testConstructor1);
+			this.f.addElement(testConstructor2);
+			actual   = this.f._elementsLayerIndex;
+			expected = [[testObject1],undefined,[testObject2]];
+
+			assert.equals(actual, expected);
+		},
+
 		"addElement returns the constructed element": function() {
 			var actual, expected;
 			var testObject = { testProp: 'testProp' };
@@ -351,6 +372,20 @@ tests = {
 
 			actual   = this.f.addElement(testConstructor);
 			expected = testObject;
+			assert.equals(actual, expected);
+		},
+
+		"clearAllElements clears all elements and the element layer index": function() {
+			var actual, expected;
+
+			this.f.clearAllElements();
+
+			actual   = this.f._elements;
+			expected = [];
+			assert.equals(actual, expected);
+
+			actual   = this.f._elementsLayerIndex;
+			expected = [];
 			assert.equals(actual, expected);
 		},
 
