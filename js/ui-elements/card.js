@@ -21,8 +21,12 @@ Game.Utils.extendPrototype(Game.UIElements.Card, {
 	// draw the dialog; override this for different dialog types
 	render: function() 
 	{
-		var gui  = this._gui;
 		var card = this.boundCard;
+		// don't draw blank cards
+		if (card === undefined) { return; }
+
+		var gui  = this._gui;
+
 		Game.DrawUtils.drawBorder(gui, this.position, this.size);
 		var pow = '%c{red}%s'.format(card.power);
 		var cdr = '%c{lightblue}%s'.format(card.cdr);

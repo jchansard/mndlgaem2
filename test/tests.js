@@ -279,7 +279,7 @@ tests = {
 
 			this.f.renderCurrentScreen = renderStub;
 			this.f._elements = [el1, el2, el3];
-			this.f._elementsLayerIndex = [[el3, el2], [el1]];
+			this.f._elementsLayerIndex = [[2, 1], [0]];
 
 			this.f.render();
 			this.f.clearDisplay.restore();
@@ -349,18 +349,19 @@ tests = {
 			assert.isTrue(actual);
 		},
 
-		"addElement adds the element to the element layer index": function() {
+		"addElement adds the element's index to the element layer index": function() {
 			var actual, expected;
-			var testObject1 = { layer: 0 };
+			var testObject1 = { layer: 0, getInputEvents: sinon.stub() };
 			var testConstructor1 = sinon.stub().returns(testObject1);
 			var testObject2 = { layer: 2 };
 			var testConstructor2 = sinon.stub().returns(testObject2);
 			this.f._elementsLayerIndex = [];
+			this.f._elements = [];
 
 			this.f.addElement(testConstructor1);
 			this.f.addElement(testConstructor2);
 			actual   = this.f._elementsLayerIndex;
-			expected = [[testObject1],undefined,[testObject2]];
+			expected = [[0],undefined,[1]];
 
 			assert.equals(actual, expected);
 		},
@@ -1050,16 +1051,22 @@ tests = {
 			assert.isTrue(actual);
 		},
 
-		"drawCards should draw the specified number of cards": function() {
+		"drawCards should draw the specified number of cards and publishes a deck change event": function() {
 			var actual, expected;
 			var drawStub = sinon.stub(this.f, "_drawCard");
+			var publishStub = sinon.stub(this.f, "_publishDeckChange");
 
 			this.f.drawCards(3);
 
 			this.f._drawCard.restore();
+			this.f._publishDeckChange.restore();
 
 			actual   = drawStub.callCount;
 			expected = 3;
+			assert.equals(actual, expected);
+
+			actual   = publishStub.callCount;
+			expected = 1;
 			assert.equals(actual, expected);
 		},
 

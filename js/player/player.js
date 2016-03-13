@@ -20,7 +20,11 @@ Game.Player.extend(Game.Entity);
 
 Game.PlayerBuilder = {
 	build: function(eventEmitter) {
-		var cards = Game.PlayerCardsBuilder.build(eventEmitter);
+		var properties =
+		{
+			handLimit: 5
+		}
+		var cards = Game.PlayerCardsBuilder.build(properties, eventEmitter);
 		var player = new Game.Player(eventEmitter, cards);
 	
 		player.init();
@@ -53,6 +57,12 @@ Game.Utils.extendPrototype(Game.Player, {
 	drawCards: function(numCardsToDraw, deckToDrawFrom, deckToDrawTo)
 	{
 		this._emitter.Event('drawCards').publish(numCardsToDraw, deckToDrawFrom, deckToDrawTo);
+	},
+
+	// draw cards up to the player's hand limit
+	drawNewHand: function()
+	{
+		this._emitter.Event('drawNewHand').publish();
 	},
 
 	// discard entire hand

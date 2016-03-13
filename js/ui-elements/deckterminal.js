@@ -16,7 +16,6 @@ Game.UIElements.DeckTerminal = function(properties, gui, eventEmitter)
 	this._numCards = properties.numCards || 5;
 	this._cards = new Array(this._numCards);
 }
-
 Game.UIElements.DeckTerminal.extend(Game.UIElements.UIElement);
 Game.Utils.extendPrototype(Game.UIElements.DeckTerminal, {
 
@@ -28,10 +27,6 @@ Game.Utils.extendPrototype(Game.UIElements.DeckTerminal, {
 		{
 			this.setCard(i, this._deck.get(i));
 		}
-	},
-
-	init: function() 
-	{
 		this._initListeners();
 	},
 
@@ -40,13 +35,13 @@ Game.Utils.extendPrototype(Game.UIElements.DeckTerminal, {
 	{
 		var e 	  = this._emitter;
 		var topic = this._deck.id;
-		e.Event(topic,'deckChange').subscribe(this.redrawDeck)
+		e.Event(topic,'deckChange').subscribe(this.redrawDeck.bind(this))
 	},
 
 	// when the deck changes, call this to update gui
 	redrawDeck: function()
 	{
-		for (var i = 0; i < numCards; i++)
+		for (var i = 0; i < this._numCards; i++)
 		{
 			this.setCard(i, this._deck.get(i));
 		}
@@ -60,12 +55,12 @@ Game.Utils.extendPrototype(Game.UIElements.DeckTerminal, {
 			var newCard = {
 				size:
 				{
-					height: 5,
-					width: 4
+					height: 8,
+					width: 7
 				},
 				position: 
 				{
-					x: 1 + index * 4, // todo: dont hardcode
+					x: 1 + index * 7, // todo: dont hardcode
 					y: 1
 				},
 				layer: 1

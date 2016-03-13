@@ -18,11 +18,11 @@ Game.UserInterface = function(properties, container, gameShell, eventEmitter) {
 	this._screen 	    = undefined;
 	this._drawAreas     = {};
 	this._elements 	    = [];
+	this._elementsLayerIndex = [];
 	this._activeElement = null;
 	this._container     = container;
 	this.gameShell		= gameShell;
 	this._emitter  		= eventEmitter;
-	this._elementsLayerIndex = [];
 
 
 	// init layers. Layers are extra transparent canvases created on top of the display
@@ -59,11 +59,14 @@ Game.UserInterface.prototype = {
     	// clear the screen and re-render it
     	this.clearDisplay();
     	if (this.renderCurrentScreen) { this.renderCurrentScreen(); } 
+
+    	// render all elements
+    	var elements = this._elements;
     	this._elementsLayerIndex.forEach(function(layer)
     	{
     		layer.forEach(function(element)
     		{
-	    		element.render();
+	    		elements[element].render();
     		});
     	});
 	},
@@ -141,7 +144,7 @@ Game.UserInterface.prototype = {
 		// add element to layer index
 		var layer = element.layer || 0;
 		this._elementsLayerIndex[layer] = this._elementsLayerIndex[layer] || [];
-		this._elementsLayerIndex[layer].push(element);
+		this._elementsLayerIndex[layer].push(index);
 
 		// if this is the first element added, set it to active
 		if (index === 0)

@@ -51,8 +51,8 @@ Game.Architect.prototype = {
 }
 
 Game.Architect.testDungeon = {
-	width: 20,
-	height: 10,
+	width: 40,
+	height: 20,
 
 	floorTile: Game.Tile.dungeonFloor,
 	wallTile: Game.Tile.dungeonWall,
