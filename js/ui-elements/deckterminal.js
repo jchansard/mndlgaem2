@@ -25,7 +25,7 @@ Game.Utils.extendPrototype(Game.UIElements.DeckTerminal, {
 		var numCards = this._numCards;
 		for (var i = 0; i < numCards; i++)
 		{
-			this.setCard(i, this._deck.get(i));
+			this._setCard(i, this._deck.get(i));
 		}
 		this._initListeners();
 	},
@@ -43,12 +43,12 @@ Game.Utils.extendPrototype(Game.UIElements.DeckTerminal, {
 	{
 		for (var i = 0; i < this._numCards; i++)
 		{
-			this.setCard(i, this._deck.get(i));
+			this._setCard(i, this._deck.get(i));
 		}
 	},
 
 	// update housed card's card to draw
-	setCard: function(index, card)
+	_setCard: function(index, card)
 	{
 		if (this._cards[index] === undefined)
 		{

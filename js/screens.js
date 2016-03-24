@@ -78,8 +78,15 @@ Game.Screens.gameScreen = {
             deck: this.gameShell.player.getDeck('hand')
         }
 
+        var skillTerminal = {
+            position: {x: 0, y: 0 },
+            size: 'fill',
+            skills: this.gameShell.player.getSkills()
+        }
+
 		ui.addElement(Game.UIElements.MapTerminal, mapTerminal, 'mapterminal');
         ui.addElement(Game.UIElements.DeckTerminal, handDeckTerminal, 'handterminal');
+        ui.addElement(Game.UIElements.SkillTerminal, skillTerminal, 'skillterminal');
 	},
 	render: function(display) {
 		return;

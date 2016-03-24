@@ -89,6 +89,7 @@ Game.Utils.extendPrototype(Game.PlayerCards, {
 	{
 		var draw = this._draw;
 		var hand = this._hand;
+		this.discardHand();
 		this.drawCards(this._handLimit, draw, hand);
 
 		this._publishDeckChange(hand, draw);

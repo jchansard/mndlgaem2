@@ -10,8 +10,8 @@
 
 Game.UserInterface = function(properties, container, gameShell, eventEmitter) {
 	properties 		    = properties 		  	|| {};
-	this._height 	    = properties.height  	|| 30;
-	this._width 	    = properties.width   	|| 50;
+	this._height 	    = properties.height  	|| 36;
+	this._width 	    = properties.width   	|| 60;
 	this._bg 		    = properties.bg 	  	|| 'black';
 	this._fontSize 	    = properties.fontSize 	|| 16;
 	this._fontFamily    = properties.fontFamily || 'inconsolata';
@@ -223,16 +223,28 @@ Game.UserInterface.prototype = {
 		return elements;
 	},
 
-	draw: function(x, y, drawInfo) {//x, y, toDraw, fg, bg) {
-		layer = drawInfo.layer || 0;
-		// console.log(layer);
-		this._displays[layer].draw(x, y, drawInfo.ch, drawInfo.fg, drawInfo.bg); 
-	},
-	
-	drawText: function(x, y, drawInfo, maxWidth) { // TODO: ALLOW LINE BY LINE (ARRAY TEXT)
+	draw: function(x, y, drawInfo) {
 		layer = drawInfo.layer || 0;
 
-		this._displays[layer].drawText(x, y, drawInfo.text, maxWidth);
+		// draw text if text is passed; else draw glpyh
+		if (drawInfo.text === undefined)
+		{
+			this._drawGlyph(x, y, layer, drawInfo.ch, drawInfo.fg, drawInfo.bg);
+		}
+		else
+		{
+			this._drawText(x, y, layer, drawInfo.text, drawInfo.maxWidth);
+		}
+	},
+
+	_drawGlyph: function(x, y, layer, ch, fg, bg)
+	{
+		this._displays[layer].draw(x, y, ch, fg, bg);
+	},
+	
+	_drawText: function(x, y, layer, text, maxWidth) 
+	{   // TODO: ALLOW LINE BY LINE (ARRAY TEXT)
+		this._displays[layer].drawText(x, y, text, maxWidth);
 	},
 
 	drawToCanvas: function(id, drawInfo) {

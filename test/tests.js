@@ -308,6 +308,26 @@ tests = {
 
 		},
 
+		"if drawInfo has a text property, draw should call drawText; otherwise, it should call drawGlyph": function() {
+			var actual, expected;
+			var drawTextStub  = sinon.stub(this.f, "_drawText");
+			var drawGlyphStub = sinon.stub(this.f, "_drawGlyph");
+			var drawInfo = { text: 'text' };
+
+			this.f.draw(0, 0, drawInfo);
+			this.f.draw(1, 1, {});
+
+			this.f._drawText.restore();
+			this.f._drawGlyph.restore();
+
+			actual = drawTextStub.calledOnce && drawTextStub.calledWith(0, 0);
+			assert.isTrue(actual);
+
+			actual = drawGlyphStub.calledOnce && drawGlyphStub.calledWith(1, 1);
+			assert.isTrue(actual);
+
+		},
+
 		"getClickedElements should use areCoordsInBounds to return a list of elements within passed coordinates": function() {
 			var actual, expected;
 			var el1 = { size: { height: 1, width: 1 }, position: { x: 0, y: 0 } };
@@ -1068,6 +1088,28 @@ tests = {
 			actual   = publishStub.callCount;
 			expected = 1;
 			assert.equals(actual, expected);
+		},
+
+		"drawNewHand should call discardHand and drawCards on hand, and publish a deck change": function() {
+			var actual, expected;
+			var discardStub = sinon.stub(this.f, 'discardHand');
+			var drawStub    = sinon.stub(this.f, 'drawCards');
+			var publishStub = sinon.stub(this.f, "_publishDeckChange");
+
+			this.f.drawNewHand();
+
+			this.f.discardHand.restore();
+			this.f.drawCards.restore();
+			this.f._publishDeckChange.restore();
+
+			actual = discardStub.calledOnce;
+			assert.isTrue(actual);
+
+			actual = drawStub.calledOnce;
+			assert.isTrue(actual);
+
+			actual = publishStub.calledOnce;
+			assert.isTrue(actual);
 		},
 
 		teardown: function() {

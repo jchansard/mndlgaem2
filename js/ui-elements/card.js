@@ -30,8 +30,8 @@ Game.Utils.extendPrototype(Game.UIElements.Card, {
 		Game.DrawUtils.drawBorder(gui, this.position, this.size);
 		var pow = '%c{red}%s'.format(card.power);
 		var cdr = '%c{lightblue}%s'.format(card.cdr);
-		gui.drawText(this.position.x+1, this.position.y+1, { text: pow });
-		gui.drawText(this.position.x + this.size.width-2, this.position.y + this.size.height-2, { text: cdr });
+		gui.draw(this.position.x+1, this.position.y+1, { text: pow });
+		gui.draw(this.position.x + this.size.width-2, this.position.y + this.size.height-2, { text: cdr });
 
 	},
 

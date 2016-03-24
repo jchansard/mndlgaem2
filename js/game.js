@@ -91,9 +91,17 @@ $(document).ready(function() {
 		height: 20,
 		layer: 0
 	}, {
-		name: 'handterminal',
+		name: 'skillterminal',
 		x: 0,
 		y: 20,
+		width: 40,
+		height: 6,
+		layer: 0
+	},
+	{
+		name: 'handterminal',
+		x: 0,
+		y: 26,
 		width: 40,
 		height: 10,
 		layer: 0

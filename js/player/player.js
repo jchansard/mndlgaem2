@@ -13,8 +13,9 @@ Game.Player = function(eventEmitter, cards) {
 		x: 1,
 		y: 1
 	}, eventEmitter)
-	this._cards = cards;
-	this.id     = 'player';
+	this._cards  = cards;
+	this._skills = []; 
+	this.id      = 'player';
 }
 Game.Player.extend(Game.Entity);
 
@@ -38,6 +39,7 @@ Game.Utils.extendPrototype(Game.Player, {
 	init: function()
 	{
 		this._initListeners();
+		this._initSkills();
 	},
 
 	_initListeners: function() 
@@ -48,9 +50,20 @@ Game.Utils.extendPrototype(Game.Player, {
 		e.Event(this.id,'move').subscribe(playerMoveHandler);
 	},
 
+	_initSkills: function()
+	{
+		this._skills = [];
+		this._skills.push(new Game.Skill(Game.Skill.PlayerAttack, this, this._emitter));
+	},
+
 	getDeck: function(id)
 	{
 		return this._cards.get(id);
+	},
+
+	getSkills: function()
+	{
+		return this._skills;
 	},
 
 	// draw cards from the player's draw pile and add them to the player's hand
