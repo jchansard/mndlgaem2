@@ -704,6 +704,29 @@ tests = {
 		teardown: undefined
 	},
 
+	"Player.js test": {
+		setup: function() {
+			this.f = new Game.Player();
+		},
+
+		"calculateCardEffects should populate an effects simple object with their total power values": function() {
+			var actual, expected;
+			var cards = [ { power: 3 }, { power: 5 }, { power: -2 } ];
+			var effects;
+
+			effects = this.f.calculateCardEffects(cards);
+
+			actual   = effects.power;
+			expected = 6;
+			assert.equals(actual, expected);
+		},
+
+		teardown: function()
+		{
+			delete this.f;
+		}
+	},
+
 	"Architect.js tests": {
 		setup: function() {
 			sinon.stub(Game.Architect.testDungeon, "init");
@@ -1023,6 +1046,30 @@ tests = {
 			assert.equals(actual, expected);
 		},
 
+
+		"getSelection should return all selected and unselected cards of the specified deck via the passed arrays": function() {
+			var actual, expected;
+			var selectedCard1 = { selected: true, select: sinon.stub() };
+			var selectedCard2 = { selected: true, select: sinon.stub() };
+			var unselectedCard1 = { selected: false, select: sinon.stub() };
+			var unselectedCard2 = { selected: false, select: sinon.stub() };
+			var selectedCards = [];
+			var unselectedCards = [];
+
+			this.f._cardList = [selectedCard1, unselectedCard1, selectedCard2, unselectedCard2];
+
+			this.f.getSelection(selectedCards, unselectedCards);
+
+			actual   = selectedCards;
+			expected = [selectedCard1, selectedCard2];
+			assert.equals(actual, expected);
+
+
+			actual   = unselectedCards;
+			expected = [unselectedCard1, unselectedCard2];
+			assert.equals(actual, expected);
+		},
+
 		teardown: function() {
 			delete this.f;
 		}
@@ -1109,6 +1156,17 @@ tests = {
 			assert.isTrue(actual);
 
 			actual = publishStub.calledOnce;
+			assert.isTrue(actual);
+		},
+
+		"getSelection should call getSelection on the correct deck": function() {
+			var actual, expected;
+			var getSelectedCardsStub = sinon.stub();
+			this.f._testDeck = { getSelection: getSelectedCardsStub };
+
+			this.f.getSelection('testDeck', 1, 2);
+
+			actual = getSelectedCardsStub.calledOnce && getSelectedCardsStub.calledWithExactly(1, 2);
 			assert.isTrue(actual);
 		},
 

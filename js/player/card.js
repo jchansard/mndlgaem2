@@ -12,13 +12,13 @@
 	this._name = properties.name  || 'Placeholder';
 	this.power = properties.power || 0;
 	this.cdr   = properties.cdr   || 0;
-	this._selected = false;
+	this.selected = false;
 };
 
 Game.Card.prototype = 
 {
 	select: function(override) 
 	{
-		this._selected = (override !== undefined) ? override : (this._selected) ? false : true;
+		this.selected = (override !== undefined) ? override : (this.selected) ? false : true;
 	},
 }

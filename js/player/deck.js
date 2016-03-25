@@ -78,10 +78,27 @@ Game.Utils.extendPrototype(Game.Deck, {
 		}
 	},
 
+	// returns true if the specified card is selected, else false
+	isSelected: function(index)
+	{
+		return this._cardList[index].selected;
+	},
+
 	// returns all selected cards and empties _selected
 	confirmSelection: function() 
 	{
 		return this._selected.splice(0);
+	},
+
+	// returns all selected and unselected cards via passed arrays, and unselects all selected cards
+	getSelection: function(selected, unselected)
+	{
+		this._cardList.forEach(function(card)
+		{
+			var deckToAddTo = (card.selected) ? selected : unselected;
+			deckToAddTo.push(card);
+			card.select(false);
+		});
 	},
 
 	// returns length of _cardList

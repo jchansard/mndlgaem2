@@ -15,14 +15,15 @@ Game.Skill = function(template, entity, eventEmitter) {
 
  	this._emitter = eventEmitter;
 	this._entity  = entity;
-	this._select  = template['select'];
+	this._use     = template['onUse'];
+	this._coefficients = template['coefficients'];
 
 }
 
 Game.Skill.prototype = {
 	select: function()
 	{
-		this._select.apply(this._entity, arguments);
+		this._emitter.Event(this._entity.id, 'useSkill').publish(this._use);
 	}
 };
 
@@ -35,8 +36,11 @@ Game.Skill.PlayerAttack =
 {
 		name: 'Attack',
 		id:   'player-attack',
-		select: function()
+		onUse: function(effects)
 		{
-			this.drawNewHand();
-		}
+			var pow = effects.power;
+
+			console.log("you did " + pow + " damage!!");
+		},
+		coefficients: [2]
 }

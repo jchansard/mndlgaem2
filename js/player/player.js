@@ -46,8 +46,10 @@ Game.Utils.extendPrototype(Game.Player, {
 	{
 		var e = this._emitter;
 		var playerMoveHandler = this.handleMove.bind(this);
+		var useSkillHandler   = this.useSkill.bind(this);
 
 		e.Event(this.id,'move').subscribe(playerMoveHandler);
+		e.Event(this.id,'useSkill').subscribe(useSkillHandler);
 	},
 
 	_initSkills: function()
@@ -64,6 +66,42 @@ Game.Utils.extendPrototype(Game.Player, {
 	getSkills: function()
 	{
 		return this._skills;
+	},
+
+	// calculate skill effects based on selected cards, then use skill and draw new hand
+	useSkill: function(skillCallback)
+	{
+		var selectedCards   = [];
+		var unselectedCards = [];
+		var effects;
+
+		// get selected and unselected cards and calculate effects 
+		this._emitter.Event('getSelection').publish('hand', selectedCards, unselectedCards);
+		effects = this.calculateCardEffects(selectedCards);
+		
+		// use skill
+		skillCallback(effects);
+
+		// calculate effects of unselected cards and draw new hand
+		this.handleUnselectedCards(unselectedCards);
+		this.drawNewHand();
+	},
+
+	calculateCardEffects: function(cards)
+	{
+		var effects = {
+			power: 0
+		};
+		cards.forEach(function(card) {
+			effects.power += card.power;
+		});
+
+		return effects;
+	},
+
+	handleUnselectedCards: function(cards)
+	{
+
 	},
 
 	// draw cards from the player's draw pile and add them to the player's hand
@@ -104,10 +142,6 @@ Game.Utils.extendPrototype(Game.Player, {
 	},
 	moveRight: function() {
 		this.tryMove(this._x + 1, this._y);
-	},
-
-	position: function() {
-		return [this._x, this._y];
 	}
 
 });

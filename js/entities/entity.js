@@ -38,6 +38,11 @@
  		drawCallback.call(thisArg, this._x, this._y, drawInfo);
  	},
 
+ 	useSkill: function(skillCallback)
+ 	{
+ 		skillCallback();
+ 	},
+
  	tryMove: function(x, y)
  	{
  		if (this.canMoveTo(x, y)) { this.moveTo(x, y); }
@@ -57,5 +62,10 @@
  	setMap: function(map)
  	{
  		this._map = map;
- 	}
+ 	},
+
+ 	position: function() 
+ 	{
+		return [this._x, this._y];
+	}
  }

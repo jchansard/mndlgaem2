@@ -26,8 +26,8 @@ Game.PlayerCardsBuilder = {
 		// create draw, hand, and discard decks
 		var fakecard = new Game.Card({ power: 3, cdr: 2 });
 		var fakecard2 = new Game.Card({ power: 5, cdr: 4});
-		var handlist = [fakecard, fakecard, fakecard, fakecard, fakecard];
-		var drawlist = [fakecard2, fakecard2, fakecard2, fakecard2, fakecard2, fakecard2, fakecard2];
+		var handlist = [$.extend({}, fakecard), $.extend({}, fakecard), $.extend({}, fakecard), $.extend({}, fakecard), $.extend({}, fakecard)];
+		var drawlist = [$.extend({}, fakecard2), $.extend({}, fakecard2), $.extend({}, fakecard2), $.extend({}, fakecard2), $.extend({}, fakecard2), $.extend({}, fakecard2), $.extend({}, fakecard2)];
 		var draw    = new Game.Deck(drawlist,'draw');
 		var hand    = new Game.Deck(handlist,'hand');
 		var discard = new Game.Deck(null,'discard');
@@ -46,10 +46,12 @@ Game.Utils.extendPrototype(Game.PlayerCards, {
 		var drawCardsHandler = this.drawCards.bind(this);
 		var discardHandHandler = this.discardHand.bind(this);
 		var drawNewHandHandler = this.drawNewHand.bind(this);
+		var getSelectionHandler = this.getSelection.bind(this);
 
 		e.Event('drawCards').subscribe(drawCardsHandler);
 		e.Event('discardHand').subscribe(discardHandHandler);
 		e.Event('drawNewHand').subscribe(drawNewHandHandler);
+		e.Event('getSelection').subscribe(getSelectionHandler);
 	},
 
 	// publishes deck change event to all decks that are passed
@@ -104,6 +106,14 @@ Game.Utils.extendPrototype(Game.PlayerCards, {
 		hand.addTo(discard);
 
 		this._publishDeckChange(hand, discard);
+	},
+
+	// confirm selection, returning all selected and unselected cards in the specified deck
+	// and clearing the "selected" flag
+	getSelection: function(id, selected, unselected)
+	{
+		var deck = this.get(id);
+		deck.getSelection(selected, unselected);
 	},
 
 	_drawCard: function(cardToDrawIndex, deckToDrawFrom, deckToDrawTo) 

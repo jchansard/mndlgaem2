@@ -48,7 +48,6 @@ Game.Utils.extendPrototype(Game.UIElements.Skill, {
 	// on click, if user clicked on a prompt option, choose that choice
 	lclick: function(e) 
 	{
-		console.log('clicked');
 		this.boundSkill.select();
 		return;
 	},
