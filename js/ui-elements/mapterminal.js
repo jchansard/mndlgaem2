@@ -7,16 +7,23 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
-Game.UIElements.MapTerminal = function(properties, gui, eventEmitter)
+
+const UIElement = require('./uielement');
+const util   = require('util');
+const calc   = require('../util/calc');
+const extend = require('../util/extend.js');
+
+var MapTerminal = function(properties, gui, eventEmitter)
 {
 	properties = properties || {};
-	Game.UIElements.UIElement.apply(this, arguments);
+	UIElement.apply(this, arguments);
 	this._map			= properties.map;	
 	this._player		= properties.player;
 }
 
-Game.UIElements.MapTerminal.extend(Game.UIElements.UIElement);
-Game.Utils.extendPrototype(Game.UIElements.MapTerminal, {
+util.inherits(MapTerminal, UIElement);
+
+extend(MapTerminal, {
 
 	close: function() {
 		//TODO: animate?
@@ -63,8 +70,6 @@ Game.Utils.extendPrototype(Game.UIElements.MapTerminal, {
 		var playerCoords = this._player.position();
 		var legCoords = [playerCoords[0], clickedCoords[1]];
 
-		var calc = new Game.Calc();
-
 		var distancePlayerToLeg = calc.distanceBetweenPoints(playerCoords, legCoords);
 		var distanceLegToClick  = calc.distanceBetweenPoints(legCoords, clickedCoords);
 		var direction;
@@ -85,3 +90,5 @@ Game.Utils.extendPrototype(Game.UIElements.MapTerminal, {
 		return;
 	},
 });
+
+module.exports = MapTerminal;

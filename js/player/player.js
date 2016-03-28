@@ -7,8 +7,15 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
-Game.Player = function(eventEmitter, cards) {
-	Game.Entity.call(this, { 
+
+const Entity = require('../entities/entity.js');
+const Skill  = require('../entities/skill.js');
+const Skills = require('../entities/skills.js')
+const util   = require('util');
+const extend = require('../util/extend.js');
+
+var Player = function(eventEmitter, cards) {
+	Entity.call(this, { 
 		glyph: ['@', 'white'],
 		x: 1,
 		y: 1
@@ -17,24 +24,10 @@ Game.Player = function(eventEmitter, cards) {
 	this._skills = []; 
 	this.id      = 'player';
 }
-Game.Player.extend(Game.Entity);
 
-Game.PlayerBuilder = {
-	build: function(eventEmitter) {
-		var properties =
-		{
-			handLimit: 5
-		}
-		var cards = Game.PlayerCardsBuilder.build(properties, eventEmitter);
-		var player = new Game.Player(eventEmitter, cards);
-	
-		player.init();
+util.inherits(Player, Entity)
 
-		return player;
-	}
-}
-
-Game.Utils.extendPrototype(Game.Player, {
+extend(Player, {
 
 	init: function()
 	{
@@ -55,7 +48,7 @@ Game.Utils.extendPrototype(Game.Player, {
 	_initSkills: function()
 	{
 		this._skills = [];
-		this._skills.push(new Game.Skill(Game.Skill.PlayerAttack, this, this._emitter));
+		this._skills.push(new Skill(Skills.PlayerAttack, this, this._emitter));
 	},
 
 	getDeck: function(id)
@@ -145,3 +138,19 @@ Game.Utils.extendPrototype(Game.Player, {
 	}
 
 });
+
+var build = function(eventEmitter) {
+	var properties =
+	{
+		handLimit: 5
+	}
+	var PlayerCards = require('./playercards')
+	var cards = PlayerCards.build(properties, eventEmitter);
+	var player = new Player(eventEmitter, cards);
+
+	player.init();
+
+	return player;
+}
+
+module.exports.build = build;

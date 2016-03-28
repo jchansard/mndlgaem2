@@ -6,9 +6,34 @@
         <link rel="stylesheet" type="text/css" href="test/mndltest.css">
 	</head>
 	<body>
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
-        <script type="text/javascript" src="js/sinon-1.17.3.js"></script>
-        <script type="text/javascript" src="js/rot.min.js"></script>   
+        <style type="text/css">
+            div#game-container canvas {
+                /*position: absolute;*/
+            }
+            div#game-container, div#game {
+                position: relative;
+            }
+            div#overlay {
+                position: absolute;
+                top: 0;
+            }
+    		@font-face {
+        		font-family: "zodiac";
+        		src: url(assets/fonts/Zodiac-Uni.ttf) format("truetype");
+    		}
+    		@font-face {
+        		font-family: "inconsolata";
+        		src: url(assets/fonts/Inconsolata.otf) format("opentype");
+    		}
+		</style>
+		<div id="game-container" style="background-color: #000000; float: left" tabindex="0">
+			<div id="game"></div>
+			<div id="overlay"</div>
+		</div>
+        <script type="text/javascript" src="js/index.js"></script>
+<!--         <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script> -->
+        <!-- <script type="text/javascript" src="js/sinon-1.17.3.js"></script> -->
+<!--         <script type="text/javascript" src="js/rot.min.js"></script>   
         <script type="text/javascript" src="js/game.js"></script>
         <script type="text/javascript" src="js/utils.js"></script>
         <script type="text/javascript" src="js/calc.js"></script>
@@ -36,31 +61,6 @@
         <script type="text/javascript" src="js/architect/architectutils.js"></script>
         <script type="text/javascript" src="js/architect/architect.js"></script>
         <script type="text/javascript" src="js/drawutils.js"></script>
-        <script type="text/javascript" src="test/mndltest.js"></script>
-        <script type="text/javascript" src="test/tests.js"></script>
-        <style type="text/css">
-            div#game-container canvas {
-                /*position: absolute;*/
-            }
-            div#game-container, div#game {
-                position: relative;
-            }
-            div#overlay {
-                position: absolute;
-                top: 0;
-            }
-    		@font-face {
-        		font-family: "zodiac";
-        		src: url(assets/fonts/Zodiac-Uni.ttf) format("truetype");
-    		}
-    		@font-face {
-        		font-family: "inconsolata";
-        		src: url(assets/fonts/Inconsolata.otf) format("opentype");
-    		}
-		</style>
-		<div id="game-container" style="background-color: #000000; float: left" tabindex="0">
-			<div id="game"></div>
-			<div id="overlay"</div>
-		</div>
+        <script type="text/javascript" src="test/mndltest.js"></script> -->
 	</body>
 </html> 

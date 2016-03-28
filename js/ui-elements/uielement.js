@@ -7,9 +7,8 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
-Game.UIElements = {};
 
-Game.UIElements.UIElement = function(properties, gui, eventEmitter)
+var UIElement = function(properties, gui, eventEmitter)
 {
 	properties 			= properties || arguments[0] || {};
 	this.init           = properties.init;
@@ -23,7 +22,7 @@ Game.UIElements.UIElement = function(properties, gui, eventEmitter)
 	this.drawArea       = undefined;
 }
 
-Game.UIElements.UIElement.prototype = {
+UIElement.prototype = {
 
 	build: function(drawArea) {
 		this._initStyle();
@@ -83,3 +82,4 @@ Game.UIElements.UIElement.prototype = {
 	}
 }
 
+module.exports = UIElement;

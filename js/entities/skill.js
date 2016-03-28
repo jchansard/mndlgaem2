@@ -8,7 +8,7 @@
  * https://github.com/jchansard/mndlgaem2
  */
 
-Game.Skill = function(template, entity, eventEmitter) {
+var Skill = function(template, entity, eventEmitter) {
  	template = template || {};
 	this.name     = template['name'];
 	this.id       = undefined;
@@ -20,27 +20,11 @@ Game.Skill = function(template, entity, eventEmitter) {
 
 }
 
-Game.Skill.prototype = {
+Skill.prototype = {
 	select: function()
 	{
 		this._emitter.Event(this._entity.id, 'useSkill').publish(this._use);
 	}
 };
 
-/** PlayerAttack
- *  
- *  DESCRIPTION: Player attack skill. 
- *  ASSUMES: this._entity == player
- */
-Game.Skill.PlayerAttack =
-{
-		name: 'Attack',
-		id:   'player-attack',
-		onUse: function(effects)
-		{
-			var pow = effects.power;
-
-			console.log("you did " + pow + " damage!!");
-		},
-		coefficients: [2]
-}
+module.exports = Skill;

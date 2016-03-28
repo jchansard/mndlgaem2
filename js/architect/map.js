@@ -7,12 +7,13 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
-Game.Map = function(tiles) {
+
+var GameMap = function(tiles) {
 	this._tiles = tiles;
 	this._entities = [];
 };
 
-Game.Map.prototype = {
+GameMap.prototype = {
 	draw: function(drawCallback, thisArg)
 	{
 		// draw map 
@@ -20,6 +21,10 @@ Game.Map.prototype = {
 		{
 			for (var y = 0; y < this._tiles[x].length; y++)
 			{
+				if (this._tiles[x][y] === undefined)
+				{
+					console.log(x + ',' + y);
+				}
 				var glyph = this._tiles[x][y].glyph;
 				var drawInfo = { ch: glyph.ch, fg: glyph.fg, bg: glyph.bg }
 				drawCallback.call(thisArg, x, y, drawInfo);
@@ -49,3 +54,5 @@ Game.Map.prototype = {
 		return !this._tiles[x][y].untraversable;
 	}
 }
+
+module.exports = GameMap;

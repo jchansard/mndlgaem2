@@ -7,16 +7,24 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
-Game.UIElements.Card = function(properties, gui, eventEmitter)
+
+const UIElement = require('./uielement');
+const util   = require('util');
+const extend = require('../util/extend.js');
+// TODO: format string (use module?)
+console.log(String.format);
+
+var Card = function(properties, gui, eventEmitter)
 {
 	properties = properties || {};
-	Game.UIElements.UIElement.apply(this, arguments);
+	UIElement.apply(this, arguments);
 
 	this.boundCard = properties.card;
 }
 
-Game.UIElements.Card.extend(Game.UIElements.UIElement);
-Game.Utils.extendPrototype(Game.UIElements.Card, {
+util.inherits(Card, UIElement);
+
+extend(Card, {
 
 	// draw the dialog; override this for different dialog types
 	render: function() 
@@ -27,9 +35,10 @@ Game.Utils.extendPrototype(Game.UIElements.Card, {
 
 		var gui  = this._gui;
 
-		Game.DrawUtils.drawBorder(gui, this.position, this.size);
-		var pow = '%c{red}%s'.format(card.power);
-		var cdr = '%c{lightblue}%s'.format(card.cdr);
+		var fg = (card.selected) ? 'green' : undefined;
+		gui.drawBorder(gui, this.position, this.size, { fg: fg });
+		var pow = '%c{red}' + card.power// .format(card.power);
+		var cdr = '%c{lightblue}' + card.cdr //.format(card.cdr);
 		gui.draw(this.position.x+1, this.position.y+1, { text: pow });
 		gui.draw(this.position.x + this.size.width-2, this.position.y + this.size.height-2, { text: cdr });
 
@@ -53,3 +62,5 @@ Game.Utils.extendPrototype(Game.UIElements.Card, {
 		return;
 	},
 });
+
+module.exports = Card;

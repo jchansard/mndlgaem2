@@ -8,19 +8,26 @@
  * https://github.com/jchansard/mndlgaem2
  */
 
-Game.UIElements.SkillTerminal = function(properties, gui, eventEmitter)
+const UIElement = require('./uielement');
+const Skill  = require('./skill');
+const util   = require('util');
+const extend = require('../util/extend.js');
+
+var SkillTerminal = function(properties, gui, eventEmitter)
 {
 	properties = properties || {};
-	Game.UIElements.UIElement.apply(this, arguments);
+	UIElement.apply(this, arguments);
 	this._skills  = properties.skills;
 	this._skillUIElements = [];
 }
-Game.UIElements.SkillTerminal.extend(Game.UIElements.UIElement);
-Game.Utils.extendPrototype(Game.UIElements.SkillTerminal, {
+
+util.inherits(SkillTerminal, UIElement);
+
+extend(SkillTerminal, {
 
 	build: function(drawArea) 
 	{
-		Game.UIElements.UIElement.prototype.build.apply(this, arguments)
+		UIElement.prototype.build.apply(this, arguments)
 		this._initListeners();
 		this._skills.forEach(function(skill, index)
 		{
@@ -37,7 +44,7 @@ Game.Utils.extendPrototype(Game.UIElements.SkillTerminal, {
 	// draw the dialog; override this for different dialog types
 	render: function() 
 	{
-		Game.DrawUtils.drawBorder(this._gui, this.position, this.size);// FIX OVERLAY
+		this._gui.drawBorder(this._gui, this.position, this.size);// FIX OVERLAY
 	},	
 	_setSkill: function(index, skill)
 	{
@@ -56,7 +63,7 @@ Game.Utils.extendPrototype(Game.UIElements.SkillTerminal, {
 				},
 				layer: 1
 			};
-			this._skillUIElements[index] = this._gui.addElement(Game.UIElements.Skill, newSkill, this.drawArea);
+			this._skillUIElements[index] = this._gui.addElement(Skill, newSkill, this.drawArea);
 		}
 		this._skillUIElements[index].boundSkill = skill;
 	},
@@ -77,3 +84,5 @@ Game.Utils.extendPrototype(Game.UIElements.SkillTerminal, {
 		return;
 	},
 });
+
+module.exports = SkillTerminal;

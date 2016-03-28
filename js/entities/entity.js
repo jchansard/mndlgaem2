@@ -8,11 +8,12 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
+const Glyph = require('../display/glyph.js');
 
- Game.Entity = function(template, eventEmitter) {
+var Entity = function(template, eventEmitter) {
  	template = template || {};
  	this._emitter = eventEmitter;
- 	this._glyph   = new Game.Glyph(template.glyph)
+ 	this._glyph   = new Glyph(template.glyph)
 	this._name    = template['name'];
 	this._x 	  = template['x'] || 0; //TODO: this is gross
 	this._y 	  = template['y'] || 0;
@@ -21,7 +22,7 @@
 	this.id       = undefined;
  }
 
- Game.Entity.prototype = {
+Entity.prototype = {
  	draw: function(drawCallback, thisArg) {
  		var g = this._glyph;
  		var drawInfo = {
@@ -69,3 +70,5 @@
 		return [this._x, this._y];
 	}
  }
+
+ module.exports = Entity;

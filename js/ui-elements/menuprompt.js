@@ -7,22 +7,28 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
-Game.UIElements.MenuPrompt = function(properties, gui, eventEmitter)
+
+const UIElement = require('./uielement');
+const util   = require('util');
+const extend = require('../util/extend.js');
+
+var MenuPrompt = function(properties, gui, eventEmitter)
 {
 	properties = properties || {};
-	Game.UIElements.UIElement.apply(this, arguments);
+	UIElement.apply(this, arguments);
 	this._title			= properties.title 			|| "";
 	this._options 	 	= properties.options 		|| [];
 	this._choice		= properties.choice 		|| 0;
 	this._callback		= properties.callback;
 }
 
-Game.UIElements.MenuPrompt.extend(Game.UIElements.UIElement);
-Game.Utils.extendPrototype(Game.UIElements.MenuPrompt, {
+util.inherits(MenuPrompt, UIElement);
+
+extend(MenuPrompt, {
 
 	// overrides prototype
 	build: function(drawArea) {
-		Game.UIElements.UIElement.prototype.build.apply(this, arguments);
+		UIElement.prototype.build.apply(this, arguments);
 		this._calculateSize(); 
 	},
 
@@ -46,7 +52,7 @@ Game.Utils.extendPrototype(Game.UIElements.MenuPrompt, {
 
 	// draw the dialog; override this for different dialog types
 	render: function() {
-		Game.DrawUtils.drawBorder(this._gui, this.position, this.size, { padding: 1 });
+		this._gui.drawBorder(this._gui, this.position, this.size, { padding: 1 });
 
 		var padding = this._style.padding || 0;
 		var x = this.position.x;
@@ -162,3 +168,4 @@ Game.Utils.extendPrototype(Game.UIElements.MenuPrompt, {
 	}
 });
 
+module.exports = MenuPrompt;

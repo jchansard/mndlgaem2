@@ -9,7 +9,13 @@
  */
 
  // constructor; don't use directly. use playercardsbuilder.
-Game.PlayerCards = function(draw, hand, discard, properties, eventEmitter) {
+
+const extend = require('../util/extend.js')
+const Card   = require('./card');
+const Deck   = require('./deck');
+const clone  = require('../util/cloneobject.js');
+
+var PlayerCards = function(draw, hand, discard, properties, eventEmitter) {
 	properties = properties || {};
 	this._draw    = draw;
 	this._hand    = hand;
@@ -20,24 +26,7 @@ Game.PlayerCards = function(draw, hand, discard, properties, eventEmitter) {
 	this._emitter = eventEmitter;
 }
 
-// factory
-Game.PlayerCardsBuilder = {
-	build: function(properties, eventEmitter) {
-		// create draw, hand, and discard decks
-		var fakecard = new Game.Card({ power: 3, cdr: 2 });
-		var fakecard2 = new Game.Card({ power: 5, cdr: 4});
-		var handlist = [$.extend({}, fakecard), $.extend({}, fakecard), $.extend({}, fakecard), $.extend({}, fakecard), $.extend({}, fakecard)];
-		var drawlist = [$.extend({}, fakecard2), $.extend({}, fakecard2), $.extend({}, fakecard2), $.extend({}, fakecard2), $.extend({}, fakecard2), $.extend({}, fakecard2), $.extend({}, fakecard2)];
-		var draw    = new Game.Deck(drawlist,'draw');
-		var hand    = new Game.Deck(handlist,'hand');
-		var discard = new Game.Deck(null,'discard');
-
-		var cards = new Game.PlayerCards(draw, hand, discard, properties, eventEmitter);
-		cards.initListeners();
-		return cards;
-	}
-}
-Game.Utils.extendPrototype(Game.PlayerCards, {
+extend(PlayerCards, {
 
 	// event listeners
 	initListeners: function()
@@ -138,3 +127,22 @@ Game.Utils.extendPrototype(Game.PlayerCards, {
 		this._discard.addTo(this._draw);
 	},
 });
+
+// factory
+var	build = function(properties, eventEmitter) {
+	// create draw, hand, and discard decks
+	var f1 = { power: 3, cdr: 2 };
+	var f2 = { power: 5, cdr: 4};
+	// TODO: CLONE WONT WORK BC FUNCTIONS
+	var handlist = [new Card(f1), new Card(f1), new Card(f1), new Card(f1), new Card(f1)];
+	var drawlist = [new Card(f2), new Card(f2), new Card(f2), new Card(f2), new Card(f2), new Card(f2), new Card(f2)];
+	var draw    = new Deck(drawlist,'draw');
+	var hand    = new Deck(handlist,'hand');
+	var discard = new Deck(null,'discard');
+
+	var cards = new PlayerCards(draw, hand, discard, properties, eventEmitter);
+	cards.initListeners();
+	return cards;
+}
+
+module.exports.build = build;

@@ -8,20 +8,27 @@
  * https://github.com/jchansard/mndlgaem2
  */
 
-Game.UIElements.DeckTerminal = function(properties, gui, eventEmitter)
+const UIElement = require('./uielement');
+const Card   = require('./card');
+const util   = require('util');
+const extend = require('../util/extend.js');
+
+var DeckTerminal = function(properties, gui, eventEmitter)
 {
 	properties  = properties || {};
-	Game.UIElements.UIElement.apply(this, arguments);
+	UIElement.apply(this, arguments);
 	this._deck  = properties.deck;
 	this._numCards = properties.numCards || 5;
 	this._cards = new Array(this._numCards);
 }
-Game.UIElements.DeckTerminal.extend(Game.UIElements.UIElement);
-Game.Utils.extendPrototype(Game.UIElements.DeckTerminal, {
+
+util.inherits(DeckTerminal, UIElement);
+
+extend(DeckTerminal, {
 
 	build: function(drawArea) 
 	{
-		Game.UIElements.UIElement.prototype.build.apply(this, arguments)
+		UIElement.prototype.build.apply(this, arguments)
 		var numCards = this._numCards;
 		for (var i = 0; i < numCards; i++)
 		{
@@ -65,7 +72,7 @@ Game.Utils.extendPrototype(Game.UIElements.DeckTerminal, {
 				},
 				layer: 1
 			};
-			this._cards[index] = this._gui.addElement(Game.UIElements.Card, newCard, this.drawArea);
+			this._cards[index] = this._gui.addElement(Card, newCard, this.drawArea);
 		}
 		this._cards[index].boundCard = card;
 	},
@@ -73,7 +80,7 @@ Game.Utils.extendPrototype(Game.UIElements.DeckTerminal, {
 	// draw the dialog; override this for different dialog types
 	render: function() 
 	{
-		Game.DrawUtils.drawBorder(this._gui, this.position, this.size);// FIX OVERLAY
+		this._gui.drawBorder(this._gui, this.position, this.size);// FIX OVERLAY
 	},	
 
 	// get input events for this dialog
@@ -93,3 +100,5 @@ Game.Utils.extendPrototype(Game.UIElements.DeckTerminal, {
 		return;
 	},
 });
+
+module.exports = DeckTerminal;

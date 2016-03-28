@@ -7,14 +7,15 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
-Game.Deck = function(cardList,id) {
+var Deck = function(cardList,id) {
 	this._cardList = cardList || [];
 	this._selected = [];
 	this.id        = id;
 };
 
+const extend = require('../util/extend.js')
 
-Game.Utils.extendPrototype(Game.Deck, {
+extend(Deck, {
 	// add a card to the deck	
 	add: function(card) 
 	{
@@ -107,3 +108,5 @@ Game.Utils.extendPrototype(Game.Deck, {
 		return this._cardList.length;
 	}
 });
+
+module.exports = Deck;

@@ -7,16 +7,22 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
-Game.UIElements.Skill = function(properties, gui, eventEmitter)
+
+const UIElement = require('./uielement');
+const util   = require('util');
+const extend = require('../util/extend.js');
+
+var Skill = function(properties, gui, eventEmitter)
 {
 	properties = properties || {};
-	Game.UIElements.UIElement.apply(this, arguments);
+	UIElement.apply(this, arguments);
 
 	this.boundSkill = properties.skill;
 }
 
-Game.UIElements.Skill.extend(Game.UIElements.UIElement);
-Game.Utils.extendPrototype(Game.UIElements.Skill, {
+util.inherits(Skill, UIElement);
+
+extend(Skill, {
 
 	// draw the dialog; override this for different dialog types
 	render: function() 
@@ -52,3 +58,5 @@ Game.Utils.extendPrototype(Game.UIElements.Skill, {
 		return;
 	},
 });
+
+module.exports = Skill;

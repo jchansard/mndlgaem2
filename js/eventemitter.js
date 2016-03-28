@@ -10,14 +10,15 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
-Game.EventEmitter = function() {
+var mndlEventEmitter = function() {
   this._events      = {};
 }
 
-Game.EventEmitter.prototype = 
+mndlEventEmitter.prototype = 
 {
   Event: function(topic,type) 
   {
+    var jQuery = require('jquery');
     // if no type is passed, assume topic is global and topic is type
     if (type === undefined) 
     { 
@@ -44,5 +45,7 @@ Game.EventEmitter.prototype =
       this._events[topic][type] = event;
     }
     return event;
-  },
+  }
 }
+
+module.exports = mndlEventEmitter;

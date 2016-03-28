@@ -7,17 +7,22 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
-Game.Tile = function(properties) {
+
+const Glyph = require('../display/glyph')
+
+var Tile = function(properties) {
 	properties 		 = properties || {};	
-	this.glyph 		 = new Game.Glyph(properties.glyph);
+	this.glyph 		 = new Glyph(properties.glyph);
 	this.untraversable = properties.untraversable || false;
 };
 
-Game.Tile.dungeonFloor = {
+Tile.dungeonFloor = {
 	glyph: ['.', 'darkslategray', 'lightslategray']
 };
 
-Game.Tile.dungeonWall = {
+Tile.dungeonWall = {
 	glyph: [' ', 'slategray', '#222'],
 	untraversable: true
 }
+
+module.exports = Tile;
