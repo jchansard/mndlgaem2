@@ -67,7 +67,7 @@ UIElement.prototype = {
 	},
 
 	// draw the dialog; override this for different element types
-	render: function() {
+	render: function(drawCallback) {
 		return;
 	},
 

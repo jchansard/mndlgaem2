@@ -23,7 +23,7 @@ var Entity = function(template, eventEmitter) {
  }
 
 Entity.prototype = {
- 	draw: function(drawCallback, thisArg) {
+ 	draw: function(drawCallback) {
  		var g = this._glyph;
  		var drawInfo = {
  			ch: g.ch,
@@ -36,7 +36,7 @@ Entity.prototype = {
  		{
  			drawInfo.bg = this._map.getTile(this._x, this._y).glyph.bg;
  		}
- 		drawCallback.call(thisArg, this._x, this._y, drawInfo);
+ 		drawCallback(this._x, this._y, drawInfo);
  	},
 
  	useSkill: function(skillCallback)

@@ -78,9 +78,14 @@ extend(DeckTerminal, {
 	},
 
 	// draw the dialog; override this for different dialog types
-	render: function() 
+	render: function(drawCallback) 
 	{
-		this._gui.drawBorder(this._gui, this.position, this.size);// FIX OVERLAY
+		var drawInfo = 
+		{
+			type: 'border',
+			size: this.size
+		}
+		drawCallback(this.position.x, this.position.y, drawInfo);// FIX OVERLAY
 	},	
 
 	// get input events for this dialog

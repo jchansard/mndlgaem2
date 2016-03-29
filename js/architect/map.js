@@ -14,7 +14,7 @@ var GameMap = function(tiles) {
 };
 
 GameMap.prototype = {
-	draw: function(drawCallback, thisArg)
+	draw: function(drawCallback)
 	{
 		// draw map 
 		for (var x = 0; x < this._tiles.length; x++)
@@ -27,14 +27,14 @@ GameMap.prototype = {
 				}
 				var glyph = this._tiles[x][y].glyph;
 				var drawInfo = { ch: glyph.ch, fg: glyph.fg, bg: glyph.bg }
-				drawCallback.call(thisArg, x, y, drawInfo);
+				drawCallback(x, y, drawInfo);
 			}
 		}
 
 		// draw entities
 		this._entities.forEach(function(e)
 		{
-			e.draw(drawCallback, thisArg);
+			e.draw(drawCallback);
 		});
 	},
 

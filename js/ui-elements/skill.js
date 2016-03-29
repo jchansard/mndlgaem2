@@ -25,7 +25,7 @@ util.inherits(Skill, UIElement);
 extend(Skill, {
 
 	// draw the dialog; override this for different dialog types
-	render: function() 
+	render: function(drawCallback) 
 	{
 		var skill = this.boundSkill;
 		// don't draw blank skills
@@ -34,7 +34,7 @@ extend(Skill, {
 		var gui  = this._gui;
 
 		// Game.DrawUtils.drawBorder(gui, this.position, this.size);
-		gui.draw(this.position.x, this.position.y, { text: skill.name });
+		drawCallback(this.position.x, this.position.y, { text: skill.name });
 		// var pow = '%c{red}%s'.format(card.power);
 		// var cdr = '%c{lightblue}%s'.format(card.cdr);
 		// gui.drawText(this.position.x+1, this.position.y+1, { text: pow });

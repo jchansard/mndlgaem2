@@ -20,7 +20,7 @@ var skills = {
 		id:   'player-attack',
 		onUse: function(effects)
 		{
-			var pow = (effects.power/5)>>0;
+			var pow = 1 + (effects.power/5)>>0;
 
 			console.log("you did " + pow + " damage!!");
 		},

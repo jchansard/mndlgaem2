@@ -51,8 +51,8 @@ extend(MenuPrompt, {
 	},
 
 	// draw the dialog; override this for different dialog types
-	render: function() {
-		this._gui.drawBorder(this._gui, this.position, this.size, { padding: 1 });
+	render: function(drawCallback) {
+		drawCallback(this.position.x, this.position.y, { type: 'border', size: this.size, options: { padding: 1 }});
 
 		var padding = this._style.padding || 0;
 		var x = this.position.x;
@@ -60,13 +60,13 @@ extend(MenuPrompt, {
 
 		if (this._title !== "")
 		{
-			this._gui.draw(x + padding, y, { type: 'text', text: '%b{' + this._style.bg + '}' + this._title });
+			drawCallback(x + padding, y, { type: 'text', text: '%b{' + this._style.bg + '}' + this._title });
 		}
 
 		y = this.position.y + padding;
 		if (this._content !== "") 
 		{
-			this._gui.draw(x + padding, y, { text: '%b{' + this._style.bg + '}' + this._content });
+			drawCallback(x + padding, y, { text: '%b{' + this._style.bg + '}' + this._content });
 			y += 2;
 		}
 
@@ -86,7 +86,7 @@ extend(MenuPrompt, {
 			{
 				text += " ";
 			}
-			this._gui.draw(x + padding, y, { text: text })
+			drawCallback(x + padding, y, { text: text })
 
 			y++;
 		}

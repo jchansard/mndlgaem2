@@ -42,9 +42,9 @@ extend(SkillTerminal, {
 	},
 
 	// draw the dialog; override this for different dialog types
-	render: function() 
+	render: function(drawCallback) 
 	{
-		this._gui.drawBorder(this._gui, this.position, this.size);// FIX OVERLAY
+		drawCallback(this.position.x, this.position.y, { type: 'border', size: this.size });// FIX OVERLAY
 	},	
 	_setSkill: function(index, skill)
 	{

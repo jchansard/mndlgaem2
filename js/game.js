@@ -8,11 +8,13 @@
  * https://github.com/jchansard/mndlgaem2
  */
 
-const Player       = require('./player/player.js')
-const Emitter      = require('./eventemitter')
-const Architect    = require('./architect/architect.js')
-const UI           = require('./display/ui.js')
-const InputManager = require('./input/inputmanager.js');
+const Player        = require('./player/player.js');
+const Emitter       = require('./eventemitter');
+const Architect     = require('./architect/architect.js');
+const UI            = require('./display/ui.js');
+const InputManager  = require('./input/inputmanager.js');
+const ScreenManager = require('./game-flow/screenmanager.js');
+const screens       = require('./game-flow/screens.js')
 
 var GameShell = function(options) {
 	options = options || {};
@@ -23,15 +25,18 @@ var GameShell = function(options) {
 	const OVERLAYBACKGROUND = 'transparent';
 	const GAMECONTAINER  = options.container || 'div#game-container'
 
-	// set start screen
-	this._startScreen = options.startScreen;
-
 	// init event manager
 	this.eventEmitter = new Emitter();
+
+	// init screen manager
+	this.screenmanager = ScreenManager.build(this.eventEmitter, screens);
+	
+	// get start screen
+	this._startScreen = options.startScreen;
 	// init gui layers
 	this.guis = {};
-	// init player
 
+	// init player
 	this.player    = Player.build(this.eventEmitter);
 
 	// init architect

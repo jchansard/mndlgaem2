@@ -86,9 +86,7 @@ var screens = {
             size: 'fill',
             skills: this.gameShell.player.getSkills()
         };
-
-        console.log(UIElements);
-
+        
     		ui.addElement(UIElements.MapTerminal, mapTerminal, 'mapterminal');
         ui.addElement(UIElements.DeckTerminal, handDeckTerminal, 'handterminal');
         ui.addElement(UIElements.SkillTerminal, skillTerminal, 'skillterminal');

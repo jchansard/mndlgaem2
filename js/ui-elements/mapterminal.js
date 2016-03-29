@@ -31,8 +31,8 @@ extend(MapTerminal, {
 	},
 
 	// draw the dialog
-	render: function() {
-		this._map.draw(this._gui.draw, this._gui, this._drawArea);
+	render: function(drawCallback) {
+		this._map.draw(drawCallback, this._drawArea);
 		return;
 	},
 

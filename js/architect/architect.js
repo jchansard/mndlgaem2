@@ -8,9 +8,8 @@
  * https://github.com/jchansard/mndlgaem2
  */
 
-const Tile    = require('./tile');
 const GameMap = require('./map');
-const ROT     = require('rot-js');
+const levels  = require('./levels')
 
 var Architect = function(properties, player) {
 	properties 			= properties || {};
@@ -40,8 +39,6 @@ Architect.prototype = {
 		var tiles  = this._create2DArray(width, height);
 		var mapBuilder = new levelType.mapType(width, height);
 		var callbackContext, callback;
-
-		console.log(levelType);
 
 		if (typeof levelType.mapTypeCallback === 'function')
 		{
@@ -75,31 +72,9 @@ Architect.prototype = {
 	}
 }
 
-var levels = {
-	testDungeon : {
-		width: 40,
-		height: 20,
-
-		floorTile: Tile.dungeonFloor,
-		wallTile: Tile.dungeonWall,
-
-		mapType: ROT.Map.Arena,
-		mapTypeCallback: function(x, y, value) 
-		{
-			this.tiles[x][y] = (value === 1) ? new Tile(this.properties.wallTile) : new Tile(this.properties.floorTile);
-		},
-
-		init: function() 
-		{
-			//this.addEntity(Game.gameShell.player);
-		}
-	}
-};
-
 var build = function(properties, player) 
 {
 	return new Architect(properties, player);
 }
 
 module.exports.build = build;
-module.exports.levels = levels;

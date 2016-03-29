@@ -11,8 +11,6 @@
 const UIElement = require('./uielement');
 const util   = require('util');
 const extend = require('../util/extend.js');
-// TODO: format string (use module?)
-console.log(String.format);
 
 var Card = function(properties, gui, eventEmitter)
 {
@@ -27,20 +25,27 @@ util.inherits(Card, UIElement);
 extend(Card, {
 
 	// draw the dialog; override this for different dialog types
-	render: function() 
+	render: function(drawCallback) 
 	{
 		var card = this.boundCard;
 		// don't draw blank cards
 		if (card === undefined) { return; }
 
-		var gui  = this._gui;
-
 		var fg = (card.selected) ? 'green' : undefined;
-		gui.drawBorder(gui, this.position, this.size, { fg: fg });
-		var pow = '%c{red}' + card.power// .format(card.power);
-		var cdr = '%c{lightblue}' + card.cdr //.format(card.cdr);
-		gui.draw(this.position.x+1, this.position.y+1, { text: pow });
-		gui.draw(this.position.x + this.size.width-2, this.position.y + this.size.height-2, { text: cdr });
+		var drawInfo = 
+		{
+			type: 'border',
+			size: this.size,
+			options:
+			{
+				fg: fg
+			}
+		}
+		drawCallback(this.position.x, this.position.y, drawInfo);
+		var pow = '%c{red}%s'.format(card.power);
+		var cdr = '%c{lightblue}%s'.format(card.cdr);
+		drawCallback(this.position.x+1, this.position.y+1, { text: pow });
+		drawCallback(this.position.x + this.size.width-2, this.position.y + this.size.height-2, { text: cdr });
 
 	},
 
@@ -57,7 +62,6 @@ extend(Card, {
 	// on click, if user clicked on a prompt option, choose that choice
 	lclick: function(e) 
 	{
-		console.log('clicked');
 		this.boundCard.select();
 		return;
 	},

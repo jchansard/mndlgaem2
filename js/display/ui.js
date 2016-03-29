@@ -68,19 +68,23 @@ UserInterface.prototype = {
 
     	// render all elements
     	var elements = this._elements;
+    	var callback = this.draw.bind(this);
     	this._elementsLayerIndex.forEach(function(layer)
     	{
     		layer.forEach(function(element)
     		{
-	    		elements[element].render();
+	    		elements[element].render(callback);
     		});
     	});
 	},
 
-	changeScreen: function(screen) 
-	{	// TODO BIG TODO: screen manager
-		if (screen == 'gameScreen') screen = require('../game-flow/screens').gameScreen;
-		console.log(screen);
+	changeScreen: function(screenName) 
+	{	
+		// get screen from screen name
+		var data = {};
+		this._emitter.Event('screen','getScreen').publish(screenName, data);
+		var screen = data.screen;
+
 	    if (this._screen && this.exitCurrentScreen) {
 	    	this.exitCurrentScreen();
 	    }
@@ -228,67 +232,6 @@ UserInterface.prototype = {
 		return elements;
 	},
 
-	draw: function(x, y, drawInfo) {
-		layer = drawInfo.layer || 0;
-
-		// draw text if text is passed; else draw glpyh
-		if (drawInfo.text === undefined)
-		{
-			this._drawGlyph(x, y, layer, drawInfo.ch, drawInfo.fg, drawInfo.bg);
-		}
-		else
-		{
-			this._drawText(x, y, layer, drawInfo.text, drawInfo.maxWidth);
-		}
-	},
-
-	_drawGlyph: function(x, y, layer, ch, fg, bg)
-	{
-		this._displays[layer].draw(x, y, ch, fg, bg);
-	},
-	
-	_drawText: function(x, y, layer, text, maxWidth) 
-	{   // TODO: ALLOW LINE BY LINE (ARRAY TEXT)
-		this._displays[layer].drawText(x, y, text, maxWidth);
-	},
-
-	drawToCanvas: function(id, drawInfo) {
-		var mult = Game.CANVASTILESIZE || 12;
-		var x = drawInfo.x || 0; 
-		var y = drawInfo.y || 0;
-		drawInfo.type = drawInfo.type || 'image';
-		x *= mult;
-		y *= mult;
-		var canvas = $(id).get(0).getContext('2d');
-
-		switch(drawInfo.type) {
-			case 'image':
-				var img = new Image();
-				img.src = drawInfo.src; //TODO: preload!!!!!!!!
-				img.addEventListener("load", function() {
-					canvas.drawImage(img, x, y);
-				});
-				break;
-			case 'text':
-				y += mult; // for text, x,y = bottom left, apparently (for images it's top left?) this way, coordinates are consistent
-				canvas.font = drawInfo.font || "12px inconsolata";
-				canvas.fillStyle = drawInfo.color || "white";
-	  			canvas.fillText(drawInfo.text, x, y);
-	  			/*var x = 2;
-	  			var timer = setInterval(function() {
-	  				canvas.fillStyle = 'rgb(217,0,217)';
-	  				canvas.fillRect(35, 107, x, 14);
-	  				x += 2;
-	  				if (x==160) {
-	  					console.log(x);
-	  					clearInterval(timer);
-	  				}
-	  			}, 50);*/
-	  			break;
-	  		default:
-	  			console.err("invalid type passed to canvas: " + drawInfo.type);
-	  	}
-	}
 };		
 
 // add draw and mouse utility functions

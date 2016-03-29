@@ -9,11 +9,10 @@
  */
 
 var GameShell = require('./js/game.js');
-const screens = require('./js/game-flow/screens.js')
 
 var options = 
 {
-	startScreen: screens.startScreen
+	startScreen: 'startScreen'
 }
 
 var game = new GameShell(options);
