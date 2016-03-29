@@ -1,13 +1,29 @@
+/**
+ * app.js
+ *
+ * entry point for app. supports -debug and -test flags
+ *
+ * -------------
+ * Josh Chansard 
+ * https://github.com/jchansard/mndlgaem2
+ */
+
 var electron = require('electron');
 var remote   = require('electron').remote;
-var debug = process.argv[2] || false;
+var args  = process.argv.slice(2);
+var debug = (args.indexOf('-debug') > -1) ? true : false;
+var test  = (args.indexOf('-test') > -1) ? true : false;
 
 electron.app.on('ready', function() {
-	var mainWindow = new electron.BrowserWindow({width: 1228, height: 650});
-	mainWindow.loadURL('file://' + __dirname + '/index.html');
+	var width = (debug) ? 1228 : 992;
+	var height = 650;
+	var mainWindow = new electron.BrowserWindow({width: width, height: height});
+	var URL = 'file://' + __dirname;
+	// if test flag is set, load index.html in test directory
+	URL = (test) ? URL + '/test/index.html' : URL + '/index.html';
 
+	mainWindow.loadURL(URL);
+
+	// toggle dev tools by default if debug flag is set
 	if (debug) { mainWindow.toggleDevTools() };
 });
-
-
-// window.$ = window.jQuery = require('jQuery');

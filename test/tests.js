@@ -1,36 +1,30 @@
-$(document).ready(function() {
-	if (this.mndltest === 'undefined') { return; }
-	mndltest.runTests(tests);
-})
+const sinon  = require('sinon');
+const assert = require('./mndltest').assert;
+const $      = require('jquery');
+var dir = '../js/'; // directory to scripts being tested
+var t   = { a: 'b' }; 		// test object
 
-tests = {
+module.exports = {
 	"Game.js tests": {
 		setup: function() { 
-			this.f = new Game.GameShell(); 
-		},
-
-		"GameShell constructor should return GameShell object": function() {
-			var actual,
-
-			actual = this.f instanceof Game.GameShell;
-
-			assert.isTrue(actual);
+			var GameShell = require(dir + 'game');
+			t.f = new GameShell();
 		},
 
 		"init should initialize ui objects, load starting screens, and start game tick": function() {
 			var actual, expected;
-			var tickStub = sinon.stub(this.f, "tick");
+			var tickStub = sinon.stub(t.f, "tick");
 			var mocks = [];
 
-			for (var gui in this.f.guis)
+			for (var gui in t.f.guis)
 			{	
-				var scratchStub = sinon.stub(this.f.guis[gui], "changeScreen")
-				var mock = sinon.mock(this.f.guis[gui]);
+				var scratchStub = sinon.stub(t.f.guis[gui], "changeScreen")
+				var mock = sinon.mock(t.f.guis[gui]);
 				mock.expects("init").once();
 				mocks.push(mock);
 			}
 
-			this.f.init();
+			t.f.init();
 
 			actual = tickStub.calledOnce;
 			assert.isTrue(actual);
@@ -42,36 +36,29 @@ tests = {
 		},
 
 		teardown: function() {
-			delete this.f;
+			delete t.f;
 		}
 	},
 
 	"InputManager.js tests": {
 		setup: function() {
-			this.f1 = $(document.createElement('div')).attr('id','inputmanager-test');
-			$('body').append(this.f1);
-			this.f2 = new Game.InputManager(this.f1);
-		},
-
-		"InputManager constructor should return InputManager object": function() {
-			var actual;
-
-			actual = this.f2 instanceof Game.InputManager;
-
-			assert.isTrue(actual);
+			t.f1 = $(document.createElement('div')).attr('id','inputmanager-test');
+			$('body').append(t.f1);
+			var InputManager = require(dir + 'input/inputmanager')
+			t.f2 = new InputManager(t.f1);
 		},
 
 		"before init(), events should not be relayed through handleInput": function() {
 			var actual, expected;
-			var handleInputSpy = sinon.spy(this.f2, "handleInput");
+			var handleInputSpy = sinon.spy(t.f2, "handleInput");
 
-			mndltest.dispatchEvent("keydown", {	which: 40 }, this.f1); 
-			mndltest.dispatchEvent("keypress", { which: 40 }, this.f1);
-			mndltest.dispatchEvent("click", {
+			assert.dispatchEvent("keydown", {	which: 40 }, t.f1); 
+			assert.dispatchEvent("keypress", { which: 40 }, t.f1);
+			assert.dispatchEvent("click", {
 				which: 1,
 				pageX: 0,
 				pageY: 0
-			}, this.f1);
+			}, t.f1);
 
 			actual   = handleInputSpy.callCount;
 			expected = 0;
@@ -83,30 +70,51 @@ tests = {
 
 		"after init(), events should be relayed through handleInput": function() {
 			var actual, expected;
-			var handleInputSpy = sinon.spy(this.f2, "handleInput");
-			var handleClickSpy = sinon.stub(this.f2, "handleClick");
+			var handleInputStub = sinon.stub(t.f2, "handleInput");
+			var handleClickStub = sinon.stub(t.f2, "handleClick");
+			sinon.stub(t.f2, "_initListeners");
 
-			this.f2.init();
-			mndltest.dispatchEvent("keydown", {	which: 40 }, this.f1); 
-			mndltest.dispatchEvent("keypress", { which: 40 }, this.f1);
-			mndltest.dispatchEvent("click", {
+			t.f2.init();
+			assert.dispatchEvent("keydown", { which: 40 }, t.f1); 
+			assert.dispatchEvent("keypress", { which: 40 }, t.f1);
+			assert.dispatchEvent("click", {
 				which: 1,
 				pageX: 0,
 				pageY: 0
-			}, this.f1);
+			}, t.f1);
 
-			actual   = handleInputSpy.callCount;
+			actual   = handleInputStub.callCount;
 			expected = 3;
 
 			assert.equals(actual, expected);
 
-			actual	 = handleClickSpy.callCount;
+			t.f2.handleInput.restore();
+			t.f2.handleClick.restore();
+		},
+
+		"after init(), clicks should be relayed through handleClick": function() {
+			var actual, expected;
+			var InputManager = require(dir + 'input/inputmanager')
+			t.f2 = new InputManager(t.f1);
+			var handleInputSpy = sinon.spy(t.f2, "handleInput");
+			var handleClickSpy = sinon.stub(t.f2, "handleClick");
+			sinon.stub(t.f2, "_initListeners");
+
+			t.f2.init();
+			assert.dispatchEvent("click", {
+				which: 1,
+				pageX: 0,
+				pageY: 0
+			}, t.f1);
+
+			actual   = handleClickSpy.callCount;
 			expected = 1;
 
 			assert.equals(actual, expected);
 
-			this.f2.handleInput.restore();
-			this.f2.handleClick.restore();
+			t.f2.handleInput.restore();
+			t.f2.handleClick.restore();
+
 		},
 
 		"bindEvents should add events to inputActions and bind context correctly": function() {
@@ -115,7 +123,7 @@ tests = {
 			var context = { id: 'context' }
 			context.activeDialog = sinon.stub().returns(undefined);
 			var eventType = 'test';
-			this.f2._inputActions = {};
+			t.f2._inputActions = {};
 
 			var input = {
 				test: {
@@ -125,16 +133,16 @@ tests = {
 				}
 			}
 			
-			this.f2.bindEvents(input);
+			t.f2.bindEvents(input);
 
-			actual = this.f2._inputActions[eventType]['test'] === undefined;
+			actual = t.f2._inputActions[eventType]['test'] === undefined;
 			expected = false;
 			assert.equals(expected, actual);
 			
-			actual = this.f2._inputActions[eventType]['test'] instanceof Array;
+			actual = t.f2._inputActions[eventType]['test'] instanceof Array;
 			assert.isTrue(actual);
 			
-			this.f2._inputActions[eventType]['test'][0]();
+			t.f2._inputActions[eventType]['test'][0]();
 			actual = fnSpy.calledOnce;
 			assert.isTrue(actual);
 			
@@ -144,13 +152,15 @@ tests = {
 		
 		"handleInput finds and calls the appropriate bound function for keyboard events, preventing the default action": function() {
 			var actual;
-			var keyCodeStub = sinon.stub(Game.Keymap, "keyCodeToAction").returns('test');
+			var keyCodeStub = sinon.stub().returns('test');
+			t.f2._keymap = {};
+			t.f2._keymap.keyCodeToAction = keyCodeStub;
 			var inputActionStub = sinon.stub();
 			var preventDefaultSpy = sinon.spy();
 			var e = { type: 'keydown', which: 1, preventDefault: preventDefaultSpy };
 			
-			this.f2._inputActions = { keydown: { test: [inputActionStub] } };
-			this.f2.handleInput(e);
+			t.f2._inputActions = { keydown: { test: [inputActionStub] } };
+			t.f2.handleInput(e);
 			
 			actual = keyCodeStub.calledOnce;
 			assert.isTrue(actual);
@@ -160,8 +170,6 @@ tests = {
 			
 			actual = inputActionStub.calledOnce;
 			assert.isTrue(actual);
-
-			Game.Keymap.keyCodeToAction.restore();
 		},
 
 		"handleClick correctly routes a click action to all valid elements": function() {
@@ -171,7 +179,7 @@ tests = {
 				clientX: 0,
 				clientY: 0
 			}
-			var clickFunctionStub = sinon.stub(this.f2, "_getClickFunction");
+			var clickFunctionStub = sinon.stub(t.f2, "_getClickFunction");
 			clickFunctionStub.withArgs(1).returns('lclick');
 			clickFunctionStub.withArgs(2).returns('mclick');
 			clickFunctionStub.withArgs(3).returns('rclick');
@@ -194,7 +202,7 @@ tests = {
 				}
 			}
 
-			this.f2.handleClick(e, guis);
+			t.f2.handleClick(e, guis);
 
 			actual = lSpy.callCount;
 			expected = 2;
@@ -205,8 +213,8 @@ tests = {
 
 			var beforeCount = lSpy.callCount;
 			e.which = 3;
-			this.f2.handleClick(e, guis);
-			this.f2._getClickFunction.restore();
+			t.f2.handleClick(e, guis);
+			t.f2._getClickFunction.restore();
 
 			actual = lSpy.callCount;
 			expected = beforeCount;
@@ -224,15 +232,15 @@ tests = {
 			var middle = 2;
 			var right = 3;
 
-			actual = this.f2._getClickFunction(1);
+			actual = t.f2._getClickFunction(1);
 			expected = 'lclick';
 			assert.equals(actual, expected);
 
-			actual = this.f2._getClickFunction(2);
+			actual = t.f2._getClickFunction(2);
 			expected = 'mclick';
 			assert.equals(actual, expected);
 
-			actual = this.f2._getClickFunction(3);
+			actual = t.f2._getClickFunction(3);
 			expected = 'rclick';
 			assert.equals(actual, expected);
 		},
@@ -243,27 +251,28 @@ tests = {
 			var passAction = 'testaction';
 			var failType = 'failtype';		// unbound
 			var failAction = 'failaction';
-			this.f2._inputActions = { testtype: { testaction: sinon.stub() } };
+			t.f2._inputActions = { testtype: { testaction: sinon.stub() } };
 			
-			actual   = this.f2._isActionBound(passType, passAction);
+			actual   = t.f2._isActionBound(passType, passAction);
 			expected = true;
 			assert.equals(actual, expected);
 			
-			actual   = this.f2._isActionBound(failType, failAction);
+			actual   = t.f2._isActionBound(failType, failAction);
 			expected = false;
 			assert.equals(actual, expected)			
 		},
 
 		teardown: function() {
-			$(this.f1).remove();
-			delete this.f1;
-		 	delete this.f2;
+			$(t.f1).remove();
+			delete t.f1;
+		 	delete t.f2;
 		}
 	},
 
 	"UserInterface.js tests": {
 		setup: function() {
-			this.f = new Game.UserInterface();
+			var UserInterface = require(dir + 'display/ui')
+			t.f = new UserInterface();
 		},
 
 		"render clears the screen and calls render on this and each of this's elements using the element layer index": function() {
@@ -272,23 +281,23 @@ tests = {
 			var renderStub1 = sinon.stub();
 			var renderStub2 = sinon.stub();
 			var renderStub3 = sinon.stub();
-			var clearDisplayStub = sinon.stub(this.f, "clearDisplay");
+			var clearDisplayStub = sinon.stub(t.f, "clearDisplay");
 			var el1 = { render: renderStub1 };
 			var el2 = { render: renderStub2 };
 			var el3 = { render: renderStub3 };
 
-			this.f.renderCurrentScreen = renderStub;
-			this.f._elements = [el1, el2, el3];
-			this.f._elementsLayerIndex = [[2, 1], [0]];
+			t.f.renderCurrentScreen = renderStub;
+			t.f._elements = [el1, el2, el3];
+			t.f._elementsLayerIndex = [[2, 1], [0]];
 
-			this.f.render();
-			this.f.clearDisplay.restore();
+			t.f.render();
+			t.f.clearDisplay.restore();
 
 			actual = clearDisplayStub.callCount;
 			expected = 1;
 			assert.equals(actual, expected);
 
-			actual = renderStub.calledOn(this.f);
+			actual = renderStub.calledOn(t.f);
 			assert.isTrue(actual);
 
 			actual = renderStub.callCount;
@@ -310,15 +319,15 @@ tests = {
 
 		"if drawInfo has a text property, draw should call drawText; otherwise, it should call drawGlyph": function() {
 			var actual, expected;
-			var drawTextStub  = sinon.stub(this.f, "_drawText");
-			var drawGlyphStub = sinon.stub(this.f, "_drawGlyph");
+			var drawTextStub  = sinon.stub(t.f, "_drawText");
+			var drawGlyphStub = sinon.stub(t.f, "_drawGlyph");
 			var drawInfo = { text: 'text' };
 
-			this.f.draw(0, 0, drawInfo);
-			this.f.draw(1, 1, {});
+			t.f.draw(0, 0, drawInfo);
+			t.f.draw(1, 1, {});
 
-			this.f._drawText.restore();
-			this.f._drawGlyph.restore();
+			t.f._drawText.restore();
+			t.f._drawGlyph.restore();
 
 			actual = drawTextStub.calledOnce && drawTextStub.calledWith(0, 0);
 			assert.isTrue(actual);
@@ -333,15 +342,15 @@ tests = {
 			var el1 = { size: { height: 1, width: 1 }, position: { x: 0, y: 0 } };
 			var el2 = { size: { height: 1, width: 1 }, position: { x: 0, y: 0 } };
 			var el3 = { size: { height: 1, width: 1 }, position: { x: 2, y: 2 } };
-			this.f._elements = [el1, el2, el3];
-			var utilsSpy = sinon.spy(Game.Utils, "coordsAreInBounds");
+			t.f._elements = [el1, el2, el3];
+			var utilsSpy = sinon.spy(t.f, "coordsAreInBounds");
 			var e = { 
 				which: 1,
 				clientX: 0, 
 				clientY: 0 
 			};
 			
-			actual = this.f.getClickedElements(e);
+			actual = t.f.getClickedElements(e);
 			expected = [el1, el2];
 			assert.equals(actual, expected);
 
@@ -351,7 +360,7 @@ tests = {
 
 			e.clientX = 1000; // this test will probably fail on a sufficiently sized monitor, or if sufficiently zoomed in...
 
-			actual = this.f.getClickedElements(e);
+			actual = t.f.getClickedElements(e);
 			expected = [];
 			assert.equals(actual, expected);
 		},	
@@ -361,11 +370,11 @@ tests = {
 			var options = { test1: 'test1' };
 			var testConstructor = sinon.stub().returns(new Object());
 			var testEmitter  = 'testEmitter';
-			this.f._emitter  = testEmitter;
+			t.f._emitter  = testEmitter;
 
-			this.f.addElement(testConstructor, options, testEmitter);
+			t.f.addElement(testConstructor, options, testEmitter);
 
-			actual   = testConstructor.calledWithExactly(options, this.f, testEmitter);
+			actual   = testConstructor.calledWithExactly(options, t.f, testEmitter);
 			assert.isTrue(actual);
 		},
 
@@ -375,15 +384,19 @@ tests = {
 			var testConstructor1 = sinon.stub().returns(testObject1);
 			var testObject2 = { layer: 2 };
 			var testConstructor2 = sinon.stub().returns(testObject2);
-			this.f._elementsLayerIndex = [];
-			this.f._elements = [];
+			sinon.stub(t.f, 'setActiveElement');
 
-			this.f.addElement(testConstructor1);
-			this.f.addElement(testConstructor2);
-			actual   = this.f._elementsLayerIndex;
+			t.f._elementsLayerIndex = [];
+			t.f._elements = [];
+
+			t.f.addElement(testConstructor1);
+			t.f.addElement(testConstructor2);
+			actual   = t.f._elementsLayerIndex;
 			expected = [[0],undefined,[1]];
 
 			assert.equals(actual, expected);
+
+			t.f.setActiveElement.restore();
 		},
 
 		"addElement returns the constructed element": function() {
@@ -391,7 +404,7 @@ tests = {
 			var testObject = { testProp: 'testProp' };
 			var testConstructor = sinon.stub().returns(testObject);
 
-			actual   = this.f.addElement(testConstructor);
+			actual   = t.f.addElement(testConstructor);
 			expected = testObject;
 			assert.equals(actual, expected);
 		},
@@ -399,13 +412,13 @@ tests = {
 		"clearAllElements clears all elements and the element layer index": function() {
 			var actual, expected;
 
-			this.f.clearAllElements();
+			t.f.clearAllElements();
 
-			actual   = this.f._elements;
+			actual   = t.f._elements;
 			expected = [];
 			assert.equals(actual, expected);
 
-			actual   = this.f._elementsLayerIndex;
+			actual   = t.f._elementsLayerIndex;
 			expected = [];
 			assert.equals(actual, expected);
 		},
@@ -414,14 +427,14 @@ tests = {
 		// 	var actual, expected;
 		// 	var bindStub = sinon.stub();
 		// 	var emitterStub = sinon.stub();
-		// 	var setActiveStub = sinon.stub(this.f, "setActiveElement");
+		// 	var setActiveStub = sinon.stub(t.f, "setActiveElement");
 		// 	var el = { bindToGui: bindStub, bindToEmitter: emitterStub }
-		// 	this.f._elements = [];
+		// 	t.f._elements = [];
 
-		// 	this.f.addElement(el);
+		// 	t.f.addElement(el);
 
 		// 	// should add el
-		// 	actual = this.f._elements;
+		// 	actual = t.f._elements;
 		// 	expected = [el];
 		// 	assert.equals(actual, expected);
 
@@ -430,21 +443,21 @@ tests = {
 		// 	assert.isTrue(actual);
 
 		// 	// add another element
-		// 	this.f.addElement(el);
+		// 	t.f.addElement(el);
 
 		// 	// set active shouldn't have been called, since it wasn't the first element and no override was passed
 		// 	actual = setActiveStub.calledOnce;
 		// 	assert.isTrue(actual);
 
 		// 	// add a third element, this time with override
-		// 	this.f.addElement(el, undefined, true);
+		// 	t.f.addElement(el, undefined, true);
 
 		// 	// set active should have been called, since activeByDefault is true
 		// 	actual = setActiveStub.calledTwice && setActiveStub.calledWithExactly(2);
 		// 	assert.isTrue(actual);
 
 		// 	// validate final state of elements
-		// 	actual = this.f._elements;
+		// 	actual = t.f._elements;
 		// 	expected = [el, el, el];
 		// 	assert.equals(actual, expected);
 
@@ -458,23 +471,23 @@ tests = {
 		// 	expected = 3;
 		// 	assert.equals(actual, expected);
 
-		// 	this.f.setActiveElement.restore();
+		// 	t.f.setActiveElement.restore();
 		// },
 
 		// "addElement should bind the element to a drawArea, if a drawArea name is passed and that drawArea exists": function() {
 		// 	var actual, expected;
 		// 	var bindStub = sinon.stub();
-		// 	var setActiveStub = sinon.stub(this.f, "setActiveElement");
+		// 	var setActiveStub = sinon.stub(t.f, "setActiveElement");
 		// 	var el = { bindToScreen: bindStub, bindToGui: sinon.stub(), bindToEmitter: sinon.stub() };
-		// 	this.f._elements = [];
-		// 	this.f._subscreens = { test: undefined };
-		// 	this.f._drawAreas['test'] = {};
+		// 	t.f._elements = [];
+		// 	t.f._subscreens = { test: undefined };
+		// 	t.f._drawAreas['test'] = {};
 
-		// 	this.f.addElement(el, 'test');
-		// 	this.f.addElement(el);
-		// 	this.f.addElement(el, 'falafel');
+		// 	t.f.addElement(el, 'test');
+		// 	t.f.addElement(el);
+		// 	t.f.addElement(el, 'falafel');
 
-		// 	this.f.setActiveElement.restore();
+		// 	t.f.setActiveElement.restore();
 
 		// 	// bindStub should only have been called once (for the first call)
 		// 	actual = bindStub.calledOnce && bindStub.neverCalledWith(undefined);
@@ -488,8 +501,8 @@ tests = {
 		// 	var el1 = { init: initStub };
 		// 	var el2 = { };
 
-		// 	this.f.addElement(testConstructor, el1);
-		// 	this.f.addElement(testConstructor, el2);
+		// 	t.f.addElement(testConstructor, el1);
+		// 	t.f.addElement(testConstructor, el2);
 
 		// 	actual = initStub.calledOnce;
 		// 	assert.isTrue(actual);
@@ -498,84 +511,86 @@ tests = {
 		"activeElement should return the active element, unless there are no elements, in which case it returns false": function() {
 			var actual, expected;
 			var test = {};
-			this.f._elements = [null, null, null, null, test, null];
-			this.f._activeElement = 4;
+			t.f._elements = [null, null, null, null, test, null];
+			t.f._activeElement = 4;
 
-			actual = this.f.activeElement();
+			actual = t.f.activeElement();
 			expected = test;
 			assert.equals(actual, expected);
 
-			this.f._elements = [];
+			t.f._elements = [];
 
-			actual = this.f.activeElement();
+			actual = t.f.activeElement();
 			expected = false;
 			assert.equals(actual, expected);
 		},
 
 		"setActiveElement should call bindInputs on the active element and set the active element appropriately": function() {
 			var actual, expected;
-			var bindInputsStub = sinon.stub(this.f, "bindInputEvents");
+			var bindInputsStub = sinon.stub(t.f, "bindInputEvents");
 			var testInput = 'test-input';
 			var test = { getInputEvents: sinon.stub().returns(testInput) };
-			this.f._elements = [test];
-			this.f._activeElement = null;
+			t.f._elements = [test];
+			t.f._activeElement = null;
 
-			this.f.setActiveElement(0);
+			t.f.setActiveElement(0);
 			actual = bindInputsStub.calledOnce && bindInputsStub.calledWith(testInput);
 			assert.isTrue(actual);
 
-			actual = this.f._activeElement;
+			actual = t.f._activeElement;
 			expected = 0;
 			assert.equals(actual, expected);
 
-			this.f.bindInputEvents.restore();
+			t.f.bindInputEvents.restore();
 		},
 
 		teardown: function() {								
-			delete this.f;
+			delete t.f;
 		}
 	},
 
 	"UIElement.js tests": {
 		setup: function() {
-			this.f = new Game.UIElements.UIElement();
+			var UIElement = require(dir + 'ui-elements/uielement')
+			t.f = new UIElement();
 		},
 
 		"_initPosition moves the element relative to the drawArea's position without modifying it": function() {
 			var expected, actual;
 			var drawAreaBefore = { x: 5, y: 6 };
 			var drawAreaAfter  = { x: 5, y: 6 };
-			this.f.position   = { x: 1, y: 1 };
+			t.f.position   = { x: 1, y: 1 };
 
-			this.f._initPosition(drawAreaAfter);
+			t.f._initPosition(drawAreaAfter);
 
 			actual   = drawAreaAfter;
 			expected = drawAreaBefore;
 			assert.equals(actual, expected);
 
-			actual   = { x: this.f.position.x, y: this.f.position.y };
+			actual   = { x: t.f.position.x, y: t.f.position.y };
 			expected = { x: 6, y: 7 };
 		},
 
 		teardown: function() {
-			delete this.f;
+			delete t.f;
 		}
 
 	},
 
 	"MenuPrompt.js tests": {
 		setup: function() {
-			this.f = new Game.UIElements.MenuPrompt();
+			var MenuPrompt = require(dir + 'ui-elements/index').MenuPrompt;
+			t.f = new MenuPrompt();
 		},
 
 		"_calculateSize should correctly calculate the appropriate size for the prompt, including padding": function() {
 			var expected, actual;
 			var height = 10, width = 10;
 			var padding = 5;
-			this.f._size = { height: height, width: width };
-			this.f._style.padding = padding;
+			t.f._size = { height: height, width: width };
+			t.f._style.padding = padding;
 
-			actual = this.f._calculateSize();
+			actual = t.f._calculateSize();
 			expected = { height: height + (2 * padding), width: width + (2 * padding) };
 		},
 
@@ -588,25 +603,25 @@ tests = {
 			eventToPosStub.onFirstCall().returns([1,0])			
 				.onSecondCall().returns([99,1])
 				.onThirdCall().returns([undefined,2]);
-			this.f._gui = { eventToPosition: eventToPosStub };
-			this.f._position = { x: 0, y: 0 };
+			t.f._gui = { eventToPosition: eventToPosStub };
+			t.f._position = { x: 0, y: 0 };
 			var options = ['test','test'];
 
-			this.f._style.padding = 0;
-			this.f._options = options;
+			t.f._style.padding = 0;
+			t.f._options = options;
 
 			// click y = 0
-			actual = this.f.coordsToChoice({});
+			actual = t.f.coordsToChoice({});
 			expected = 0;
 			assert.equals(actual, expected);
 
 			// click y = 1;
-			actual = this.f.coordsToChoice({});
+			actual = t.f.coordsToChoice({});
 			expected = 1;
 			assert.equals(actual, expected);
 
 			// click y = 2, should return -1, since out of bounds
-			actual = this.f.coordsToChoice({});
+			actual = t.f.coordsToChoice({});
 			expected = -1;
 			assert.equals(actual, expected);
 		},
@@ -620,37 +635,37 @@ tests = {
 				.onSecondCall().returns([99,3])
 				.onThirdCall().returns([undefined, 4])
 				.onCall(3).returns(['test', 5]);
-			this.f._gui = { eventToPosition: eventToPosStub };
-			this.f._position = { x: 0, y: 0 };
+			t.f._gui = { eventToPosition: eventToPosStub };
+			t.f._position = { x: 0, y: 0 };
 			var options = ['test','test'];
 
-			this.f._style.padding = 3;
-			this.f._options = options;
+			t.f._style.padding = 3;
+			t.f._options = options;
 
 			// click y = 2; should return -1, since out of bounds
-			actual = this.f.coordsToChoice({});
+			actual = t.f.coordsToChoice({});
 			expected = -1;
 			assert.equals(actual, expected);
 
 			// click y = 3
-			actual = this.f.coordsToChoice({});
+			actual = t.f.coordsToChoice({});
 			expected = 0;
 			assert.equals(actual, expected);
 
 			// click y = 4
-			actual = this.f.coordsToChoice({});
+			actual = t.f.coordsToChoice({});
 			expected = 1;
 			assert.equals(actual, expected);
 
 			// click y = 5; should return -1, since out of bounds
-			actual = this.f.coordsToChoice({});
+			actual = t.f.coordsToChoice({});
 			expected = -1;
 			assert.equals(actual, expected);
 
 		},
 
 		teardown: function() {
-			delete this.f;
+			delete t.f;
 		}
 	},
 
@@ -665,7 +680,7 @@ tests = {
 				c: new Array(),
 				d: ['a', 1, undefined],
 			}
-			actual = Game.Utils.cloneSimpleObject(e);
+			actual = require(dir + 'util/cloneobject')(e);
 			expected = e;
 			assert.equals(actual, expected);
 		},
@@ -684,7 +699,7 @@ tests = {
 			};
 			var sourceUnchanged = source;
 
-			Game.Utils.extendPrototype(target, source);
+			require(dir + 'util/extend')(target, source);
 
 			// target1 and target2 should still exist
 			actual = (target.prototype.target1 !== undefined && target.prototype.target2 !== undefined);
@@ -701,123 +716,15 @@ tests = {
 
 		},
 
-		teardown: undefined
-	},
-
-	"Player.js test": {
-		setup: function() {
-			this.f = new Game.Player();
-		},
-
-		"calculateCardEffects should populate an effects simple object with their total power values": function() {
-			var actual, expected;
-			var cards = [ { power: 3 }, { power: 5 }, { power: -2 } ];
-			var effects;
-
-			effects = this.f.calculateCardEffects(cards);
-
-			actual   = effects.power;
-			expected = 6;
-			assert.equals(actual, expected);
-		},
-
-		teardown: function()
-		{
-			delete this.f;
-		}
-	},
-
-	"Architect.js tests": {
-		setup: function() {
-			sinon.stub(Game.Architect.testDungeon, "init");
-			this.f = new Game.Architect({},{ actor: 'test'});
-		},
-
-		"init should generate a new level and add it and the player to the architect's level map": function() {
-			var actual, expected;
-			var addEntityStub = sinon.stub()
-			var testMap = { addEntity: addEntityStub };
-			var generateStub = sinon.stub(this.f, "_generateNewLevel").returns(testMap)
-
-			this.f.init();
-			this.f._generateNewLevel.restore();
-
-			actual   = generateStub.callCount;
-			expected = 1;
-			assert.equals(actual, expected);
-
-			actual   = this.f._levelMap;
-			expected = [testMap];
-			assert.equals(actual, expected);
-
-			actual   = this.f._currentLevel;
-			expected = 0;
-			assert.equals(actual, expected);
-
-			actual   = addEntityStub.callCount;
-			expected = 1;
-			assert.equals(actual, expected);
-		},
-
-		"_generateNewLevel should generate and return new Map object": function() {
-			var actual, expected;
-			var generateLevelSpy = sinon.spy(this.f, "_generateNewLevel");
-
-			var returned = this.f._generateNewLevel();
-
-			actual = returned instanceof Game.Map;
-			assert.isTrue(actual); 
-
-			this.f._generateNewLevel.restore();
-		},
-
-		"_generateNewLevel should use the passed mapType's create method with the passed callback, unless one isn't passed, and call init": function() {
-			var actual;
-			var createStub = sinon.stub(); 
-			var testPropertyStub = sinon.stub();
-			var createCalled = false;
-			var callbackCalled = false;
-			var levelType = {
-				// mapType should have a create method that gets called by generateNewLevel
-				mapType: function() { 
-					createCalled = true; 
-					this.create = function(callback) { callback(); }
-				},
-				// callback accesses properties of the levelType via "this.properties.propertyname"
-				mapTypeCallback: function() { callbackCalled = true; this.properties.testproperty(); },
-				// this should get called in the callback
-				testproperty: testPropertyStub
-			};
-
-			this.f._generateNewLevel(levelType);
-
-			actual = createCalled && callbackCalled && testPropertyStub.calledOnce;
-			assert.isTrue(actual);
-
-			// if callback is null, shouldn't error
-			levelType.mapTypeCallback = undefined;
-			this.f._generateNewLevel(levelType); // shouldn't throw an error
-
-
-		},
-
-		teardown: function() {
-			Game.Architect.testDungeon.init.restore();
-			delete this.f;
-		}
-	},
-
-	"ArchitectUtils.js tests": {
-		setup: undefined,
-
 		"create2DArray should create an empty 2d array with specified width and height and initial value": function() {
 			var actual, expected;
+			var create2DArray = require(dir + 'util/create2darray')
 			var width  = 5;
 			var height = 3;
 			var arr;
 
 			// test without intitial value
-			arr = Game.ArchitectUtils.create2DArray(width, height);
+			arr = create2DArray(width, height);
 
 			actual = arr.length;
 			expected = width;
@@ -838,7 +745,7 @@ tests = {
 			}
 
 			// test with initial value
-			arr = Game.ArchitectUtils.create2DArray(width, height, "major tom");
+			arr = create2DArray(width, height, "major tom");
 			actual = arr.length;
 			expected = width;
 			assert.equals(actual, expected);
@@ -858,13 +765,118 @@ tests = {
 			}			
 		},
 
-		teardown: undefined,
+		teardown: undefined
+	},
+
+	"Player.js test": {
+		setup: function() {
+			var Player = require(dir + 'player/player')
+			t.f = new Player();
+		},
+
+		"calculateCardEffects should populate an effects simple object with their total power values": function() {
+			var actual, expected;
+			var cards = [ { power: 3 }, { power: 5 }, { power: -2 } ];
+			var effects;
+
+			effects = t.f.calculateCardEffects(cards);
+
+			actual   = effects.power;
+			expected = 6;
+			assert.equals(actual, expected);
+		},
+
+		teardown: function()
+		{
+			delete t.f;
+		}
+	},
+
+	"Architect.js tests": {
+		setup: function() {
+			var Architect = require(dir + 'architect/architect');
+			t.f = new Architect({},{ actor: 'test'});
+		},
+
+		"init should generate a new level and add it and the player to the architect's level map": function() {
+			var actual, expected;
+			var addEntityStub = sinon.stub()
+			var testMap = { addEntity: addEntityStub };
+			var generateStub = sinon.stub(t.f, "_generateNewLevel").returns(testMap)
+
+			t.f.init();
+			t.f._generateNewLevel.restore();
+
+			actual   = generateStub.callCount;
+			expected = 1;
+			assert.equals(actual, expected);
+
+			actual   = t.f._levelMap;
+			expected = [testMap];
+			assert.equals(actual, expected);
+
+			actual   = t.f._currentLevel;
+			expected = 0;
+			assert.equals(actual, expected);
+
+			actual   = addEntityStub.callCount;
+			expected = 1;
+			assert.equals(actual, expected);
+		},
+
+		"_generateNewLevel should generate and return new Map object": function() {
+			var actual, expected;
+			var generateLevelSpy = sinon.spy(t.f, "_generateNewLevel");
+			var GameMap = require(dir + '/architect/map')
+
+			var returned = t.f._generateNewLevel();
+
+			actual = returned instanceof GameMap;
+			assert.isTrue(actual); 
+
+			t.f._generateNewLevel.restore();
+		},
+
+		"_generateNewLevel should use the passed mapType's create method with the passed callback, unless one isn't passed, and call init": function() {
+			var actual;
+			var createStub = sinon.stub(); 
+			var testPropertyStub = sinon.stub();
+			var createCalled = false;
+			var callbackCalled = false;
+			var levelType = {
+				// mapType should have a create method that gets called by generateNewLevel
+				mapType: function() { 
+					createCalled = true; 
+					this.create = function(callback) { callback(); }
+				},
+				// callback accesses properties of the levelType via "t.properties.propertyname"
+				mapTypeCallback: function() { callbackCalled = true; this.properties.testproperty(); },
+				// this should get called in the callback
+				testproperty: testPropertyStub
+			};
+
+			t.f._generateNewLevel(levelType);
+
+			actual = createCalled && callbackCalled && testPropertyStub.calledOnce;
+			assert.isTrue(actual);
+
+			// if callback is null, shouldn't error
+			levelType.mapTypeCallback = undefined;
+			t.f._generateNewLevel(levelType); // shouldn't throw an error
+
+
+		},
+
+		teardown: function() {
+			delete t.f;
+		}
 	},
 
 	"Map.js tests (depends on create2DArray)": {
 		setup: function() {
+			var GameMap = require(dir + 'architect/map');
 			var initialValue = { glyph: { ch: 0, fg: 0, bg: 0 } };
-			this.f = new Game.Map(Game.ArchitectUtils.create2DArray(3, 2, initialValue));
+			t.f = new GameMap(require(dir + 'util/create2darray')(3, 2, initialValue));
 		},
 
 		"addEntity should call the entity's setMap function": function() {
@@ -872,26 +884,22 @@ tests = {
 			var setMapStub = sinon.stub();
 			var entity = { setMap: setMapStub };
 
-			this.f.addEntity(entity);
+			t.f.addEntity(entity);
 
-			actual = setMapStub.calledOnce && setMapStub.alwaysCalledWith(this.f);
+			actual = setMapStub.calledOnce && setMapStub.alwaysCalledWith(t.f);
 			assert.isTrue(actual);
 		},
 
-		"draw should call the passed callback once for each tile in the map, using the passed thisArg": function() {
+		"draw should call the passed callback once for each tile in the map": function() {
 			var actual, expected;
 			var callback = sinon.stub();
-			var thisArg = { test: 'test' };
-			this.f._entities = [];
+			t.f._entities = [];
 
-			this.f.draw(callback, thisArg);
+			t.f.draw(callback);
 
 			actual   = callback.callCount;
 			expected = 3 * 2;
 			assert.equals(actual, expected);
-
-			actual = callback.alwaysCalledOn(thisArg);
-			assert.isTrue(actual);
 
 			// should have been called on every tile: might need to unrewrite draw to do this
 			// for (var x = 0; x < 3; x++)
@@ -906,67 +914,69 @@ tests = {
 
 		"draw should call each entity's draw function in _entities": function() {
 			var actual, expected;
-			var tilesBackup = this.f._tiles;
-			this.f._tiles = [];
+			var tilesBackup = t.f._tiles;
+			t.f._tiles = [];
 			var drawStub = sinon.stub();
 			var thisArg = { test: 'ashes to ashes' };
 			var entity1 = { glyph: { ch: '1', fg: '9', bg: '84'}, draw: drawStub  }
 			var entity2 = { glyph: { ch: 'sav', fg: 'age', bg: 'jaw'}, draw: drawStub }
-			this.f._entities = [entity1, entity2];
+			t.f._entities = [entity1, entity2];
 			
-			this.f.draw(sinon.stub(), thisArg);
-			this.f._tiles = tilesBackup;
+			t.f.draw(sinon.stub(), thisArg);
+			t.f._tiles = tilesBackup;
 
 			actual   = drawStub.callCount;
-			expected = this.f._entities.length;
+			expected = t.f._entities.length;
 			assert.equals(actual, expected);
 		},
 
 		// "addEntity should only add an entity's glyph and position to _entities": function() {
 		// 	var actual, expected;
 		// 	var entity = { glyph: 0, position: { x: 1, y: 2}, testprop: 3 };
-		// 	this.f._entities = [];
+		// 	t.f._entities = [];
 
-		// 	this.f.addEntity(entity);
+		// 	t.f.addEntity(entity);
 
-		// 	actual   = this.f._entities[0];
+		// 	actual   = t.f._entities[0];
 		// 	expected = { glyph: 0,  x: 1, y: 2 }
 		// 	assert.equals(actual, expected);
 		// },
 
 		teardown: function() {
-			delete this.f;
+			delete t.f;
 		}
 	},
 
-	"Entity.js tests (depends on EventEmitter)": {
+	"Entity.js tests": {
 		setup: function() {
-			this.f = new Game.Entity({}, new Game.EventEmitter());
+			var Entity = require(dir + 'entities/entity');
+			t.f = new Entity();
 		},
 
 		"canMoveTo should return false if the tile at x,y is not traversable and true otherwise": function() {
 			var actual, expected;
 			var isTraversableStub = sinon.stub();
 			isTraversableStub.onFirstCall().returns(true).onSecondCall().returns(false);
-			this.f._map = { isTraversable: isTraversableStub };
+			t.f._map = { isTraversable: isTraversableStub };
 
-			actual   = this.f.canMoveTo(0, 0);
+			actual   = t.f.canMoveTo(0, 0);
 			expected = true;
 			assert.equals(actual, expected);
 
-			actual   = this.f.canMoveTo(0, 0);
+			actual   = t.f.canMoveTo(0, 0);
 			expected = false;
 			assert.equals(actual, expected);
 		},
 
 		teardown: function() {
-			delete this.f;
+			delete t.f;
 		}
 	},
 
 	"Deck.js tests": {
 		setup: function() {
-			this.f = new Game.Deck();
+			var Deck = require(dir + 'player/deck');
+			t.f = new Deck();
 		},
 
 		"draw should draw the 0th card if no index is passed; else, remove passed index": function() {
@@ -974,36 +984,36 @@ tests = {
 			var card1 = 'test1'
 			var card2 = 'test2'
 			var card3 = 'test3'
-			this.f._cardList = [card1, card2, card3];
+			t.f._cardList = [card1, card2, card3];
 
-			this.f.draw();
+			t.f.draw();
 			expected = [card2, card3];
-			actual   = this.f._cardList;
+			actual   = t.f._cardList;
 
 			assert.equals(actual, expected);
 
-			this.f.draw(1);
+			t.f.draw(1);
 			expected = [card2];
-			actual   = this.f._cardList;
+			actual   = t.f._cardList;
 			assert.equals(actual, expected);
 		},
 
 		"get should return the card at the specified index, or -1 if out of bounds": function() {
 			var actual, expected;
-			this.f._cardList = ['test'];
+			t.f._cardList = ['test'];
 
 			// in bounds
-			actual   = this.f.get(0);
+			actual   = t.f.get(0);
 			expected = 'test';
 			assert.equals(actual, expected);
 
 			// out of bounds: too low
-			actual   = this.f.get(-50);
+			actual   = t.f.get(-50);
 			expected = undefined;
 			assert.equals(actual, expected);
 
 			// out of bounds: too high
-			actual   = this.f.get(1);
+			actual   = t.f.get(1);
 			expected = undefined;
 			assert.equals(actual, expected);
 
@@ -1011,37 +1021,37 @@ tests = {
 
 		"select should adds the passed index in _cardList to _selected, unless it's already selected, in which case it removes it": function() {
 			var actual, expected;
-			this.f._cardList = 'test'
+			t.f._cardList = 'test'
 			
-			this.f.select(0);
+			t.f.select(0);
 
 			// add selected
-			actual   = this.f._selected;
+			actual   = t.f._selected;
 			expected = [0];
 			assert.equals(actual, expected);
 
 			// don't modify cardlist
-			actual   = this.f._cardList;
+			actual   = t.f._cardList;
 			expected = 'test'
 			assert.equals(actual, expected);
 
 			// remove selected
-			this.f.select(0);
+			t.f.select(0);
 
-			actual   = this.f._selected;
+			actual   = t.f._selected;
 			expected = [];
 			assert.equals(actual, expected);
 		},
 
 		"confirmSelection should return and empty _selected": function() {
 			var actual, expected;
-			this.f._selected = ['test1', 'test2'];
+			t.f._selected = ['test1', 'test2'];
 
-			actual = this.f.confirmSelection();
+			actual = t.f.confirmSelection();
 			expected = ['test1', 'test2'];
 			assert.equals(actual, expected);
 
-			actual = this.f._selected;
+			actual = t.f._selected;
 			expected = [];
 			assert.equals(actual, expected);
 		},
@@ -1056,9 +1066,9 @@ tests = {
 			var selectedCards = [];
 			var unselectedCards = [];
 
-			this.f._cardList = [selectedCard1, unselectedCard1, selectedCard2, unselectedCard2];
+			t.f._cardList = [selectedCard1, unselectedCard1, selectedCard2, unselectedCard2];
 
-			this.f.getSelection(selectedCards, unselectedCards);
+			t.f.getSelection(selectedCards, unselectedCards);
 
 			actual   = selectedCards;
 			expected = [selectedCard1, selectedCard2];
@@ -1071,13 +1081,14 @@ tests = {
 		},
 
 		teardown: function() {
-			delete this.f;
+			delete t.f;
 		}
 	},
 
 	"PlayerCards.js tests": {
 		setup: function() {
-			this.f = new Game.PlayerCards();
+			var PlayerCards = require(dir + 'player/playercards');
+			t.f = new PlayerCards();
 		},
 
 		"_drawCard with no specified deck should draw cards from the draw deck and add them to the hand": function() {
@@ -1086,13 +1097,13 @@ tests = {
 			var addStub  = sinon.stub();
 			var lengthStub = sinon.stub();
 			lengthStub.onFirstCall().returns(2).onSecondCall().returns(1);
-			this.f._draw = { draw: drawStub, length: lengthStub }
-			this.f._hand = { add: addStub, length: lengthStub }
+			t.f._draw = { draw: drawStub, length: lengthStub }
+			t.f._hand = { add: addStub, length: lengthStub }
 
-			// this.f._draw._cardList = ['test1', 'test2'];
+			// t.f._draw._cardList = ['test1', 'test2'];
 
-			this.f._drawCard();
-			this.f._drawCard(2);
+			t.f._drawCard();
+			t.f._drawCard(2);
 
 			actual = drawStub.calledTwice && addStub.calledTwice;
 			assert.isTrue(actual);
@@ -1105,14 +1116,14 @@ tests = {
 			var actual, expected;
 			var drawLengthStub = sinon.stub();
 			drawLengthStub.returns(0);
-			var shuffleDiscardStub = sinon.stub(this.f, "_shuffleDiscardIntoDraw");
+			var shuffleDiscardStub = sinon.stub(t.f, "_shuffleDiscardIntoDraw");
 
-			this.f._draw = { draw: sinon.stub(), length: drawLengthStub };
-			this.f._discard ={ shuffle: sinon.stub(), addTo: sinon.stub() }
+			t.f._draw = { draw: sinon.stub(), length: drawLengthStub };
+			t.f._discard ={ shuffle: sinon.stub(), addTo: sinon.stub() }
 
 			// draw a card
-			this.f._drawCard();
-			this.f._shuffleDiscardIntoDraw.restore();
+			t.f._drawCard();
+			t.f._shuffleDiscardIntoDraw.restore();
 
 			actual = shuffleDiscardStub.calledOnce;
 			assert.isTrue(actual);
@@ -1120,13 +1131,13 @@ tests = {
 
 		"drawCards should draw the specified number of cards and publishes a deck change event": function() {
 			var actual, expected;
-			var drawStub = sinon.stub(this.f, "_drawCard");
-			var publishStub = sinon.stub(this.f, "_publishDeckChange");
+			var drawStub = sinon.stub(t.f, "_drawCard");
+			var publishStub = sinon.stub(t.f, "_publishDeckChange");
 
-			this.f.drawCards(3);
+			t.f.drawCards(3);
 
-			this.f._drawCard.restore();
-			this.f._publishDeckChange.restore();
+			t.f._drawCard.restore();
+			t.f._publishDeckChange.restore();
 
 			actual   = drawStub.callCount;
 			expected = 3;
@@ -1139,15 +1150,15 @@ tests = {
 
 		"drawNewHand should call discardHand and drawCards on hand, and publish a deck change": function() {
 			var actual, expected;
-			var discardStub = sinon.stub(this.f, 'discardHand');
-			var drawStub    = sinon.stub(this.f, 'drawCards');
-			var publishStub = sinon.stub(this.f, "_publishDeckChange");
+			var discardStub = sinon.stub(t.f, 'discardHand');
+			var drawStub    = sinon.stub(t.f, 'drawCards');
+			var publishStub = sinon.stub(t.f, "_publishDeckChange");
 
-			this.f.drawNewHand();
+			t.f.drawNewHand();
 
-			this.f.discardHand.restore();
-			this.f.drawCards.restore();
-			this.f._publishDeckChange.restore();
+			t.f.discardHand.restore();
+			t.f.drawCards.restore();
+			t.f._publishDeckChange.restore();
 
 			actual = discardStub.calledOnce;
 			assert.isTrue(actual);
@@ -1162,22 +1173,22 @@ tests = {
 		"getSelection should call getSelection on the correct deck": function() {
 			var actual, expected;
 			var getSelectedCardsStub = sinon.stub();
-			this.f._testDeck = { getSelection: getSelectedCardsStub };
+			t.f._testDeck = { getSelection: getSelectedCardsStub };
 
-			this.f.getSelection('testDeck', 1, 2);
+			t.f.getSelection('testDeck', 1, 2);
 
 			actual = getSelectedCardsStub.calledOnce && getSelectedCardsStub.calledWithExactly(1, 2);
 			assert.isTrue(actual);
 		},
 
 		teardown: function() {
-			delete this.f;
+			delete t.f;
 		}
 	},
 
 	"Calc.js tests": {
 		setup: function() {
-			this.f = new Game.Calc();
+			t.f = require(dir + 'util/calc');
 		},
 
 		"distanceBetweenPoints should return the distance between two points using the distance formula, and handle boundary cases": function() {
@@ -1193,22 +1204,22 @@ tests = {
 			var p6 = [0, 12]
 
 
-			actual   = this.f.distanceBetweenPoints(p1, p2)
+			actual   = t.f.distanceBetweenPoints(p1, p2)
 			expected = 4;
 			assert.equals(actual, expected);
 
-			actual   = this.f.distanceBetweenPoints(p3, p4)
+			actual   = t.f.distanceBetweenPoints(p3, p4)
 			expected = 0;
 			assert.equals(actual, expected);
 
-			actual   = this.f.distanceBetweenPoints(p5, p6);
+			actual   = t.f.distanceBetweenPoints(p5, p6);
 			expected = 24;
 			assert.equals(actual, expected);
 
 		},
 
 		teardown: function() {
-			delete this.f;
+			delete t.f;
 		}
 	}
 };

@@ -14,3 +14,4 @@
  module.exports.MenuPrompt    = require('./menuprompt');
  module.exports.Skill         = require('./skill');
  module.exports.SkillTerminal = require('./skillterminal');
+ module.exports.UIElement     = require('./uielement');

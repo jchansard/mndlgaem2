@@ -145,4 +145,5 @@ var	build = function(properties, eventEmitter) {
 	return cards;
 }
 
-module.exports.build = build;
+module.exports = PlayerCards; // used for testing only
+module.exports.build = build; // use this instead

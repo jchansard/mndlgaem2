@@ -142,7 +142,10 @@ InputManager.prototype = {
 }
 
 var build = function(container, guis, eventEmitter) {
-	return new InputManager(container, guis, keymap, eventEmitter);
+	var inputManager = new InputManager(container, guis, keymap, eventEmitter);
+	inputManager.init();
+	return inputManager;
 }
 
+module.exports = InputManager;
 module.exports.build = build;

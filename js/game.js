@@ -41,7 +41,6 @@ var GameShell = function(options) {
 
 	// init architect
 	this.architect = Architect.build({}, this.player);
-	this.architect.init();
 
     // create display objects
 	var subscreens = {};
@@ -53,7 +52,6 @@ var GameShell = function(options) {
 
     // init input	
 	this.inputManager = InputManager.build(GAMECONTAINER, this.guis, this.eventEmitter);
-	this.inputManager.init();
 
 } 
 

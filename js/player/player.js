@@ -153,4 +153,5 @@ var build = function(eventEmitter) {
 	return player;
 }
 
+module.exports = Player;
 module.exports.build = build;

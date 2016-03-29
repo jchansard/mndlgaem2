@@ -1,0 +1,28 @@
+{
+  "name": "lost",
+  "version": "1.0.0",
+  "description": "deckbuilding roguelike game",
+  "main": "app.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "jquery": "^2.2.2",
+    "rot-js": "^0.6.2",
+    "sinon": "^1.17.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "electron app.js -test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jchansard/mndlgaem2.git"
+  },
+  "author": "josh chansard",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jchansard/mndlgaem2/issues"
+  },
+  "homepage": "https://github.com/jchansard/mndlgaem2#readme"
+}

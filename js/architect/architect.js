@@ -9,7 +9,8 @@
  */
 
 const GameMap = require('./map');
-const levels  = require('./levels')
+const levels  = require('./levels');
+const create2DArray = require('../util/create2Darray');
 
 var Architect = function(properties, player) {
 	properties 			= properties || {};
@@ -36,7 +37,7 @@ Architect.prototype = {
 		levelType  = levelType || levels.testDungeon;
 		var width  = levelType.width;
 		var height = levelType.height;
-		var tiles  = this._create2DArray(width, height);
+		var tiles  = create2DArray(width, height);
 		var mapBuilder = new levelType.mapType(width, height);
 		var callbackContext, callback;
 
@@ -51,30 +52,15 @@ Architect.prototype = {
 		if (typeof levelType.init === 'function') { levelType.init.call(map); }
 
 		return map;
-	},
-
-	_create2DArray: function(width, height, initialValue)
-	{
-		initialValue = initialValue || undefined; 
-		var arr = new Array(width);
-		for (var x = 0; x < width; x++)
-		{
-			arr[x] = new Array(height);
-			if (initialValue)
-			{
-				for (var y = 0; y < height; y++)
-				{
-					arr[x][y] = initialValue;
-				}
-			}
-		}
-		return arr;
 	}
 }
 
 var build = function(properties, player) 
 {
-	return new Architect(properties, player);
+	var architect = new Architect(properties, player);
+	architect.init();
+	return architect;
 }
 
+module.exports = Architect;
 module.exports.build = build;
