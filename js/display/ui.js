@@ -25,9 +25,9 @@ ROT.Display.Rect.prototype._drawNoCache = function(data, clearBefore) {
 
 	if (clearBefore) { 
 		var b = this._options.border;
-		var fn = (bg === 'transparent') ? 'clearRect' : 'fillRect';
 		this._context.fillStyle = bg;
-		this._context[fn](x*this._spacingX + b, y*this._spacingY + b, this._spacingX - b, this._spacingY - b);
+		this._context.clearRect(x*this._spacingX + b, y*this._spacingY + b, this._spacingX - b, this._spacingY - b);
+		this._context.fillRect(x*this._spacingX + b, y*this._spacingY + b, this._spacingX - b, this._spacingY - b);
 	}
 	
 	if (!ch) { return; }
