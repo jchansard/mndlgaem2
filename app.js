@@ -17,13 +17,14 @@ var test  = (args.indexOf('-test') > -1) ? true : false;
 electron.app.on('ready', function() {
 	var width = (debug) ? 1228 : 992;
 	var height = 650;
-	var mainWindow = new electron.BrowserWindow({width: width, height: height});
+	var gameWindow = new electron.BrowserWindow({width: width, height: height, autoHideMenuBar: true });
+	gameWindow.setMenuBarVisibility(false);
 	var URL = 'file://' + __dirname;
 	// if test flag is set, load index.html in test directory
 	URL = (test) ? URL + '/test/index.html' : URL + '/index.html';
 
-	mainWindow.loadURL(URL);
+	gameWindow.loadURL(URL);
 
 	// toggle dev tools by default if debug flag is set
-	if (debug) { mainWindow.toggleDevTools() };
+	if (debug) { gameWindow.toggleDevTools() };
 });

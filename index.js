@@ -1,2 +1,4 @@
-var game = require('./js/game.js')();
-game.init();
+(function() {
+	var game = require('./js/game.js')();
+	game.init();
+})();

@@ -82,14 +82,20 @@ var screens = {
         };
 
         var skillTerminal = {
-            position: {x: 0, y: 0 },
+            position: { x: 0, y: 0 },
             size: 'fill',
             skills: this.gameShell.player.getSkills()
         };
+
+        var targeting = {
+            position: { x: 0, y: 0 },
+            size: 'fill'
+        }
         
     		ui.addElement(UIElements.MapTerminal, mapTerminal, 'mapterminal');
         ui.addElement(UIElements.DeckTerminal, handDeckTerminal, 'handterminal');
         ui.addElement(UIElements.SkillTerminal, skillTerminal, 'skillterminal');
+        ui.addElement(UIElements.Targeting, targeting, 'mapterminal');
     	},
     	render: function(display) {
     		return;

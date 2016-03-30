@@ -42,12 +42,7 @@ var GameShell = function(options) {
 	// init architect
 	this.architect = Architect.build({}, this.player);
 
-    // create display objects
-	var subscreens = {};
-	subscreens['full'] = {	x: 0, y: 0,	width: 60, height: 30 }; 
-	subscreens['mapterminal'] =  { x: 0, y: 0,	width: 60, height: 20 }; 
-
-    this.guis['ui'] = new UI({ bg: UIBACKGROUND }, 'div#game', this, this.eventEmitter);
+    this.guis['ui'] = new UI({ bg: UIBACKGROUND, layers: 2 }, 'div#game', this, this.eventEmitter);
     // this.guis['overlay'] = new Game.UserInterface({ bg: OVERLAYBACKGROUND }, 'div#overlay');
 
     // init input	
@@ -74,37 +69,7 @@ GameShell.prototype = {
 
 	// TODO: modularize better
 	defineDrawAreas: function() {
-		var drawAreas = [{
-			name: 'full',
-			x: 0,
-			y: 0,
-			width: 60, 
-			height: 20, 
-			layer: 0
-		}, {
-			name: 'mapterminal',
-			x: 1,
-			y: 1,
-			width: 60,
-			height: 20,
-			layer: 0
-		}, {
-			name: 'skillterminal',
-			x: 0,
-			y: 20,
-			width: 40,
-			height: 6,
-			layer: 0
-		},
-		{
-			name: 'handterminal',
-			x: 0,
-			y: 26,
-			width: 40,
-			height: 10,
-			layer: 0
-		}];
-
+		var drawAreas = require('./display/drawareas');
 		drawAreas.forEach(function(scr)
 		{
 			this.defineDrawArea(scr.name, scr);
