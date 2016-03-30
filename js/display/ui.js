@@ -14,6 +14,32 @@ const extend = require('../util/extend.js')
 const mouseUtils = require('./drawutils');
 const drawUtils  = require('./mouseutils');
 
+// override ROT draw to fix blurry text
+
+ROT.Display.Rect.prototype._drawNoCache = function(data, clearBefore) {
+	var x = data[0];
+	var y = data[1];
+	var ch = data[2];
+	var fg = data[3];
+	var bg = data[4];
+
+	if (clearBefore) { 
+		var b = this._options.border;
+		var fn = (bg === 'transparent') ? 'clearRect' : 'fillRect';
+		this._context.fillStyle = bg;
+		this._context[fn](x*this._spacingX + b, y*this._spacingY + b, this._spacingX - b, this._spacingY - b);
+	}
+	
+	if (!ch) { return; }
+
+	this._context.fillStyle = fg;
+
+	var chars = [].concat(ch);
+	for (var i=0;i<chars.length;i++) {
+		this._context.fillText(chars[i], (x+0.5) * this._spacingX, Math.ceil((y+0.5) * this._spacingY));
+	}
+}
+
 var UserInterface = function(properties, container, gameShell, eventEmitter) {
 	properties 		    = properties 		  	|| {};
 	this._height 	    = properties.height  	|| 36;
