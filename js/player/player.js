@@ -48,7 +48,7 @@ extend(Player, {
 	_initSkills: function()
 	{
 		this._skills = [];
-		this._skills.push(new Skill(Skills.PlayerAttack, this, this._emitter));
+		this._skills.push(new Skill(Skills.PlayerAttack, this.id, this._emitter));
 	},
 
 	getDeck: function(id)

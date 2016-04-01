@@ -29,10 +29,10 @@ extend(Targeting, {
 		{
 			ch:  '*',
 			fg: 'red',
-
+			bg: 'rgba(0,0,0,0.1)',
 			layer: 1
 		}
-		drawCallback(this.position.x, this.position.y-1, drawInfo);
+		drawCallback(this.position.x+1, this.position.y+1, drawInfo);
 		this.dirty = false;
 	},
 

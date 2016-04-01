@@ -13,18 +13,12 @@
  *  ASSUMES: this._entity == player
  */
 
-var skills = {
-	PlayerAttack:
-	{
-		name: 'Attack',
-		id:   'player-attack',
-		onUse: function(effects)
-		{
-			var pow = 1 + (effects.power/5)>>0;
+var skill =  require('./skillbuilder');
 
-			console.log("you did " + pow + " damage!!");
-		},
-		coefficients: [2]
+var skills = {
+	PlayerAttack: {
+		name: 'Attack',
+		onUse: skill.does().damages(1).to('target').withPowerCoefficient(0.25)
 	}
 }
 

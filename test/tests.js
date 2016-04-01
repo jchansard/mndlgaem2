@@ -1186,6 +1186,169 @@ module.exports = {
 		}
 	},
 
+	"Skill.js tests": {
+		setup: function() {
+			t.f = require(dir + 'entities/skill');
+		},
+
+
+
+		teardown: function() {
+			delete t.f;
+		}
+	},
+
+	"SkillBuilder.js tests": {
+		setup: function() {
+			var SkillBuilder = require(dir + 'entities/skillbuilder');
+			t.f = SkillBuilder.does();
+		},
+
+		"to sets targets to the passed argument for the current index": function() {
+			var actual, expected;
+			t.f.targets = [];
+
+			t.f.to('test1');
+
+			actual   = t.f.targets[t.f._index];
+			expected = 'test1';
+			assert.equals(actual, expected);
+		},
+
+		"and sets this._and to true": function() {
+			var actual, expected;
+			var before = t.f._and;
+
+			t.f.and();
+
+			actual   = t.f._and;
+			expected = true;
+			assert.equals(actual, expected);
+
+			t.f._and = before;
+		},
+
+		"then increments _index": function() {
+			var actual, expected;
+			var before = t.f._index;
+			
+			t.f.then();
+
+			actual   = t.f._index;
+			expected = before + 1;
+			assert.equals(actual, expected);
+
+			t.f._index = before;
+		},
+
+		"withPowerCoefficient sets the 0th index of coefficients to the passed argument for the current index": function()  {
+			var actual, expected;
+			t.f.coefficients = [[0, 0]];
+			t.f._index = 0;
+
+			t.f.withPowerCoefficient('test2');
+
+			actual   = t.f.coefficients[t.f._index][0];
+			expected = 'test2';
+			assert.equals(actual, expected);
+		},
+
+		"withCDRCoefficient sets the 1st index of coefficients to the passed argument for the current index": function()  {
+			var actual, expected;
+			t.f.coefficients = [[0, 0]];
+			t.f._index = 0;
+
+			t.f.withCDRCoefficient('test2');
+
+			actual   = t.f.coefficients[t.f._index][1];
+			expected = 'test2';
+			assert.equals(actual, expected);
+		},
+
+		"_initEffectsTargetsAndCoeffs initializes effects to [], coefficients to [0, 0], and target to 'self' for this index but only if they're not already set": function() {
+			var actual, expected;
+			t.f.coefficients = [];
+			t.f.targets = [];
+			t.f.effects = [];
+
+			t.f._initEffectsTargetsAndCoeffs(0);
+
+			// unset
+
+			actual   = t.f.effects[0];
+			expected = [];
+			assert.equals(actual, expected);
+
+			actual   = t.f.coefficients[0];
+			expected = [0, 0];
+			assert.equals(actual, expected);
+
+			actual   = t.f.targets[0];
+			expected = 'self';
+			assert.equals(actual, expected);
+
+			// set 
+			t.f.effects = ['testeffects'];
+			t.f.coefficients = ['testcoeffs'];
+			t.f.targets = ['testtargets'];
+
+
+			t.f._initEffectsTargetsAndCoeffs(0);
+
+			actual   = t.f.effects[0];
+			expected = 'testeffects';
+			assert.equals(actual, expected);		
+
+			actual   = t.f.coefficients[0];
+			expected = 'testcoeffs';
+			assert.equals(actual, expected);
+
+			actual   = t.f.targets[0];
+			expected = 'testtargets';
+			assert.equals(actual, expected);
+
+		},
+
+		"_addEffect calls _init on this._index; if this._and is false, sets the effect for _index to the passed function; else sets _and to false pushes passed function to effects[_index]": function() {
+			var actual, expected;
+			var initStub = sinon.stub(t.f, '_initEffectsTargetsAndCoeffs');
+			var fn1 = 'test function 1';
+			var fn2 = 'test function 2';
+			t.f._and = false;
+			t.f._index = 0;
+			t.f.effects = [['test function 3']];
+
+			t.f._addEffect(fn1);
+			t.f._initEffectsTargetsAndCoeffs.restore();
+
+			actual = initStub.calledOnce;
+			assert.isTrue(actual);
+
+			actual   = t.f.effects[0];
+			expected = ['test function 1'];
+			assert.equals(actual, expected);
+
+			initStub = sinon.stub(t.f, '_initEffectsTargetsAndCoeffs');
+			t.f._and = true;
+			t.f._index = 0;
+			t.f.effects = [['test function 3']];
+
+			t.f._addEffect(fn2);
+			t.f._initEffectsTargetsAndCoeffs.restore();
+
+			actual = initStub.calledOnce;
+			assert.isTrue(actual);
+
+			actual   = t.f.effects[0];
+			expected = ['test function 3', 'test function 2'];
+			assert.equals(actual, expected);
+		},
+
+		teardown: function() {
+			delete t.f;
+		}
+	},
+
 	"Calc.js tests": {
 		setup: function() {
 			t.f = require(dir + 'util/calc');

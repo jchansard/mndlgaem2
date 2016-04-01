@@ -54,7 +54,7 @@ extend(Skill, {
 	// on click, if user clicked on a prompt option, choose that choice
 	lclick: function(e) 
 	{
-		this.boundSkill.select();
+		this.boundSkill.use();
 		return;
 	},
 });
