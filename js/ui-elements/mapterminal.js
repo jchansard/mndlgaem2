@@ -66,8 +66,10 @@ extend(MapTerminal, {
 	// TODO: make this less big
 	lclick: function(e) {
 		var emitter = this._emitter;
-		var clickedCoords = this._gui.eventToPosition(e);
-		var playerCoords = this._player.position();
+		var clickedCoords = {};
+		emitter.Event(this._gui, 'eventToPosition').publish(e, this.layer, clickedCoords);
+		clickedCoords = clickedCoords.data;
+		var playerCoords = this._player.position(1);
 		var legCoords = [playerCoords[0], clickedCoords[1]];
 
 		var distancePlayerToLeg = calc.distanceBetweenPoints(playerCoords, legCoords);
@@ -85,6 +87,7 @@ extend(MapTerminal, {
 			// if clicked x > player x, move right
 			direction = (clickedCoords[0] > playerCoords[0]) ? 'right' : 'left';
 		}
+
 
 		emitter.Event(this._player.id,'move').publish(direction);
 		return;

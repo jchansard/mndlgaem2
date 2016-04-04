@@ -60,19 +60,13 @@ extend(DeckTerminal, {
 		if (this._cards[index] === undefined)
 		{
 			var newCard = {
-				size:
-				{
-					height: 8,
-					width: 7
-				},
-				position: 
-				{
-					x: 1 + index * 7, // todo: dont hardcode
-					y: 1
-				},
+				size: {	height: 8, width: 7	},
+				position: {	x: 1 + index * 7, y: 1 },
 				layer: 1
 			};
-			this._cards[index] = this._gui.addElement(Card, newCard, this.drawArea);
+			var cardElement = {};
+			this._emitter.Event(this._gui, 'addElement').publish(Card, newCard, this.drawArea, cardElement)
+			this._cards[index] = cardElement.data;
 		}
 		this._cards[index].boundCard = card;
 	},

@@ -2,7 +2,9 @@ const sinon  = require('sinon');
 const assert = require('./mndltest').assert;
 const $      = require('jquery');
 var dir = '../js/'; // directory to scripts being tested
-var t   = { a: 'b' }; 		// test object
+var t   = {}; 		// test object
+
+const aat = require(dir + 'display/ui');
 
 module.exports = {
 	"Game.js tests": {
@@ -365,52 +367,119 @@ module.exports = {
 			assert.equals(actual, expected);
 		},	
 
-		"addElement should call the passed constructor with the passed options, this gui's emitter, and this gui as parameters": function() {
+		"addElement should call the passed constructor with the passed options, this gui's emitter, and this gui's id as parameters": function() {
 			var actual, expected;
 			var options = { test1: 'test1' };
 			var testConstructor = sinon.stub().returns(new Object());
 			var testEmitter  = 'testEmitter';
+			sinon.stub(t.f, '_generateElementID');
 			t.f._emitter  = testEmitter;
+			t.f.id = 'test-id'
 
 			t.f.addElement(testConstructor, options, testEmitter);
+			t.f._generateElementID.restore();
 
-			actual   = testConstructor.calledWithExactly(options, t.f, testEmitter);
+			actual = testConstructor.calledWithExactly(options, 'test-id', testEmitter);
 			assert.isTrue(actual);
 		},
 
-		"addElement adds the element's index to the element layer index": function() {
+		"addElement adds the element's index to the element layer index and to the element id index": function() {
 			var actual, expected;
 			var testObject1 = { layer: 0, getInputEvents: sinon.stub() };
 			var testConstructor1 = sinon.stub().returns(testObject1);
 			var testObject2 = { layer: 2 };
 			var testConstructor2 = sinon.stub().returns(testObject2);
+			var generateIDStub = sinon.stub(t.f, '_generateElementID');
+			generateIDStub.onFirstCall().returns('test').onSecondCall().returns('control');
 			sinon.stub(t.f, 'setActiveElement');
 
+
 			t.f._elementsLayerIndex = [];
+			t.f._elementsIDIndex = {};
 			t.f._elements = [];
 
 			t.f.addElement(testConstructor1);
 			t.f.addElement(testConstructor2);
-			actual   = t.f._elementsLayerIndex;
-			expected = [[0],undefined,[1]];
-
-			assert.equals(actual, expected);
 
 			t.f.setActiveElement.restore();
+			t.f._generateElementID.restore();
+
+			actual   = t.f._elementsLayerIndex;
+			expected = [[0],undefined,[1]];
+			assert.equals(actual, expected);
+
+			actual   = t.f._elementsIDIndex;
+			expected = {'test': 0, 'control': 1}
+			assert.equals(actual, expected);
 		},
 
-		"addElement returns the constructed element": function() {
+		"addElement returns the constructed element, both via a return and via the returnObject object": function() {
 			var actual, expected;
 			var testObject = { testProp: 'testProp' };
 			var testConstructor = sinon.stub().returns(testObject);
+			sinon.stub(t.f, '_generateElementID');
+			var testReturn = {};
 
-			actual   = t.f.addElement(testConstructor);
+			actual   = t.f.addElement(testConstructor, null, null, testReturn);
 			expected = testObject;
+			t.f._generateElementID.restore();
+			assert.equals(actual, expected);
+
+			sinon.stub(t.f, '_generateElementID');
+
+			actual   = testReturn.data;
+			expected = testObject;
+			t.f._generateElementID.restore();
 			assert.equals(actual, expected);
 		},
 
-		"clearAllElements clears all elements and the element layer index": function() {
+		"closeElement removes the specified element from elements and cleans up indices": function() {
 			var actual, expected;
+			var cleanIndexStub = sinon.stub(t.f, '_cleanUpIndices');
+			var a = new Object();
+			var id = 'testID'
+			t.f._elements = [a, 4, 5, 'test'];
+			t.f._elementsIDIndex[id] = 0;
+
+			t.f.closeElement(id);
+			t.f._cleanUpIndices.restore();
+
+			actual   = t.f._elements;
+			expected = [4, 5, 'test'];
+			assert.equals(actual, expected);
+		},
+
+		"cleanUpIndices removes references to an element in the elementsLayerIndex and elementsIDIndex indices": function() {
+			var actual, expected;
+			var index = 3;
+			var id = 'testID'
+			var layer = 1;
+			t.f._elementsIDIndex = {
+				'testID': 'test-value',
+				'testID2': 'test-value-2',
+				'5': 55
+			};
+			t.f._elementsLayerIndex = [[1],[0,3],[],[2]];
+
+			t.f._cleanUpIndices(index, id, layer);
+
+			actual   = t.f._elementsIDIndex;
+			expected = {
+				'testID2': 'test-value-2',
+				'5': 55
+			};
+			assert.equals(actual, expected);
+
+			actual   = t.f._elementsLayerIndex;
+			expected = [[1],[0],[],[2]];
+			assert.equals(actual, expected);
+		},
+
+		"clearAllElements clears all elements and indices": function() {
+			var actual, expected;
+			t.f._elements = [1,23,4,5];
+			t.f._elementsLayerIndex = [1,23,4,5];
+			t.f._elementsIDIndex = { a: 'b' };
 
 			t.f.clearAllElements();
 
@@ -420,6 +489,10 @@ module.exports = {
 
 			actual   = t.f._elementsLayerIndex;
 			expected = [];
+			assert.equals(actual, expected);
+
+			actual   = t.f._elementsIDIndex;
+			expected = {};
 			assert.equals(actual, expected);
 		},
 
@@ -544,6 +617,37 @@ module.exports = {
 			t.f.bindInputEvents.restore();
 		},
 
+		"eventToPosition returns its output via the returnObject object as well as a normal return": function() {
+			var actual, expected;
+			var eventToPosStub = sinon.stub().returns('test value');
+			var eventToPosStub2 = sinon.stub().returns('another test');
+			t.f._displays[0] = { eventToPosition: eventToPosStub };
+			t.f._displays[15] = { eventToPosition: eventToPosStub2 };
+
+			actual   = t.f.eventToPosition({});
+			expected = 'test value';
+			assert.equals(actual, expected);
+
+			actual   = t.f.eventToPosition({}, 15);
+			expected = 'another test';
+			assert.equals(actual, expected);
+		},
+
+		"eventToPosition checks the passed layer or 0 by default": function() {
+			var actual, expected;
+			var eventToPosStub = sinon.stub().returns('test value');
+			var returnObject = {};
+			t.f._displays[0] = { eventToPosition: eventToPosStub };
+
+			actual   = t.f.eventToPosition({}, null, returnObject);
+			expected = 'test value';
+			assert.equals(actual, expected);
+
+			actual   = returnObject.data;
+			expected = 'test value';
+			assert.equals(actual, expected);
+		},
+
 		teardown: function() {								
 			delete t.f;
 		}
@@ -599,11 +703,9 @@ module.exports = {
 
 			// functional test with no padding: choices should be at y = 0 and y = 1. We don't care about x,
 			// since this should assume that the element was clicked (so x is within the element)
-			var eventToPosStub = sinon.stub();
-			eventToPosStub.onFirstCall().returns([1,0])			
-				.onSecondCall().returns([99,1])
-				.onThirdCall().returns([undefined,2]);
-			t.f._gui = { eventToPosition: eventToPosStub };
+			var coords1 = [1,0];
+			var coords2 = [99,1];
+			var coords3 = [undefined,2]
 			t.f._position = { x: 0, y: 0 };
 			var options = ['test','test'];
 
@@ -611,17 +713,17 @@ module.exports = {
 			t.f._options = options;
 
 			// click y = 0
-			actual = t.f.coordsToChoice({});
+			actual = t.f.coordsToChoice({}, coords1);
 			expected = 0;
 			assert.equals(actual, expected);
 
 			// click y = 1;
-			actual = t.f.coordsToChoice({});
+			actual = t.f.coordsToChoice({}, coords2);
 			expected = 1;
 			assert.equals(actual, expected);
 
 			// click y = 2, should return -1, since out of bounds
-			actual = t.f.coordsToChoice({});
+			actual = t.f.coordsToChoice({}, coords3);
 			expected = -1;
 			assert.equals(actual, expected);
 		},
@@ -630,35 +732,33 @@ module.exports = {
 			var expected, actual;
 
 			// choices with padding of 3 should be at y = 3 and y = 4.
-			var eventToPosStub = sinon.stub();
-			eventToPosStub.onFirstCall().returns([2,0])			
-				.onSecondCall().returns([99,3])
-				.onThirdCall().returns([undefined, 4])
-				.onCall(3).returns(['test', 5]);
-			t.f._gui = { eventToPosition: eventToPosStub };
 			t.f._position = { x: 0, y: 0 };
+			var coords1 = [2,0];
+			var coords2 = [99,3];
+			var coords3 = [undefined,4];
+			var coords4 = ['test',5];
 			var options = ['test','test'];
 
 			t.f._style.padding = 3;
 			t.f._options = options;
 
 			// click y = 2; should return -1, since out of bounds
-			actual = t.f.coordsToChoice({});
+			actual = t.f.coordsToChoice({}, coords1);
 			expected = -1;
 			assert.equals(actual, expected);
 
 			// click y = 3
-			actual = t.f.coordsToChoice({});
+			actual = t.f.coordsToChoice({}, coords2);
 			expected = 0;
 			assert.equals(actual, expected);
 
 			// click y = 4
-			actual = t.f.coordsToChoice({});
+			actual = t.f.coordsToChoice({}, coords3);
 			expected = 1;
 			assert.equals(actual, expected);
 
 			// click y = 5; should return -1, since out of bounds
-			actual = t.f.coordsToChoice({});
+			actual = t.f.coordsToChoice({}, coords4);
 			expected = -1;
 			assert.equals(actual, expected);
 
@@ -968,6 +1068,24 @@ module.exports = {
 			assert.equals(actual, expected);
 		},
 
+		"position returns position as an array if mode is true, else object with x and y values": function() {
+			var actual, expected;
+			t.f._x = 4;
+			t.f._y = 'test';
+
+			actual   = t.f.position(1);
+			expected = [4,'test'];
+			assert.equals(actual, expected);
+
+			actual   = t.f.position(0);
+			expected = {x: 4, y: 'test'};
+			assert.equals(actual, expected);
+
+			actual   = t.f.position();
+			expected = {x: 4, y: 'test'};
+			assert.equals(actual, expected);			
+		},
+
 		teardown: function() {
 			delete t.f;
 		}
@@ -1206,11 +1324,11 @@ module.exports = {
 
 		"to sets targets to the passed argument for the current index": function() {
 			var actual, expected;
-			t.f.targets = [];
+			t.f.targeting = [];
 
 			t.f.to('test1');
 
-			actual   = t.f.targets[t.f._index];
+			actual   = t.f.targeting[t.f._index];
 			expected = 'test1';
 			assert.equals(actual, expected);
 		},
@@ -1268,7 +1386,7 @@ module.exports = {
 		"_initEffectsTargetsAndCoeffs initializes effects to [], coefficients to [0, 0], and target to 'self' for this index but only if they're not already set": function() {
 			var actual, expected;
 			t.f.coefficients = [];
-			t.f.targets = [];
+			t.f.targeting = [];
 			t.f.effects = [];
 
 			t.f._initEffectsTargetsAndCoeffs(0);
@@ -1283,14 +1401,14 @@ module.exports = {
 			expected = [0, 0];
 			assert.equals(actual, expected);
 
-			actual   = t.f.targets[0];
+			actual   = t.f.targeting[0];
 			expected = 'self';
 			assert.equals(actual, expected);
 
 			// set 
 			t.f.effects = ['testeffects'];
 			t.f.coefficients = ['testcoeffs'];
-			t.f.targets = ['testtargets'];
+			t.f.targeting = ['testtargets'];
 
 
 			t.f._initEffectsTargetsAndCoeffs(0);
@@ -1303,7 +1421,7 @@ module.exports = {
 			expected = 'testcoeffs';
 			assert.equals(actual, expected);
 
-			actual   = t.f.targets[0];
+			actual   = t.f.targeting[0];
 			expected = 'testtargets';
 			assert.equals(actual, expected);
 
@@ -1349,6 +1467,39 @@ module.exports = {
 		}
 	},
 
+	"TargetingBuilder.js tests": {
+		setup: function() {
+			var TargetingBuilder = require(dir + 'entities/targetingbuilder');
+			t.f = TargetingBuilder.targets();
+		},
+
+		"_inLine returns tiles targetable by a line-targeting skill": function() {
+			var actual, expected;
+
+			var fn = t.f._inLine(2);
+
+			var source = { x: 0, y: 0 };
+			var offset = { x: 0, y: 0 };
+			var dirs = 'urdl';
+
+			var actual   = fn(source, offset, dirs);
+			var expected = [[[0, 1],[0, 2]], [[1, 0],[2, 0]], [[0, -1],[0, -2]], [[-1, 0],[-2, 0]]];
+			assert.equals(actual, expected);
+
+			var source = { x: -5, y: 5 };
+			var offset = { x: 2, y: -1 };
+			var dirs = 'ul';
+
+			var actual   = fn(source, offset, dirs);
+			var expected = [[[-3, 5],[-3, 6]], [[-4, 4],[-5, 4]]];
+			assert.equals(actual, expected);
+		},
+
+		teardown: function() {
+			delete t.f;
+		}
+	},
+
 	"Calc.js tests": {
 		setup: function() {
 			t.f = require(dir + 'util/calc');
@@ -1366,7 +1517,6 @@ module.exports = {
 			var p5 = [0, -12]
 			var p6 = [0, 12]
 
-
 			actual   = t.f.distanceBetweenPoints(p1, p2)
 			expected = 4;
 			assert.equals(actual, expected);
@@ -1379,6 +1529,39 @@ module.exports = {
 			expected = 24;
 			assert.equals(actual, expected);
 
+		},
+
+		"getLine returns a line from origin to end of the specified length (number of points)": function() {
+			var actual, expected;
+			
+			actual   = t.f.getLine(0, 0, 0, 5, 3);
+			expected = [[0, 0], [0, 1], [0, 2]];
+			assert.equals(actual, expected);
+
+			// no length specified = full line
+			actual   = t.f.getLine(-5, -5, 0, 0);
+			expected = [[-5, -5], [-4, -4], [-3, -3], [-2, -2], [-1, -1], [0, 0]];
+			assert.equals(actual, expected);
+		},
+
+		"getEndPoint returns the correct endpoint given a point of origin, length, and direction": function() {
+			var actual, expected;
+
+			actual   = t.f.getEndPoint(0, 0, 5, 'u');
+			expected = [0, 5];
+			assert.equals(actual, expected);
+
+			actual   = t.f.getEndPoint(-5, 0, 5, 'l');
+			expected = [-10, 0];
+			assert.equals(actual, expected);
+
+			actual   = t.f.getEndPoint(-3.54, 1, 100, 'd');
+			expected = [-3.54, -99];
+			assert.equals(actual, expected);
+
+			actual   = t.f.getEndPoint(-20, 20, 20, 'r');
+			expected = [0, 20];
+			assert.equals(actual, expected);
 		},
 
 		teardown: function() {

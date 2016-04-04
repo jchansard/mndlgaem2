@@ -14,7 +14,7 @@ var SkillBuilder = function() {
 	this._and = false;
 	this.effects = [];
 	this.coefficients  = [];
-	this.targets = [];
+	this.targeting = [];
 }
 
 SkillBuilder.prototype = {
@@ -23,24 +23,32 @@ SkillBuilder.prototype = {
 
 	// deals damage to target
 	damages: function(base) {
-		var effectFn = function(coefficients, modifierEffects, target)
+		this._addEffect(this._damages(base)); //todo NOP
+		return this;
+	},
+
+	_damages: function(base)
+	{
+		return function(coefficients, modifierEffects, target)
 		{
 			var total = base + coefficients[0] * modifierEffects.power;
-			console.log(target + ' takes ' + total);
-		}
-		this._addEffect(effectFn);
-		return this;
+			console.log(target + ' takes ' + total);			
+		}	
 	},
 
 	// stuns target
 	stuns: function(base) {
-		var effectFn = function(coefficients, modifierEffects, target)
+		this._addEffect(this._stuns(base));
+		return this;
+	},
+
+	_stuns: function(base)
+	{
+		return function(coefficients, modifierEffects, target) 
 		{
 			var total = base + coefficients[0] * modifierEffects.power;
 			console.log(target + ' stunned for ' + total);
 		}
-		this._addEffect(effectFn);
-		return this;
 	},
 
 	/* EFFECT MODIFIER FUNCTIONS */
@@ -58,9 +66,9 @@ SkillBuilder.prototype = {
 	},
 
 	// sets target for current effect
-	to: function(target) {
-		target = target || self;
-		this.targets[this._index] = target;
+	to: function(targeting) {
+		targeting = targeting || self;
+		this.targeting[this._index] = targeting;
 		return this;
 	},
 
@@ -94,7 +102,7 @@ SkillBuilder.prototype = {
 	_initEffectsTargetsAndCoeffs: function(index) {
 		this.effects[index]      = (!this.effects[index])      ? []     : this.effects[index];
 		this.coefficients[index] = (!this.coefficients[index]) ? [0, 0] : this.coefficients[index];
-		this.targets[index]      = (!this.targets[index])      ? self   : this.targets[index];
+		this.targeting[index]    = (!this.targeting[index])    ? self   : this.targeting[index];
 	}
 }
 

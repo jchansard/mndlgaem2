@@ -10,9 +10,10 @@
  */
 const Glyph = require('../display/glyph.js');
 
-var Entity = function(template, eventEmitter) {
+var Entity = function(template, eventEmitter, gui) {
  	template = template || {};
  	this._emitter = eventEmitter;
+ 	this._gui     = gui;
  	this._glyph   = new Glyph(template.glyph)
 	this._name    = template['name'];
 	this._x 	  = template['x'] || 0; //TODO: this is gross
@@ -65,10 +66,23 @@ Entity.prototype = {
  		this._map = map;
  	},
 
- 	position: function() 
+ 	// mode = returns array if true, object if falsey
+ 	position: function(mode) 
  	{
-		return [this._x, this._y];
-	}
+		return (mode) ? [this._x, this._y] : { x: this._x, y: this._y };
+	},
+
+	// apply skill + effects to targets
+	_useSkillWithTargets: function(skill, modifierEffects, targets) {
+		skill.effects.forEach(function(effect, index)
+		{
+			var coefficients = skill.coefficients[index];
+			var target = targets[index];
+			effect.forEach(function(effectFn, index) {
+				effectFn(coefficients, modifierEffects, target);
+			});
+		});
+	},
  }
 
  module.exports = Entity;

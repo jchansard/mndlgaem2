@@ -61,17 +61,17 @@ var screens = {
         }
     },
 
-    // gameplay screen. TODO: update for mndlgaem2
+    // gameplay screen
     gameScreen: {
 
     	enter: function() {
         var ui = this;
 
     		var mapTerminal = {
-    			position: { x: 0, y: 0 },
-    			size: 'fill',
-                player: this.gameShell.player, // TODO: ew
-                map: this.gameShell.architect.currentMap()
+      			position: { x: 0, y: 0 },
+      			size: 'fill',
+            player: this.gameShell.player, // TODO: ew
+            map: this.gameShell.architect.currentMap()
 
     		};
 
@@ -86,16 +86,10 @@ var screens = {
             size: 'fill',
             skills: this.gameShell.player.getSkills()
         };
-
-        var targeting = {
-            position: { x: 0, y: 0 },
-            size: 'fill'
-        }
         
     		ui.addElement(UIElements.MapTerminal, mapTerminal, 'mapterminal');
         ui.addElement(UIElements.DeckTerminal, handDeckTerminal, 'handterminal');
         ui.addElement(UIElements.SkillTerminal, skillTerminal, 'skillterminal');
-        ui.addElement(UIElements.Targeting, targeting, 'mapterminal');
     	},
     	render: function(display) {
     		return;

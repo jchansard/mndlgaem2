@@ -36,17 +36,18 @@ var GameShell = function(options) {
 	// init gui layers
 	this.guis = {};
 
-	// init player
-	this.player    = Player.build(this.eventEmitter);
-
-	// init architect
-	this.architect = Architect.build({}, this.player);
-
-    this.guis['ui'] = new UI({ bg: UIBACKGROUND, layers: 2 }, 'div#game', this, this.eventEmitter);
+	// init guis
+    this.guis['ui'] = new UI({ id: 'ui', bg: UIBACKGROUND, layers: 2 }, 'div#game', this, this.eventEmitter);
     // this.guis['overlay'] = new Game.UserInterface({ bg: OVERLAYBACKGROUND }, 'div#overlay');
 
     // init input	
 	this.inputManager = InputManager.build(GAMECONTAINER, this.guis, this.eventEmitter);
+
+	// init player
+	this.player = Player.build(this.eventEmitter, 'ui');
+
+	// init architect
+	this.architect = Architect.build({}, this.player);
 
 } 
 

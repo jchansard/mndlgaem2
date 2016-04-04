@@ -156,10 +156,17 @@ extend(MenuPrompt, {
 	},
 
 	// given a mouse click event coordinated to the canvas' grid, return the corresponding choice
-	coordsToChoice: function(e)
+	coordsToChoice: function(e, coords)
 	{
-		var coords = this._gui.eventToPosition(e);
+		if (!coords)
+		{
+			coords = {};
+			this._emitter.Event(this._gui,'eventToPosition').publish(e, this.layer, coords);
+			coords = coords.data;		
+		}
+
 		var y = coords[1];
+
 		var padding = this._style.padding;
 		y -= this.position.y + padding;
 		if (this._content !== "") { y -= 2; } // TODO: hacky?

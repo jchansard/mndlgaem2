@@ -63,7 +63,9 @@ extend(SkillTerminal, {
 				},
 				layer: 1
 			};
-			this._skillUIElements[index] = this._gui.addElement(Skill, newSkill, this.drawArea);
+			var skillElement = {};
+			this._emitter.Event(this._gui,'addElement').publish(Skill, newSkill, this.drawArea, skillElement);
+			this._skillUIElements[index] = skillElement.data;
 		}
 		this._skillUIElements[index].boundSkill = skill;
 	},

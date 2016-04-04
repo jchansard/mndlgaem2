@@ -13,13 +13,14 @@ const Skill  = require('../entities/skill.js');
 const Skills = require('../entities/skills.js')
 const util   = require('util');
 const extend = require('../util/extend.js');
+const rsvp   = require('rsvp');
 
-var Player = function(eventEmitter, cards) {
+var Player = function(eventEmitter, gui, cards) {
 	Entity.call(this, { 
 		glyph: ['@', 'white'],
 		x: 1,
 		y: 1
-	}, eventEmitter)
+	}, eventEmitter, gui)
 	this._cards  = cards;
 	this._skills = []; 
 	this.id      = 'player';
@@ -48,7 +49,7 @@ extend(Player, {
 	_initSkills: function()
 	{
 		this._skills = [];
-		this._skills.push(new Skill(Skills.PlayerAttack, this.id, this._emitter));
+		this._skills.push(new Skill(Skills.PlayerAttack));
 	},
 
 	getDeck: function(id)
@@ -62,22 +63,84 @@ extend(Player, {
 	},
 
 	// calculate skill effects based on selected cards, then use skill and draw new hand
-	useSkill: function(skillCallback)
+	useSkill: function(skill)
 	{
 		var selectedCards   = [];
 		var unselectedCards = [];
+		var choices = [];
+		var targets = [];
+		var position = this.position();
+		var promiseGetTargetChoice = this._promiseGetTargetChoice.bind(this);
+		var useSkillWithTargets = this._useSkillWithTargets.bind(this);
 		var effects;
 
 		// get selected and unselected cards and calculate effects 
 		this._emitter.Event('getSelection').publish('hand', selectedCards, unselectedCards);
 		effects = this.calculateCardEffects(selectedCards);
-		
-		// use skill
-		skillCallback(effects);
+
+		// create a promise for each skill effect that requires targeting
+		var skillPromises = skill.effects.map(function(effect, index) {
+			var targeting = skill.targeting[index];
+			var filter  = targeting.targetFilter;
+			var choices = targeting.targetChoices(position);
+			return promiseGetTargetChoice(choices, filter);
+		});
+
+		// get targets then use skill on targets
+		rsvp.all(skillPromises).then(function(targetsChosen) {
+			targets = targetsChosen.slice();
+			return new rsvp.resolve(targets);
+		  }).then(function(targets) { useSkillWithTargets(skill, effects, targets) });
 
 		// calculate effects of unselected cards and draw new hand
 		this.handleUnselectedCards(unselectedCards);
 		this.drawNewHand();
+
+	},
+
+	_promiseUseSkill: function(effect, index) 
+	{	
+		var targets = [];
+		skill.effects.forEach(function(effect, index) {
+			var targeting = skill.targeting[index];
+			var choices = targeting.targetChoices(this.position());
+			this._promiseGetTargetChoice(choices, targeting.targetFilter, targets)
+				.then(this._promiseGetTargets(targets))
+		}.bind(this));
+	},
+
+	_promiseGetTargetChoice: function(targetTiles, targetFilter, targetEntities) 
+	{
+		var e = this._emitter;
+		var gui = this._gui;
+		return new rsvp.Promise(function(resolve, reject) 
+		{
+			var Targeting = require('../ui-elements').Targeting;
+			var targetingUI = {
+				choices: targetTiles,
+				filter: targetFilter,
+				callback: resolve 
+			};
+			e.Event(gui, 'addElement').publish(Targeting, targetingUI, 'mapterminal');
+		});
+	},
+
+    _promiseGetTargets: function() 
+    {
+		return function(targetsFound) {
+			targetEntities.push(targetsFound);
+			return new rsvp.Promise(function(resolve, reject)
+			{
+				targetEntities.forEach(function(target) {
+					resolve(effects, target)
+				})
+			}); 
+		}
+	},
+
+	_getSkillTargets: function()
+	{
+
 	},
 
 	calculateCardEffects: function(cards)
@@ -139,14 +202,14 @@ extend(Player, {
 
 });
 
-var build = function(eventEmitter) {
+var build = function(eventEmitter, gui) {
 	var properties =
 	{
 		handLimit: 5
 	}
 	var PlayerCards = require('./playercards')
 	var cards = PlayerCards.build(properties, eventEmitter);
-	var player = new Player(eventEmitter, cards);
+	var player = new Player(eventEmitter, gui, cards);
 
 	player.init();
 

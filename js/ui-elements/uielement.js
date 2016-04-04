@@ -13,22 +13,23 @@ var UIElement = function(properties, gui, eventEmitter)
 	properties 			= properties || arguments[0] || {};
 	this.init           = properties.init;
 	this.position		= properties.position  	 	 || { x: 0, y: 0 };
-	this.size			= properties.size			 || { height: 0, width: 0 };
+	this.size			= properties.size			 || 'fill'
 	this.layer          = properties.layer           || 0;
 	this._style			= properties.style 			 || {};
 	this._content 		= properties.content 		 || "";
-	this._gui   		= gui;
 	this._emitter		= eventEmitter;
+	this._gui           = gui;
 	this.drawArea       = undefined;
 }
 
 UIElement.prototype = {
 
-	build: function(drawArea) {
+	build: function(drawArea, id) {
 		this._initStyle();
 		this._initPosition(drawArea);
 		this._initSize(drawArea)
 		this.drawArea = drawArea.id;
+		this.id = id;
 	},
 
 	// initialize style to default settings if overrides weren't passed
@@ -63,6 +64,7 @@ UIElement.prototype = {
 
 	// function called when ui element is closed/removed; override for different element types
 	close: function() {
+		this._emitter.Event(this._gui,'closeElement').publish(this.id);
 		return;
 	},
 

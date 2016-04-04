@@ -13,12 +13,14 @@
  *  ASSUMES: this._entity == player
  */
 
-var skill =  require('./skillbuilder');
+const does =  require('./skillbuilder').does;
+const targets = require('./targetingbuilder').targets;
+const targeting = require('./targetingbuilder');
 
 var skills = {
 	PlayerAttack: {
 		name: 'Attack',
-		onUse: skill.does().damages(1).to('target').withPowerCoefficient(0.25)
+		onUse: does().damages(1).to(targeting.melee()).withPowerCoefficient(0.25)
 	}
 }
 

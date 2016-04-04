@@ -10,6 +10,7 @@
 
 const ROT    = require('rot-js');
 const $      = require('jquery');
+const temere = require('temere');
 const extend = require('../util/extend.js')
 const mouseUtils = require('./drawutils');
 const drawUtils  = require('./mouseutils');
@@ -47,15 +48,17 @@ var UserInterface = function(properties, container, gameShell, eventEmitter) {
 	this._bg 		    = properties.bg 	  	|| 'black';
 	this._fontSize 	    = properties.fontSize 	|| 16;
 	this._fontFamily    = properties.fontFamily || 'inconsolata';
+	this.id             = properties.id;
 	this._screen 	    = undefined;
 	this._drawAreas     = {};
 	this._elements 	    = [];
 	this._elementsLayerIndex = [];
+	this._elementsIDIndex = {};
 	this._activeElement = null;
 	this._container     = container;
 	this.gameShell		= gameShell;
 	this._emitter  		= eventEmitter;
-
+	this._idGen         = undefined;
 
 	// init layers. Layers are extra transparent canvases created on top of the display
 	// with the same height, position, and font properties.
@@ -84,12 +87,31 @@ UserInterface.prototype = {
 			$(d.getContainer()).css('position', 'absolute');
 			$(this._container).append(d.getContainer());
 		}.bind(this));
+		this._initListeners();
+		this._idGen = new temere();
+	},
+
+	_initListeners: function() 
+	{
+		var e = this._emitter;		
+		var id = this.id;
+		var eventToPosition = this.eventToPosition.bind(this);
+		var addElement      = this.addElement.bind(this);
+		var closeElement    = this.closeElement.bind(this);
+
+		e.Event(id,'eventToPosition').subscribe(eventToPosition);
+		e.Event(id,'addElement').subscribe(addElement);
+		e.Event(id,'closeElement').subscribe(closeElement);
+	},
+
+	_generateElementID: function()
+	{
+		return this._idGen.next();
 	},
 
 	render: function() 
 	{
-    	// clear the screen and re-render it
-    	this.clearDisplay();
+		// render screen
     	if (this.renderCurrentScreen) { this.renderCurrentScreen(); } 
 
     	// render all elements
@@ -158,15 +180,21 @@ UserInterface.prototype = {
 	},
 
 	// adds a new element to the gui and binds it to this gui
-	addElement: function(elementConstructor, options, drawArea) 
+	addElement: function(elementConstructor, options, drawArea, returnObject) 
 	{
+		returnObject = returnObject || {};
+		
 		// set draw area
 		drawArea = (drawArea !== undefined) ? this._drawAreas[drawArea] : this._drawAreas['full'];
 
 		// construct element
-		var element = new elementConstructor(options, this, this._emitter);	
+		var element = new elementConstructor(options, this.id, this._emitter);	
+
+		// generate id
+		var elementID = this._generateElementID();
+
 		// build, if possible
-		if (typeof element.build === 'function') { element.build(drawArea); }
+		if (typeof element.build === 'function') { element.build(drawArea, elementID); }
 
 		// init, if possible
 		if (typeof element.init  === 'function') { element.init(); }
@@ -175,10 +203,13 @@ UserInterface.prototype = {
 		var index = this._elements.length;
 		this._elements.push(element);
 
-		// add element to layer index
+		// add element to indices
 		var layer = element.layer || 0;
+
 		this._elementsLayerIndex[layer] = this._elementsLayerIndex[layer] || [];
 		this._elementsLayerIndex[layer].push(index);
+
+		if (elementID) { this._elementsIDIndex[elementID] = index; }
 
 		// if this is the first element added, set it to active
 		if (index === 0)
@@ -187,7 +218,36 @@ UserInterface.prototype = {
 		}
 
 		// return the added element
-		return element;
+		returnObject.data = element;
+		return returnObject.data;
+	},
+
+	// remove an element from the ui and clean up indices
+	closeElement: function(elementID)
+	{
+		// get element index
+		var index = this._elementsIDIndex[elementID];
+		var layer = this._elements[index].layer || 0;
+
+		this.clearDisplay(layer);
+
+		// set to null and splice elements
+		this._elements[index] = null;
+		this._elements.splice(index, 1);
+
+
+
+		// clean up indices
+		this._cleanUpIndices(index, elementID, layer);
+	},
+
+	// cleans up the elementsIDIndex and the elementsLayerIndex
+	_cleanUpIndices: function(index, elementID, layer)
+	{
+		delete this._elementsIDIndex[elementID];
+		this._elementsLayerIndex[layer] = this._elementsLayerIndex[layer].filter(function(value) {
+			return value != index;
+		});
 	},
 
 	// clears all elements 
@@ -195,6 +255,7 @@ UserInterface.prototype = {
 	{
 		this._elements = [];
 		this._elementsLayerIndex = [];
+		this._elementsIDIndex = {};
 	},
 
 	// don't think i use this. uncomment if i ever do.
@@ -228,17 +289,21 @@ UserInterface.prototype = {
 		this.bindInputEvents(inputEvents);
 	},	
 
-	// clears display; wraps ROT function
+	// clears display; wraps ROT function with extra handling for transparent layers
 	clearDisplay: function(layer)
 	{
 		layer = layer || 0;
 		this._displays[layer].clear();
+		if (layer > 0) { this._clearTransparentLayer(layer); }
 	},
 
 	// converts a click event to canvas coordinates; wraps ROT function
-	eventToPosition: function(e)
+	eventToPosition: function(e, layer, returnObject)
 	{
-		return this._displays[0].eventToPosition(e);
+		layer = layer || 0;
+		returnObject = returnObject || {};
+		returnObject.data = this._displays[layer].eventToPosition(e);
+		return returnObject.data;
 	},
 
 	// get all clicked elements

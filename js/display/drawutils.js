@@ -7,6 +7,7 @@
  * Josh Chansard 
  * https://github.com/jchansard/mndlgaem2
  */
+const $ = require('jquery');
 
 module.exports = {
 
@@ -88,6 +89,14 @@ module.exports = {
 	  		default:
 	  			console.err("invalid type passed to canvas: " + drawInfo.type);
 	  	}
+	},
+
+	// extra clearing for transparent layers, which ROT doesn't handle well
+	_clearTransparentLayer: function(layer)
+	{
+		var canvas = this._displays[layer].getContainer();
+		var context = canvas.getContext('2d');
+		context.clearRect(0, 0, canvas.width, canvas.height);
 	},
 
 	// draws a border around an area, and fills the background
