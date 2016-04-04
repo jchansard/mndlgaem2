@@ -12,10 +12,11 @@ const GameMap = require('./map');
 const levels  = require('./levels');
 const create2DArray = require('../util/create2Darray');
 
-var Architect = function(properties, player) {
+var Architect = function(properties, eventEmitter, player) {
 	properties 			= properties || {};
 	this._levelMap 		= [];
 	this._currentLevel 	= undefined;
+	this._emitter       = eventEmitter;
 	this._player 		= player;
 }
 
@@ -25,11 +26,22 @@ Architect.prototype = {
 		this._levelMap.push(this._generateNewLevel())
 		this._currentLevel = 0;
 		this.currentMap().addEntity(this._player);
+		this._initListeners();
 	},
 
-	currentMap: function()
+	_initListeners: function() {
+		var e = this._emitter;
+
+		var currentMapHandler = this.currentMap.bind(this);
+
+		e.Event('architect','currentMap').subscribe(currentMapHandler);
+	},
+
+	currentMap: function(returnObject)
 	{
-		return this._levelMap[this._currentLevel];
+		var map = this._levelMap[this._currentLevel];
+		if (returnObject) { returnObject.data = map }
+		return map;
 	},
 
 	_generateNewLevel: function(levelType) 
@@ -55,9 +67,9 @@ Architect.prototype = {
 	}
 }
 
-var build = function(properties, player) 
+var build = function(properties, eventEmitter, player) 
 {
-	var architect = new Architect(properties, player);
+	var architect = new Architect(properties, eventEmitter, player);
 	architect.init();
 	return architect;
 }

@@ -47,7 +47,7 @@ var GameShell = function(options) {
 	this.player = Player.build(this.eventEmitter, 'ui');
 
 	// init architect
-	this.architect = Architect.build({}, this.player);
+	this.architect = Architect.build({}, this.eventEmitter, this.player);
 
 } 
 

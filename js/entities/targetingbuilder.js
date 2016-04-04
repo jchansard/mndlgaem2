@@ -22,7 +22,7 @@ var TargetingBuilder = function() {
 	this._numTargets = NOLIMIT;
 	this._targetFunctions = [];
 	this._offset = { x: 0, y: 0 };
-	this.targetFilter  = function() { return true; }
+	this.targetFilter  = function(tile) { return this._map.isTraversable(tile[0], tile[1]); };
 }
 
 TargetingBuilder.prototype = {

@@ -17,22 +17,33 @@ var Targeting = function(properties, gui, eventEmitter)
 	properties = properties || {};
 	UIElement.apply(this, arguments);
 	this._choices      = properties.choices;
-	this._targetFilter = properties.filter   || function() { return true; };
+	this._targetFilter = properties.filter;
 	this._callback     = properties.callback;
 	this.layer         = properties.layer    || 1;
 	this._targetEntities = [];
+	this._map = undefined;
 }
 
 util.inherits(Targeting, UIElement);
 
 extend(Targeting, {
 
+	build: function(drawArea) 
+	{
+		UIElement.prototype.build.apply(this, arguments);
+		var map = {};
+		this._emitter.Event('architect','currentMap').publish(map);
+		this._map = map.data;
+	},
+
 	// draw the specified tiles
 	render: function(drawCallback) 
 	{
 		var layer = this.layer;
+		var filter = this._targetFilter.bind(this);
+
 		this._choices.forEach(function(choice) {
-			choice.forEach(function(tile) {
+			choice.filter(filter).forEach(function(tile) {
 				var drawInfo = 
 				{
 					ch:  ' ',
