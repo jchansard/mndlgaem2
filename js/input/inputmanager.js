@@ -107,6 +107,7 @@ InputManager.prototype = {
 		for (gui in guis) {
 			var clickedElements = guis[gui].getClickedElements(e);
 			clickedElements.forEach(function(element) {
+				if (e.stopPropagating) { return; }
 				if (typeof element[clickFunction] === 'function')
 				{
 					element[clickFunction](e);

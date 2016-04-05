@@ -310,17 +310,27 @@ UserInterface.prototype = {
 	getClickedElements: function(e)
 	{
 		var coords = this.eventToPosition(e);
-		var elements = [];
-		var coordsAreInBounds = this.coordsAreInBounds;
-		this._elements.forEach(function(element) 
-		{
-			if (coordsAreInBounds(coords, element.position, element.size))
-			{
-				elements.push(element);
-			}
-		});
+		var clickedElements = [];
 
-		return elements;
+		// use layer index so that "higher" elements are returned first
+		for (var i = this._elementsLayerIndex.length - 1; i > -1; i--)
+		{
+			if (!this._elementsLayerIndex[i]) continue;
+
+			// loop through elements via index
+			this._elementsLayerIndex[i].forEach(function(index) 
+			{
+				var element = this._elements[index];
+				
+				// if coords are in bounds, add to list to return
+				if (this.coordsAreInBounds(coords, element.position, element.size))
+				{
+					clickedElements.push(element);
+				}
+			}.bind(this));
+		}
+
+		return clickedElements;
 	},
 
 };		

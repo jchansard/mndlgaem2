@@ -68,6 +68,7 @@ extend(Targeting, {
 	// on click, if user clicked on a prompt option, choose that choice
 	lclick: function(e) 
 	{
+		e.stopPropagating = true;
 		this._callback(this._targetEntities);
 		this.close();
 	},

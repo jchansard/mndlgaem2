@@ -277,7 +277,7 @@ module.exports = {
 			t.f = new UserInterface();
 		},
 
-		"render clears the screen and calls render on this and each of this's elements using the element layer index": function() {
+		"render calls render on this and each of this's elements using the element layer index": function() {
 			var actual, expected;
 			var renderStub  = sinon.stub();
 			var renderStub1 = sinon.stub();
@@ -296,7 +296,7 @@ module.exports = {
 			t.f.clearDisplay.restore();
 
 			actual = clearDisplayStub.callCount;
-			expected = 1;
+			expected = 0;
 			assert.equals(actual, expected);
 
 			actual = renderStub.calledOn(t.f);
@@ -344,6 +344,7 @@ module.exports = {
 			var el1 = { size: { height: 1, width: 1 }, position: { x: 0, y: 0 } };
 			var el2 = { size: { height: 1, width: 1 }, position: { x: 0, y: 0 } };
 			var el3 = { size: { height: 1, width: 1 }, position: { x: 2, y: 2 } };
+			t.f._elementsLayerIndex = [[0,1,2]];
 			t.f._elements = [el1, el2, el3];
 			var utilsSpy = sinon.spy(t.f, "coordsAreInBounds");
 			var e = { 
@@ -365,7 +366,25 @@ module.exports = {
 			actual = t.f.getClickedElements(e);
 			expected = [];
 			assert.equals(actual, expected);
+
+			t.f.coordsAreInBounds.restore();
 		},	
+
+		"getClickedElements should return the elements in order by layer, starting with the highest layer": function() {
+			var actual, expected;
+			var coordsInBoundsStub = sinon.stub(t.f, 'coordsAreInBounds').returns(true);
+			sinon.stub(t.f, 'eventToPosition');
+			t.f._elementsLayerIndex = [[0,2],[3],undefined,[1,4]];
+			t.f._elements = ['element0', 'element1', 'element2', 'element3', 'element4'];
+
+			var elements = t.f.getClickedElements();
+			t.f.coordsAreInBounds.restore();
+			t.f.eventToPosition.restore();
+
+			actual   = elements;
+			expected = ['element1','element4','element3','element0','element2'];
+			assert.equals(actual, expected);
+		},
 
 		"addElement should call the passed constructor with the passed options, this gui's emitter, and this gui's id as parameters": function() {
 			var actual, expected;
@@ -895,7 +914,7 @@ module.exports = {
 	"Architect.js tests": {
 		setup: function() {
 			var Architect = require(dir + 'architect/architect');
-			t.f = new Architect({},{ actor: 'test'});
+			t.f = new Architect({}, null, { actor: 'test'});
 		},
 
 		"init should generate a new level and add it and the player to the architect's level map": function() {
@@ -903,9 +922,11 @@ module.exports = {
 			var addEntityStub = sinon.stub()
 			var testMap = { addEntity: addEntityStub };
 			var generateStub = sinon.stub(t.f, "_generateNewLevel").returns(testMap)
+			sinon.stub(t.f, '_initListeners');
 
 			t.f.init();
 			t.f._generateNewLevel.restore();
+			t.f._initListeners.restore();
 
 			actual   = generateStub.callCount;
 			expected = 1;
