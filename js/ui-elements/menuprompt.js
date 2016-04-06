@@ -16,6 +16,7 @@ var MenuPrompt = function(properties, gui, eventEmitter)
 {
 	properties = properties || {};
 	UIElement.apply(this, arguments);
+	this.type = 'MenuPrompt';
 	this._title			= properties.title 			|| "";
 	this._options 	 	= properties.options 		|| [];
 	this._choice		= properties.choice 		|| 0;

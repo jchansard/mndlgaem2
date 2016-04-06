@@ -13,6 +13,7 @@ const Glyph = require('../display/glyph.js');
 var Entity = function(template, eventEmitter, gui) {
  	template = template || {};
  	this._emitter = eventEmitter;
+ 	this._events  = undefined;
  	this._gui     = gui;
  	this._glyph   = new Glyph(template.glyph)
 	this._name    = template['name'];

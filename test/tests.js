@@ -42,6 +42,36 @@ module.exports = {
 		}
 	},
 
+	"EventEmitter.js tests": {
+		setup: function() {
+			var Emitter = require(dir + 'eventemitter');
+			t.f = new Emitter();
+		},
+
+		"_handleMultipleEvents should perform the expected operation on an array of events": function() {
+			var actual, expected;
+			var log = function(t) {
+				return function() { return t; }
+			};
+			var events = [['topic1', 'type1', log('test1') ], ['topic2', 'type2', log('test2')]];
+			var mode = 'subscribe';
+
+			t.f._handleMultipleEvents(mode, events);
+
+			actual   = Object.keys(t.f._events.topic1.type1);
+			expected = ['subscribe', 'unsubscribe', 'publish'];
+			assert.equals(actual, expected);
+
+			actual   = Object.keys(t.f._events.topic2.type2);
+			expected = ['subscribe', 'unsubscribe', 'publish'];
+			assert.equals(actual, expected);
+		},
+
+		delete: function() {
+			delete t.f;
+		}
+	},
+
 	"InputManager.js tests": {
 		setup: function() {
 			t.f1 = $(document.createElement('div')).attr('id','inputmanager-test');
@@ -174,7 +204,7 @@ module.exports = {
 			assert.isTrue(actual);
 		},
 
-		"handleClick correctly routes a click action to all valid elements": function() {
+		"handleClick correctly routes a click action to all valid elements and stops when told to stop propagating": function() {
 			var actual, expected;
 			var e = {
 				which: 1,
@@ -203,6 +233,7 @@ module.exports = {
 					getClickedElements: getElementsClickedStub
 				}
 			}
+			t.f2._emitter = { Event: function() { return { publish: sinon.stub() } } }
 
 			t.f2.handleClick(e, guis);
 
@@ -216,7 +247,6 @@ module.exports = {
 			var beforeCount = lSpy.callCount;
 			e.which = 3;
 			t.f2.handleClick(e, guis);
-			t.f2._getClickFunction.restore();
 
 			actual = lSpy.callCount;
 			expected = beforeCount;
@@ -226,6 +256,14 @@ module.exports = {
 			expected = 2;
 			assert.equals(actual, expected);
 
+			e.stopPropagating = true;
+			t.f2.handleClick(e, guis);
+
+			actual = rSpy.callCount;
+			expected = 2;
+			assert.equals(actual, expected);
+
+			t.f2._getClickFunction.restore();
 		},
 
 		"_getClickFunction returns the correct click function": function() {

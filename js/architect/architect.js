@@ -17,6 +17,7 @@ var Architect = function(properties, eventEmitter, player) {
 	this._levelMap 		= [];
 	this._currentLevel 	= undefined;
 	this._emitter       = eventEmitter;
+	this._events        = undefined;
 	this._player 		= player;
 }
 
@@ -31,10 +32,10 @@ Architect.prototype = {
 
 	_initListeners: function() {
 		var e = this._emitter;
-
 		var currentMapHandler = this.currentMap.bind(this);
+		this._events = [['architect', 'currentMap', currentMapHandler]];
 
-		e.Event('architect','currentMap').subscribe(currentMapHandler);
+		e.subscribeEnMasse(this._events);
 	},
 
 	currentMap: function(returnObject)

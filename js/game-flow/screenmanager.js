@@ -10,6 +10,7 @@
 	
 var ScreenManager = function(emitter, screens) {
 	this._emitter = emitter;
+	this._events  = undefined;
 	this._screens = screens;
 }
 
@@ -21,8 +22,9 @@ ScreenManager.prototype = {
 	_initListeners: function() {
 		var e = this._emitter;
 		var getScreenHandler = this._getScreen.bind(this);
+		this._events = [['screen', 'getScreen', getScreenHandler]];
 
-		e.Event('screen','getScreen').subscribe(getScreenHandler);
+		e.subscribeEnMasse(this._events);
 	},
 
 	// returns screen with specified name via data object's screen parameter

@@ -16,6 +16,7 @@ var Targeting = function(properties, gui, eventEmitter)
 {
 	properties = properties || {};
 	UIElement.apply(this, arguments);
+	this.type = 'Targeting';
 	this._choices      = properties.choices;
 	this._targetFilter = properties.filter;
 	this._callback     = properties.callback;
@@ -68,6 +69,7 @@ extend(Targeting, {
 	// on click, if user clicked on a prompt option, choose that choice
 	lclick: function(e) 
 	{
+		this._targetEntities = ['target'];
 		e.stopPropagating = true;
 		this._callback(this._targetEntities);
 		this.close();

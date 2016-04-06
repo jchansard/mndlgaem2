@@ -12,14 +12,17 @@ var UIElement = function(properties, gui, eventEmitter)
 {
 	properties 			= properties || arguments[0] || {};
 	this.init           = properties.init;
+	this.type           = this.type  || 'UIElement';
 	this.position		= properties.position  	 	 || { x: 0, y: 0 };
 	this.size			= properties.size			 || 'fill'
 	this.layer          = properties.layer           || 0;
 	this._style			= properties.style 			 || {};
 	this._content 		= properties.content 		 || "";
 	this._emitter		= eventEmitter;
+	this._events        = null;
 	this._gui           = gui;
 	this.drawArea       = undefined;
+
 }
 
 UIElement.prototype = {

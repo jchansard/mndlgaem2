@@ -58,6 +58,7 @@ var UserInterface = function(properties, container, gameShell, eventEmitter) {
 	this._container     = container;
 	this.gameShell		= gameShell;
 	this._emitter  		= eventEmitter;
+	this._events        = undefined;
 	this._idGen         = undefined;
 
 	// init layers. Layers are extra transparent canvases created on top of the display
@@ -99,9 +100,9 @@ UserInterface.prototype = {
 		var addElement      = this.addElement.bind(this);
 		var closeElement    = this.closeElement.bind(this);
 
-		e.Event(id,'eventToPosition').subscribe(eventToPosition);
-		e.Event(id,'addElement').subscribe(addElement);
-		e.Event(id,'closeElement').subscribe(closeElement);
+		this._events = [[id, 'eventToPosition', eventToPosition], [id, 'addElement', addElement], [id, 'closeElement', closeElement]];
+
+		e.subscribeEnMasse(this._events);
 	},
 
 	_generateElementID: function()

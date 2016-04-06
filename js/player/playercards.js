@@ -24,6 +24,7 @@ var PlayerCards = function(draw, hand, discard, properties, eventEmitter) {
 	this._handLimit = properties.handLimit || 5; 
 
 	this._emitter = eventEmitter;
+	this._events  = undefined;
 }
 
 extend(PlayerCards, {
@@ -36,11 +37,11 @@ extend(PlayerCards, {
 		var discardHandHandler = this.discardHand.bind(this);
 		var drawNewHandHandler = this.drawNewHand.bind(this);
 		var getSelectionHandler = this.getSelection.bind(this);
+		var g = 'global';
 
-		e.Event('drawCards').subscribe(drawCardsHandler);
-		e.Event('discardHand').subscribe(discardHandHandler);
-		e.Event('drawNewHand').subscribe(drawNewHandHandler);
-		e.Event('getSelection').subscribe(getSelectionHandler);
+		this._events = [[g, 'drawCards', drawCardsHandler], [g, 'discardHand', discardHandHandler], [g, 'drawNewHand', drawNewHandHandler], [g, 'getSelection', getSelectionHandler]];
+
+		e.subscribeEnMasse(this._events);
 	},
 
 	// publishes deck change event to all decks that are passed

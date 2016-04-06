@@ -14,8 +14,9 @@ const $ = require('jquery');
 var InputManager = function(container, guis, keymap, eventEmitter) {
 	this._container = container;
 	this._guis = guis; 			// guis this inputmanager controls
-	this._keymap = keymap;
+	this._keymap  = keymap;
 	this._emitter = eventEmitter;
+	this._events  = undefined;
 	this._inputActions = {}; 	// houses bound functions for events
 	this.bubbleOrder = [];
 }
@@ -36,8 +37,9 @@ InputManager.prototype = {
 		var bindHandler   = this.bindEvents.bind(this);
 		var unbindHandler = this.unbindEvents.bind(this);
 
-	    e.Event('input','bindEvents').subscribe(bindHandler);
-		e.Event('input','unbindEvents').subscribe(unbindHandler);
+		this._events = [['input', 'bindEvents', bindHandler], ['input', 'unbindEvents', unbindHandler]]
+
+	    e.subscribeEnMasse(this._events);
 	},
 
 	// binds the input actions for a given screen
@@ -103,11 +105,13 @@ InputManager.prototype = {
 	handleClick: function(e, guis)
 	{
 		guis = guis || this._guis;
+		var emitter = this._emitter;
 		var clickFunction = this._getClickFunction(e.which);
 		for (gui in guis) {
 			var clickedElements = guis[gui].getClickedElements(e);
 			clickedElements.forEach(function(element) {
 				if (e.stopPropagating) { return; }
+				emitter.Event(clickFunction, element.type).publish();
 				if (typeof element[clickFunction] === 'function')
 				{
 					element[clickFunction](e);

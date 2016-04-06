@@ -16,7 +16,7 @@ var Skill = function(properties, gui, eventEmitter)
 {
 	properties = properties || {};
 	UIElement.apply(this, arguments);
-
+	this.type = 'Skill';
 	this.boundSkill = properties.skill;
 }
 

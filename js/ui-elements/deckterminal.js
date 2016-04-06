@@ -17,6 +17,7 @@ var DeckTerminal = function(properties, gui, eventEmitter)
 {
 	properties  = properties || {};
 	UIElement.apply(this, arguments);
+	this.type = 'DeckTerminal';
 	this._deck  = properties.deck;
 	this._numCards = properties.numCards || 5;
 	this._cards = new Array(this._numCards);
@@ -40,9 +41,10 @@ extend(DeckTerminal, {
 	// listen for deckChange for this terminal's deck
 	_initListeners: function() 
 	{
-		var e 	  = this._emitter;
+		var e = this._emitter;
 		var topic = this._deck.id;
-		e.Event(topic,'deckChange').subscribe(this.redrawDeck.bind(this))
+		this._events = [[topic, 'deckchange', this.redrawDeck.bind(this)]]
+		e.subscribeEnMasse(this._events);
 	},
 
 	// when the deck changes, call this to update gui

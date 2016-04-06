@@ -17,6 +17,7 @@ var MapTerminal = function(properties, gui, eventEmitter)
 {
 	properties = properties || {};
 	UIElement.apply(this, arguments);
+	this.type = 'MapTerminal';
 	this._map			= properties.map;	
 	this._player		= properties.player;
 }

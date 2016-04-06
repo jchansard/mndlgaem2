@@ -16,6 +16,7 @@ var Card = function(properties, gui, eventEmitter)
 {
 	properties = properties || {};
 	UIElement.apply(this, arguments);
+	this.type = 'Card';
 
 	this.boundCard = properties.card;
 }

@@ -39,11 +39,12 @@ extend(Player, {
 	_initListeners: function() 
 	{
 		var e = this._emitter;
+		var id = this.id;
 		var playerMoveHandler = this.handleMove.bind(this);
 		var useSkillHandler   = this.useSkill.bind(this);
 
-		e.Event(this.id,'move').subscribe(playerMoveHandler);
-		e.Event(this.id,'useSkill').subscribe(useSkillHandler);
+		this._events = [[id, 'move', playerMoveHandler], [id, 'useSkill', useSkillHandler]];
+		e.subscribeEnMasse(this._events);
 	},
 
 	_initSkills: function()

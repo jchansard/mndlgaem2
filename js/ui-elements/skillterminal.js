@@ -17,6 +17,7 @@ var SkillTerminal = function(properties, gui, eventEmitter)
 {
 	properties = properties || {};
 	UIElement.apply(this, arguments);
+	this.type = 'SkillTerminal';
 	this._skills  = properties.skills;
 	this._skillUIElements = [];
 }
