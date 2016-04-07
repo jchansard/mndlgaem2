@@ -4,8 +4,6 @@ const $      = require('jquery');
 var dir = '../js/'; // directory to scripts being tested
 var t   = {}; 		// test object
 
-const aat = require(dir + 'display/ui');
-
 module.exports = {
 	"Game.js tests": {
 		setup: function() { 
@@ -67,7 +65,7 @@ module.exports = {
 			assert.equals(actual, expected);
 		},
 
-		delete: function() {
+		teardown: function() {
 			delete t.f;
 		}
 	},

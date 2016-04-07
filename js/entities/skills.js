@@ -20,7 +20,7 @@ const targeting = require('./targetingbuilder');
 var skills = {
 	PlayerAttack: {
 		name: 'Attack',
-		onUse: does().damages(1).to(targeting.melee()).withPowerCoefficient(0.25)
+		onUse: does().damages(1).to(targeting.melee()).withPowerCoefficient(0.25).then().damages(5).to(targeting.melee()).withPowerCoefficient(0.5)
 	}
 }
 

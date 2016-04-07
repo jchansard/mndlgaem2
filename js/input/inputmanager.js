@@ -111,7 +111,7 @@ InputManager.prototype = {
 			var clickedElements = guis[gui].getClickedElements(e);
 			clickedElements.forEach(function(element) {
 				if (e.stopPropagating) { return; }
-				emitter.Event(clickFunction, element.type).publish();
+				emitter.Event(clickFunction).publish(element.type);
 				if (typeof element[clickFunction] === 'function')
 				{
 					element[clickFunction](e);

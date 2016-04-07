@@ -83,11 +83,11 @@ var UserInterface = function(properties, container, gameShell, eventEmitter) {
 UserInterface.prototype = {
 	init: function() 
 	{
-		this._displays.forEach(function(d)
+		this._displays.forEach(d => 
 		{
 			$(d.getContainer()).css('position', 'absolute');
 			$(this._container).append(d.getContainer());
-		}.bind(this));
+		});
 		this._initListeners();
 		this._idGen = new temere();
 	},
@@ -319,7 +319,7 @@ UserInterface.prototype = {
 			if (!this._elementsLayerIndex[i]) continue;
 
 			// loop through elements via index
-			this._elementsLayerIndex[i].forEach(function(index) 
+			this._elementsLayerIndex[i].forEach(index =>
 			{
 				var element = this._elements[index];
 				
@@ -328,7 +328,7 @@ UserInterface.prototype = {
 				{
 					clickedElements.push(element);
 				}
-			}.bind(this));
+			});
 		}
 
 		return clickedElements;

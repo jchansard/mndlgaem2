@@ -80,23 +80,36 @@ extend(Player, {
 		effects = this.calculateCardEffects(selectedCards);
 
 		// create a promise for each skill effect that requires targeting
-		var skillPromises = skill.effects.map(function(effect, index) {
-			var targeting = skill.targeting[index];
-			var filter  = targeting.targetFilter;
-			var choices = targeting.targetChoices(position);
-			return promiseGetTargetChoice(choices, filter);
-		});
+		// var skillPromises = skill.effects.map(function(effect, index) {
+		// 	var targeting = skill.targeting[index];
+		// 	var filter  = targeting.targetFilter;
+		// 	var choices = targeting.targetChoices(position);
+		// 	return promiseGetTargetChoice(choices, filter);
+		// });
 
-		// get targets then use skill on targets
-		rsvp.all(skillPromises).then(function(targetsChosen) {
-			targets = targetsChosen.slice();
-			return new rsvp.resolve(targets);
-		  }).then(function(targets) { useSkillWithTargets(skill, effects, targets) });
+		// // get targets then use skill on targets
+		// rsvp.all(skillPromises).then(function(targetsChosen) {
+		// 	targets = targetsChosen.slice();
+		// 	return new rsvp.resolve(targets);
+		//   }).then(function(targets) { useSkillWithTargets(skill, effects, targets) });
+
+		var promiseChain = skill.targeting.reduce((previous, targeting, index) =>
+		{
+
+			var targets;
+			return previous.then((result) => this._promiseGetTargetChoice(targeting, position, index));
+				// .then(function(previousTargets) {
+				// 	return previousTargets.slice();
+				// });
+
+			
+		}, rsvp.resolve()).then((targets) => useSkillWithTargets(skill, effects, targets));
+
+
 
 		// calculate effects of unselected cards and draw new hand
 		this.handleUnselectedCards(unselectedCards);
 		this.drawNewHand();
-
 	},
 
 	_promiseUseSkill: function(effect, index) 
@@ -110,16 +123,18 @@ extend(Player, {
 		}.bind(this));
 	},
 
-	_promiseGetTargetChoice: function(targetTiles, targetFilter, targetEntities) 
+	_promiseGetTargetChoice: function(targetingObject, position, index) 
 	{
+		var filter  = targetingObject.targetFilter;
+		var choices = targetingObject.targetChoices(position);
 		var e = this._emitter;
 		var gui = this._gui;
 		return new rsvp.Promise(function(resolve, reject) 
 		{
 			var Targeting = require('../ui-elements').Targeting;
 			var targetingUI = {
-				choices: targetTiles,
-				filter: targetFilter,
+				choices: choices,
+				filter: filter,
 				callback: resolve 
 			};
 			e.Event(gui, 'addElement').publish(Targeting, targetingUI, 'mapterminal');
