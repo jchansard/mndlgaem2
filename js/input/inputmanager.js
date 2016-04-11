@@ -111,11 +111,11 @@ InputManager.prototype = {
 			var clickedElements = guis[gui].getClickedElements(e);
 			clickedElements.forEach(function(element) {
 				if (e.stopPropagating) { return; }
-				emitter.Event(clickFunction).publish(element.type);
 				if (typeof element[clickFunction] === 'function')
 				{
 					element[clickFunction](e);
 				}
+				emitter.Event(clickFunction, element.type).publish();
 			});
 		}
 	},
@@ -123,13 +123,8 @@ InputManager.prototype = {
 	// converts a click event's button click to a function name
 	_getClickFunction: function(button)
 	{
-		switch(button) 
-		{
-			case 1: return 'lclick';
-			case 2: return 'mclick';
-			case 3: return 'rclick';
-			default: return false;
-		}
+		var functions = [null, 'lclick', 'mclick', 'rclick'];
+		return functions[button];
 	},
 
 	// returns true if action is valid

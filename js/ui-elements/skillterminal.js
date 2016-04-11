@@ -26,7 +26,7 @@ util.inherits(SkillTerminal, UIElement);
 
 extend(SkillTerminal, {
 
-	build: function(drawArea) 
+	build: function(drawArea, id) 
 	{
 		UIElement.prototype.build.apply(this, arguments)
 		this._initListeners();

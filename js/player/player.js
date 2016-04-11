@@ -42,8 +42,11 @@ extend(Player, {
 		var id = this.id;
 		var playerMoveHandler = this.handleMove.bind(this);
 		var useSkillHandler   = this.useSkill.bind(this);
+		var calculateSelectedCardEffectsHandler = this.calculateSelectedCardEffects.bind(this);
 
-		this._events = [[id, 'move', playerMoveHandler], [id, 'useSkill', useSkillHandler]];
+		this._events = [[id, 'move', playerMoveHandler], 
+						[id, 'useSkill', useSkillHandler],
+						[id, 'calculateSelectedCardEffects', calculateSelectedCardEffectsHandler]];
 		e.subscribeEnMasse(this._events);
 	},
 
@@ -63,9 +66,20 @@ extend(Player, {
 		return this._skills;
 	},
 
+	getSkill: function(id)
+	{
+		var skill;
+		this._skills.forEach((currSkill) =>
+		{
+			if (currSkill.id === id) { skill = currSkill; }
+		});
+		return skill;
+	},
+
 	// calculate skill effects based on selected cards, then use skill and draw new hand
 	useSkill: function(skill)
 	{
+		if (typeof skill === 'string') { skill = this.getSkill(skill); }
 		var selectedCards   = [];
 		var unselectedCards = [];
 		var choices = [];
@@ -76,8 +90,7 @@ extend(Player, {
 		var effects;
 
 		// get selected and unselected cards and calculate effects 
-		this._emitter.Event('getSelection').publish('hand', selectedCards, unselectedCards);
-		effects = this.calculateCardEffects(selectedCards);
+		effects = this.calculateSelectedCardEffects();
 
 		// create a promise for each skill effect that requires targeting
 		// var skillPromises = skill.effects.map(function(effect, index) {
@@ -97,7 +110,7 @@ extend(Player, {
 		{
 
 			var targets;
-			return previous.then((result) => this._promiseGetTargetChoice(targeting, position, index));
+			return previous.then((result) => this._promiseGetTargetChoice(skill, position, effects, index));
 				// .then(function(previousTargets) {
 				// 	return previousTargets.slice();
 				// });
@@ -108,8 +121,8 @@ extend(Player, {
 
 
 		// calculate effects of unselected cards and draw new hand
-		this.handleUnselectedCards(unselectedCards);
-		this.drawNewHand();
+		// this.handleUnselectedCards(unselectedCards);
+		// this.drawNewHand();
 	},
 
 	_promiseUseSkill: function(effect, index) 
@@ -123,18 +136,22 @@ extend(Player, {
 		}.bind(this));
 	},
 
-	_promiseGetTargetChoice: function(targetingObject, position, index) 
+	_promiseGetTargetChoice: function(skill, position, effects, index) 
 	{
-		var filter  = targetingObject.targetFilter;
-		var choices = targetingObject.targetChoices(position);
+		// var filter  = targetingObject.targetFilter;
+		// var choices = targetingObject.targetChoices(position, effects);
 		var e = this._emitter;
 		var gui = this._gui;
 		return new rsvp.Promise(function(resolve, reject) 
 		{
 			var Targeting = require('../ui-elements').Targeting;
 			var targetingUI = {
-				choices: choices,
-				filter: filter,
+				skill: skill.id,
+				effects: effects,
+				targetingObject: skill.targeting[index],
+				source: position,
+				// choices: choices,
+				// filter: filter,
 				callback: resolve 
 			};
 			e.Event(gui, 'addElement').publish(Targeting, targetingUI, 'mapterminal');
@@ -154,21 +171,20 @@ extend(Player, {
 		}
 	},
 
+	// calculate and return effects of selected cards in hand.
+	calculateSelectedCardEffects: function(returnObject)
+	{
+		returnObject = returnObject || {};
+
+		var selectedCards = [];
+		this._cards.getSelection('hand', selectedCards);
+		returnObject.data = this._cards.calculateCardEffects(selectedCards)
+		return returnObject.data;
+	},
+
 	_getSkillTargets: function()
 	{
 
-	},
-
-	calculateCardEffects: function(cards)
-	{
-		var effects = {
-			power: 0
-		};
-		cards.forEach(function(card) {
-			effects.power += card.power;
-		});
-
-		return effects;
 	},
 
 	handleUnselectedCards: function(cards)

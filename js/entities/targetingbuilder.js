@@ -23,6 +23,7 @@ var TargetingBuilder = function() {
 	this._targetFunctions = [];
 	this._offset = { x: 0, y: 0 };
 	this.targetFilter  = function(tile) { return this._map.isTraversable(tile[0], tile[1]); };
+	this.coefficients = [0, 0];
 }
 
 TargetingBuilder.prototype = {
@@ -73,15 +74,22 @@ TargetingBuilder.prototype = {
 	_inLine: function(length) {
 		var filter = this._isNotOrigin;
 
-		return function(source, offset, directions) {
+		return function(source, offset, directions, coefficients, modifierEffects) {
 			directions = directions || ALLDIRS;
 
 			var tiles = [];
 			var x1 = source.x + offset.x;
 			var y1 = source.y + offset.y;
 			var origin = [x1, y1];
+			var modifiedLength = length;
+
+			if (coefficients[0] !== 0)
+			{
+				modifiedLength += Math.floor(modifierEffects.power / coefficients[0]);
+			}
+
 			directions.split("").forEach(function(dir, index) {
-				var end = calc.getEndPoint(x1, y1, length, dir);
+				var end = calc.getEndPoint(x1, y1, modifiedLength, dir);
 				tiles.push(calc.getLine(x1, y1, end[0], end[1]).filter(filter(origin)));
 			});
 			return tiles;
@@ -98,6 +106,21 @@ TargetingBuilder.prototype = {
 		this._directions = ALLDIRS;
 		return this;
 	},
+
+	/* EFFECT MODIFIER FUNCTIONS */
+
+	// sets power coefficient for current effect
+	withPowerCoefficient: function(coefficient) {
+		this.coefficients[0] = coefficient;
+		return this;
+	},
+
+	// sets cdr coefficient for current effect
+	withCDRCoefficient: function(coefficient) {
+		this.coefficients[1] = coefficient;
+		return this;
+	},
+
 
 	/* OTHER FUNCTIONS */
 
@@ -121,14 +144,15 @@ TargetingBuilder.prototype = {
 	/* public functions */
 
 	// calculates and returns all targeting choices for this targeting object
-	targetChoices: function(source) {
+	targetChoices: function(source, modifierEffects) {
 
 		var choices = [];
 		var offset = this._offset;
 		var directions = this._directions;
+		var coefficients = this.coefficients;
 
 		this._targetFunctions.forEach(function(fn) {
-			var theseChoices = fn(source, offset, directions);
+			var theseChoices = fn(source, offset, directions, coefficients, modifierEffects);
 			theseChoices.forEach(function(value, index) {
 				if (choices[index]) { choices[index].push(value); }
 				else { choices[index] = value; }

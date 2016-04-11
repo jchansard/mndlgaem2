@@ -941,6 +941,21 @@ module.exports = {
 			assert.equals(actual, expected);
 		},
 
+		"useSkill converts a string id to a skill before using": function() {
+			var actual, expected;
+			var skillID = 'test-skill';
+			t.f._skills = [ { id: 'test-skill', targeting: [] }, { id: 'other-test'} ];
+			var useSpy = sinon.spy(t.f, 'getSkill');
+			var calculateStub = sinon.stub(t.f, 'calculateSelectedCardEffects');
+
+			t.f.useSkill('test-skill');
+			t.f.getSkill.restore();
+			t.f.calculateSelectedCardEffects.restore();
+
+			actual = useSpy.calledWith('test-skill');
+			assert.isTrue(actual);
+		},
+
 		teardown: function()
 		{
 			delete t.f;
@@ -1234,10 +1249,10 @@ module.exports = {
 
 		"getSelection should return all selected and unselected cards of the specified deck via the passed arrays": function() {
 			var actual, expected;
-			var selectedCard1 = { selected: true, select: sinon.stub() };
-			var selectedCard2 = { selected: true, select: sinon.stub() };
-			var unselectedCard1 = { selected: false, select: sinon.stub() };
-			var unselectedCard2 = { selected: false, select: sinon.stub() };
+			var selectedCard1 = { selected: true, select: sinon.stub(), info: sinon.stub().returns('selected-1') };
+			var selectedCard2 = { selected: true, select: sinon.stub(), info: sinon.stub().returns('selected-2') };
+			var unselectedCard1 = { selected: false, select: sinon.stub(), info: sinon.stub().returns('unselected-1') };
+			var unselectedCard2 = { selected: false, select: sinon.stub(), info: sinon.stub().returns('unselected-2') };
 			var selectedCards = [];
 			var unselectedCards = [];
 
@@ -1246,12 +1261,37 @@ module.exports = {
 			t.f.getSelection(selectedCards, unselectedCards);
 
 			actual   = selectedCards;
-			expected = [selectedCard1, selectedCard2];
+			expected = ['selected-1', 'selected-2'];
 			assert.equals(actual, expected);
 
 
 			actual   = unselectedCards;
-			expected = [unselectedCard1, unselectedCard2];
+			expected = ['unselected-1', 'unselected-2'];
+			assert.equals(actual, expected);
+		},
+
+		teardown: function() {
+			delete t.f;
+		}
+	},
+
+	"Card.js tests": {
+		setup: function() {
+			var Card = require(dir + 'player/card');
+			t.f = new Card();
+		},
+
+		"info returns all the info non card-related objects would care about": function() {
+			var actual, expected;
+			t.f.power = 'test pow';
+			t.f.cdr = 'test cdr';
+
+			actual = t.f.info();
+			expected = {
+				power: 'test pow',
+				cdr: 'test cdr',
+			};
+
 			assert.equals(actual, expected);
 		},
 
@@ -1530,7 +1570,7 @@ module.exports = {
 			t.f = TargetingBuilder.targets();
 		},
 
-		"_inLine returns tiles targetable by a line-targeting skill": function() {
+		"_inLine returns tiles targetable by a line-targeting skill, taking power into account": function() {
 			var actual, expected;
 
 			var fn = t.f._inLine(2);
@@ -1538,17 +1578,31 @@ module.exports = {
 			var source = { x: 0, y: 0 };
 			var offset = { x: 0, y: 0 };
 			var dirs = 'urdl';
+			var coeffs = [0, 0];
+			var modifiers = { power: 0 };
 
-			var actual   = fn(source, offset, dirs);
-			var expected = [[[0, 1],[0, 2]], [[1, 0],[2, 0]], [[0, -1],[0, -2]], [[-1, 0],[-2, 0]]];
+			actual   = fn(source, offset, dirs, coeffs, modifiers);
+			expected = [[[0, 1],[0, 2]], [[1, 0],[2, 0]], [[0, -1],[0, -2]], [[-1, 0],[-2, 0]]];
 			assert.equals(actual, expected);
 
-			var source = { x: -5, y: 5 };
-			var offset = { x: 2, y: -1 };
-			var dirs = 'ul';
+			source = { x: -5, y: 5 };
+			offset = { x: 2, y: -1 };
+			dirs = 'ul';
 
-			var actual   = fn(source, offset, dirs);
-			var expected = [[[-3, 5],[-3, 6]], [[-4, 4],[-5, 4]]];
+			actual   = fn(source, offset, dirs, coeffs, modifiers);
+			expected = [[[-3, 5],[-3, 6]], [[-4, 4],[-5, 4]]];
+			assert.equals(actual, expected);
+
+			// should be same as above, but using coefficient + power
+			fn = t.f._inLine(1);
+			source = { x: -5, y: 5 };
+			offset = { x: 2, y: -1 };
+			dirs = 'ul';
+			coeffs = [1, 0];
+			modifiers = { power: 1 };
+
+			actual   = fn(source, offset, dirs, coeffs, modifiers);
+			expected = [[[-3, 5],[-3, 6]], [[-4, 4],[-5, 4]]];
 			assert.equals(actual, expected);
 		},
 

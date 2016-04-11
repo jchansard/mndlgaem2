@@ -28,7 +28,7 @@ util.inherits(MenuPrompt, UIElement);
 extend(MenuPrompt, {
 
 	// overrides prototype
-	build: function(drawArea) {
+	build: function(drawArea, id) {
 		UIElement.prototype.build.apply(this, arguments);
 		this._calculateSize(); 
 	},

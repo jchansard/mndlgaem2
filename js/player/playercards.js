@@ -37,9 +37,13 @@ extend(PlayerCards, {
 		var discardHandHandler = this.discardHand.bind(this);
 		var drawNewHandHandler = this.drawNewHand.bind(this);
 		var getSelectionHandler = this.getSelection.bind(this);
+		var calculateCardEffectsHandler = this.calculateCardEffects.bind(this);
 		var g = 'global';
 
-		this._events = [[g, 'drawCards', drawCardsHandler], [g, 'discardHand', discardHandHandler], [g, 'drawNewHand', drawNewHandHandler], [g, 'getSelection', getSelectionHandler]];
+		this._events = [[g, 'drawCards', drawCardsHandler], 
+						[g, 'discardHand', discardHandHandler], 
+						[g, 'drawNewHand', drawNewHandHandler], 
+						[g, 'getSelection', getSelectionHandler]];
 
 		e.subscribeEnMasse(this._events);
 	},
@@ -104,6 +108,18 @@ extend(PlayerCards, {
 	{
 		var deck = this.get(id);
 		deck.getSelection(selected, unselected);
+	},
+
+	// calculate and return effect of cards
+	calculateCardEffects: function(cards)
+	{
+		var effects = {
+			power: 0
+		};
+		cards.forEach(function(card) {
+			effects.power += card.power;
+		});
+		return effects;
 	},
 
 	_drawCard: function(cardToDrawIndex, deckToDrawFrom, deckToDrawTo) 

@@ -27,7 +27,7 @@ util.inherits(DeckTerminal, UIElement);
 
 extend(DeckTerminal, {
 
-	build: function(drawArea) 
+	build: function(drawArea, id) 
 	{
 		UIElement.prototype.build.apply(this, arguments)
 		var numCards = this._numCards;

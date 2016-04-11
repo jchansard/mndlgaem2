@@ -33,6 +33,8 @@ UIElement.prototype = {
 		this._initSize(drawArea)
 		this.drawArea = drawArea.id;
 		this.id = id;
+
+		if (this._initListeners) { this._initListeners(); }
 	},
 
 	// initialize style to default settings if overrides weren't passed
@@ -67,6 +69,7 @@ UIElement.prototype = {
 
 	// function called when ui element is closed/removed; override for different element types
 	close: function() {
+		if (this._events) {	this._emitter.unsubscribeEnMasse(this._events);	}
 		this._emitter.Event(this._gui,'closeElement').publish(this.id);
 		return;
 	},

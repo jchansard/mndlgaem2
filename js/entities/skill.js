@@ -11,6 +11,7 @@
 var Skill = function(template) {
  	template  = template || {};
 	this.name = template.name;
+	this.id   = template.id;
 
 	// get info from skillbuilder template
 	var skillInfo = template.onUse || {};

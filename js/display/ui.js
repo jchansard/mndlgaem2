@@ -47,7 +47,7 @@ var UserInterface = function(properties, container, gameShell, eventEmitter) {
 	this._width 	    = properties.width   	|| 60;
 	this._bg 		    = properties.bg 	  	|| 'black';
 	this._fontSize 	    = properties.fontSize 	|| 16;
-	this._fontFamily    = properties.fontFamily || 'inconsolata';
+	this._fontFamily    = properties.fontFamily || 'square';
 	this.id             = properties.id;
 	this._screen 	    = undefined;
 	this._drawAreas     = {};
@@ -99,8 +99,11 @@ UserInterface.prototype = {
 		var eventToPosition = this.eventToPosition.bind(this);
 		var addElement      = this.addElement.bind(this);
 		var closeElement    = this.closeElement.bind(this);
+		var clearDisplay    = this.clearDisplay.bind(this);
 
-		this._events = [[id, 'eventToPosition', eventToPosition], [id, 'addElement', addElement], [id, 'closeElement', closeElement]];
+		this._events = [[id, 'eventToPosition', eventToPosition], 
+						[id, 'addElement', addElement], [id, 'closeElement', closeElement],
+						[id, 'clearDisplay', clearDisplay]];
 
 		e.subscribeEnMasse(this._events);
 	},

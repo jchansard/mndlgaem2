@@ -91,14 +91,16 @@ extend(Deck, {
 		return this._selected.splice(0);
 	},
 
-	// returns all selected and unselected cards via passed arrays, and unselects all selected cards
+	// returns all selected and unselected cards via passed arrays
+	// TODO: this is borked
 	getSelection: function(selected, unselected)
 	{
 		this._cardList.forEach(function(card)
 		{
+			var clone = require('../util/cloneobject');
 			var deckToAddTo = (card.selected) ? selected : unselected;
-			deckToAddTo.push(card);
-			card.select(false);
+			if (deckToAddTo) { deckToAddTo.push(card.info()); }
+			// card.select(false);
 		});
 	},
 

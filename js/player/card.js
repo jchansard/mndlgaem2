@@ -21,6 +21,17 @@ Card.prototype =
 	{
 		this.selected = (override !== undefined) ? override : (this.selected) ? false : true;
 	},
+
+	// returns info about card properties (not card object metadata)
+	info: function()
+	{
+		return {
+			power: this.power,
+			cdr: this.cdr
+		};
+	}
 }
 
 module.exports = Card;
+
+//MAKE AN INFO THING THAT RETURNS ALL USEFUL KEYS
