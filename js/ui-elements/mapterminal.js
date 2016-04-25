@@ -67,9 +67,7 @@ extend(MapTerminal, {
 	// TODO: make this less big
 	lclick: function(e) {
 		var emitter = this._emitter;
-		var clickedCoords = {};
-		emitter.Event(this._gui, 'eventToPosition').publish(e, this.layer, clickedCoords);
-		clickedCoords = clickedCoords.data;
+		var clickedCoords = this._eventToPosition(e);
 		var playerCoords = this._player.position(1);
 		var legCoords = [playerCoords[0], clickedCoords[1]];
 

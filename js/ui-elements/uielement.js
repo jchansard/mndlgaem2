@@ -87,6 +87,13 @@ UIElement.prototype = {
 	// what to do when this element is left clicked; override for different element types
 	lclick: function(e) {
 		return false;
+	},
+
+	// get coords of click
+	_eventToPosition: function(e) {
+		var coords = {};
+		this._emitter.Event(this._gui,'eventToPosition').publish(e, this.layer, coords);
+		return coords.data;
 	}
 }
 

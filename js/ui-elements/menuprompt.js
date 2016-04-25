@@ -161,9 +161,7 @@ extend(MenuPrompt, {
 	{
 		if (!coords)
 		{
-			coords = {};
-			this._emitter.Event(this._gui,'eventToPosition').publish(e, this.layer, coords);
-			coords = coords.data;		
+			coords = this._eventToPosition(e);		
 		}
 
 		var y = coords[1];

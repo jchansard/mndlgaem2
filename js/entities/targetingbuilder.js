@@ -159,7 +159,16 @@ TargetingBuilder.prototype = {
 			});
 		});
 		return choices;
+	},
+
+	getTargetsInTargetingArea: function(tiles, map)
+	{
+		var targets = map.getEntitiesInArea(tiles);
+
+		return targets.slice(0, this._numTargets);
 	}
+
+
 }
 
 var targets = function()

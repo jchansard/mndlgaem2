@@ -52,6 +52,49 @@ GameMap.prototype = {
 	isTraversable: function(x, y)
 	{
 		return !this._tiles[x][y].untraversable;
+	},
+
+	getEntity: function(x, y)
+	{
+		var pos;
+		var target = null;
+		this._entities.forEach((entity) =>
+		{
+			pos = entity.position();
+			if ((pos.x === x) && (pos.y === y)) { target = entity; }
+		});
+
+		return target;
+	},
+
+	getEntitiesInArea: function(area)
+	{
+		var entityIndex = {};
+		var indexIsBuilt = false;
+		var targets = [];
+		var pos;
+
+		area.forEach((tile) =>
+		{
+			// build index if this is first run through
+			if (!indexIsBuilt)
+			{
+				this._entities.forEach((entity) =>
+				{
+					pos = entity.position(1);
+					entityIndex[pos[0] + ',' + pos[1]] = entity;
+					if (pos[0]=== tile[0] && pos[1] == tile[1]) { targets.push(entity); }
+				});	
+				indexIsBuilt = true;
+			}
+			else // index is built
+			{
+				// check entity and add if there's an entry
+				var entity = entityIndex[tile[0] + ',' + tile[1]];
+				if (entity) { targets.push(entity); }
+			}
+		});
+		return targets;
 	}
 }
 

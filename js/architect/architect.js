@@ -10,7 +10,7 @@
 
 const GameMap = require('./map');
 const levels  = require('./levels');
-const create2DArray = require('../util/create2Darray');
+const create2DArray = require('../util/create2darray');
 
 var Architect = function(properties, eventEmitter, player) {
 	properties 			= properties || {};

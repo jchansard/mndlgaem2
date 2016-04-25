@@ -8,7 +8,7 @@
  * https://github.com/jchansard/mndlgaem2
  */
 
-const Tile = require('./Tile')
+const Tile = require('./tile')
 const ROT  = require('rot-js');
 
 module.exports = {

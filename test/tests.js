@@ -3,6 +3,7 @@ const assert = require('./mndltest').assert;
 const $      = require('jquery');
 var dir = '../js/'; // directory to scripts being tested
 var t   = {}; 		// test object
+var f = require(dir + 'architect/map');
 
 module.exports = {
 	"Game.js tests": {
@@ -1060,6 +1061,38 @@ module.exports = {
 
 			actual = setMapStub.calledOnce && setMapStub.alwaysCalledWith(t.f);
 			assert.isTrue(actual);
+		},
+
+		"getEntity should return the entity at a tile, or null if none is there": function() {
+			var actual, expected;
+			var entity = { position: sinon.stub().returns({ x: 2, y: 4}) }
+			t.f._entities = [entity];
+
+			actual   = t.f.getEntity(2, 4);
+			expected = entity;
+			assert.equals(actual, expected);
+
+			actual   = t.f.getEntity(1, 5);
+			expected = null;
+			assert.equals(actual, expected);
+		},
+
+		"getEntitiesInArea should return all the entities in the passed tiles, or an empty area if none are there": function() {
+			var actual, expected;
+			var entity1 = { position: sinon.stub().returns([1,1]) };
+			var entity2 = { position: sinon.stub().returns([1,2]) };
+			var entity3 = { position: sinon.stub().returns([2,2]) };
+			t.f._entities = [entity1, entity2, entity3];
+			var area = [[1,1], [1,2], [3,1]];
+			var emptyArea = [[5,6], [7,8]];
+
+			actual   = t.f.getEntitiesInArea(area);
+			expected = [entity1, entity2];
+			assert.equals(actual, expected);
+
+			actual   = t.f.getEntitiesInArea(emptyArea);
+			expected = [];
+			assert.equals(actual, expected);
 		},
 
 		"draw should call the passed callback once for each tile in the map": function() {
