@@ -32,7 +32,7 @@ SkillBuilder.prototype = {
 		return function(coefficients, modifierEffects, target)
 		{
 			var total = base + coefficients[0] * modifierEffects.power;
-			console.log(target + ' takes ' + total);			
+			console.log(target.name + ' takes ' + total);			
 		}	
 	},
 

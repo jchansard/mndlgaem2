@@ -27,6 +27,15 @@ Architect.prototype = {
 		this._levelMap.push(this._generateNewLevel())
 		this._currentLevel = 0;
 		this.currentMap().addEntity(this._player);
+
+		// TODO: debugging; temporary! 
+		var Entity = require('../entities/entity');
+		this.currentMap().addEntity(new Entity({
+			glyph: ['#', 'green'],
+			x: 4,
+			y: 4,
+			name: 'fred'
+		}))
 		this._initListeners();
 	},
 

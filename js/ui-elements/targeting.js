@@ -29,8 +29,7 @@ var Targeting = function(properties, gui, eventEmitter)
 
 	// info for calculating target
 	this._choices         = undefined;
-	this._targetEntities  = [];
-	this._map = undefined;
+	this._map 			  = undefined;
 }
 
 util.inherits(Targeting, UIElement);
@@ -71,6 +70,24 @@ extend(Targeting, {
 		this._emitter.Event('player','useSkill').publish(this._skill);
 	},
 
+	_getChoiceFromCoords: function(coords)
+	{
+		var foundChoice;
+		var found = this._choices.some((choice, index) =>
+		{
+			foundChoice = choice.some( (tile) => ((coords[0] === tile[0]) && (coords[1] === tile[1])) );
+			if (foundChoice)
+			{
+				foundChoice = index;
+				return true;
+			} 
+			else return false;
+		})
+
+		if (found) return foundChoice;
+		else return -1;
+	},
+
 	// draw the specified tiles
 	render: function(drawCallback) 
 	{
@@ -105,10 +122,13 @@ extend(Targeting, {
 	lclick: function(e) 
 	{
 		var coords = this._eventToPosition(e);
-		// GET CHOICE -- FN
-		this._targetEntities = this._targetingObject.getTargetsInTargetingArea()
+		var choice = this._getChoiceFromCoords(coords);
+		if (choice > -1)
+		{
+			var targets = this._targetingObject.getTargetsInTargetingArea(this._choices[choice], this._map);		
+			this._callback(targets);
+		}
 		e.stopPropagating = true;
-		this._callback(this._targetEntities);
 		this.close();
 	},
 });

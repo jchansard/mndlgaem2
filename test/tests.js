@@ -3,7 +3,7 @@ const assert = require('./mndltest').assert;
 const $      = require('jquery');
 var dir = '../js/'; // directory to scripts being tested
 var t   = {}; 		// test object
-var f = require(dir + 'architect/map');
+var f = require(dir + 'ui-elements/targeting');
 
 module.exports = {
 	"Game.js tests": {
@@ -1636,6 +1636,35 @@ module.exports = {
 
 			actual   = fn(source, offset, dirs, coeffs, modifiers);
 			expected = [[[-3, 5],[-3, 6]], [[-4, 4],[-5, 4]]];
+			assert.equals(actual, expected);
+		},
+
+		teardown: function() {
+			delete t.f;
+		}
+	},
+
+	"Targeting.js tests": {
+		setup: function() { 
+			var Targeting = require(dir + 'ui-elements/targeting');
+			t.f = new Targeting();
+		},
+
+		"_getChoiceFromCoords returns the _choice index with the passed coordinates, or -1 if none exist": function() {
+			var actual, expected;
+			var choices = [ [[0,0],[0,1],[0,2]], [[5,5],[5,6]], [[8,9]] ];
+			t.f._choices = choices;
+
+			actual   = t.f._getChoiceFromCoords([5,5]);
+			expected = 1;
+			assert.equals(actual, expected);
+
+			actual   = t.f._getChoiceFromCoords([0,2]);
+			expected = 0;
+			assert.equals(actual, expected);
+
+			actual   = t.f._getChoiceFromCoords([-5,-6]);
+			expected = -1;
 			assert.equals(actual, expected);
 		},
 
